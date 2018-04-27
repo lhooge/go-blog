@@ -1,0 +1,38 @@
+{{define "front/header"}}
+<!DOCTYPE html>
+
+<html>
+    <head>
+		<meta charset="UTF-8">
+		<title>{{PageTitle}} {{if .actual}} | {{.actual}} {{end}}{{if $.site}}{{if $.site.Link}} | {{$.site.Link}}{{end}}{{end}}</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1.0">
+		<link rel="stylesheet" href="/assets/css/master.css">
+		<link rel="icon" href="/assets/favicon.ico" type="image/vnd.microsoft.icon">
+    </head>
+
+<body>
+	<header>
+		<h1 class="header-text">{{PageTitle}} {{if .SubTitle}} | {{.SubTitle}}{{end}}</h1>
+		
+		<nav>
+			<ul>
+				<li>
+					<a class="{{if eq .active "articles"}} active{{end}}" href="/">Articles</a>
+				</li>
+
+				<li>
+					<a class="{{if eq .active "index"}} active{{end}}" href="/index">Index</a>
+				</li>
+
+				{{$sites := GetSites}}
+				{{range $key, $value := $sites}}
+				<li>
+					<a class="{{if $.site}}{{if eq $.site.Link .Link}} active{{end}}{{end}}" href="{{.LinkEscape}}">
+					{{.Title}}
+					</a>
+				</li>
+				{{end}}
+			</ul>
+		</nav>
+	</header>
+{{end}}

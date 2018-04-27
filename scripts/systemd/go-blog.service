@@ -1,0 +1,12 @@
+[Unit]
+Description=golang blogserver
+After=mysqld.service
+
+[Service]
+User=blog
+Group=blog
+WorkingDirectory=/opt/blogserver
+ExecStart=/bin/bash -c '/opt/blogserver/blogserver'
+
+[Install]
+WantedBy=multi-user.target

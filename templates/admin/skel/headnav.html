@@ -1,0 +1,16 @@
+{{define "admin/navheader"}}
+<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+	<div class="container-fluid">
+		<div class="navbar-header">
+			<a class="navbar-brand" href="/admin/articles">{{PageTitle}}</a>
+		</div>
+
+		<div id="navbar" class="navbar-collapse collapse">
+			<ul class="nav navbar-nav navbar-right lw-navbar-right">
+				<li {{if .active}}{{if eq "profile" .active}}class="active"{{end}}{{end}}><a href="/admin/user/profile">Profil</a></li>
+				<li><a href="/admin/logout">Logout</a></li>
+			</ul>
+		</div>
+	</div>
+</nav>
+{{end}}

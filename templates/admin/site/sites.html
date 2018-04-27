@@ -1,0 +1,86 @@
+{{define "admin/sites"}}
+{{template "admin/head" .}}
+
+<div class="container-fluid">
+	<div class="row">
+		<div class="col-sm-3 col-lg-2 sidebar">
+			{{template "admin/navigation" .}}
+		</div>
+
+	<div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+		<h1 class="page-header">Site management</h1>
+
+		{{template "admin/flash" .}}
+
+		<p>
+			<a href="/admin/site/new" class="btn btn-default btn-md">
+				<span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span> Add a site
+			</a>
+		</p>
+
+		<table class="table">
+			<thead>
+				<tr>
+					<th></th>
+					<th>Published on</th>
+					<th>Title</th>
+					<th>Link</th>
+					<th>Author</th>
+					<th>Last modified</th>
+					<th>Actions</th>
+				</tr>
+			</thead>
+			{{range .sites}}
+				<tbody>
+					<tr>
+						<td>{{.Published | BoolToIcon}}</td>
+						<td>{{.PublishedOn | FormatNilDate}}</td>
+						<td>{{.Title}}</td>
+						<td>{{.Link}}</td>
+						<td>{{.Author.Username}}</td>
+						<td>{{.LastModified | FormatDateTime}}</td>
+						<td>
+							<a href="/admin/site/order/{{.ID}}?direction=up" title="Up">
+								<span class="glyphicon glyphicon-arrow-up" aria-hidden="true"></span>
+							</a>
+
+							<a href="/admin/site/order/{{.ID}}?direction=down" title="Down">
+								<span class="glyphicon glyphicon-arrow-down" aria-hidden="true"></span>
+							</a>
+
+							{{if not .Published}}
+							<a href="/admin/site/publish/{{.ID}}" title="Publish">
+								<span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span>
+							</a>
+							{{else}}
+							<a href="{{.LinkEscape}}" title="Show">
+								<span class="glyphicon glyphicon-new-window" aria-hidden="true"></span>
+							</a>
+
+							<a href="/admin/site/publish/{{.ID}}" title="Depublish">
+								<span class="glyphicon glyphicon-eye-close" aria-hidden="true"></span>
+							</a>
+
+							{{end}}
+
+							<a href="/admin/site/edit/{{.ID}}" title="Edit">
+								<span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
+							</a>
+
+							<a href="/admin/site/delete/{{.ID}}" title="Remove">
+								<span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+							</a>
+						</td>
+					</tr>
+				</tbody>
+			{{end}}
+		</table>
+
+		{{template "admin/pagination" .}}
+
+		</div>
+	</div>
+</div>
+
+{{template "admin/footer"}}
+{{end}}

@@ -1,0 +1,50 @@
+{{define "admin/user_new"}}
+{{template "admin/head" .}}
+<div class="container-fluid">
+	<div class="row">
+		<div class="col-sm-3 col-lg-2 sidebar">
+		{{template "admin/navigation" .}}
+		</div>
+
+		<div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+			<h1 class="page-header">Add user</h1>
+			{{template "admin/flash" .}}
+
+			<form action="/admin/user/new" method="post">
+				<div class="form-group">
+					<label for="username">Username</label>
+					<input type="username" class="form-control" name="username" {{if .user}}value="{{.user.Username}}"{{end}} value="{{.Username}}" id="username" placeholder="Username..." required>
+				</div>
+
+				<div class="form-group">
+					<label for="email">E-mail</label>
+					<input type="email" class="form-control" id="email" name="email" {{if .user}}value="{{.user.Email}}"{{end}} placeholder="e-Mail..." required>
+				</div>
+
+				<div class="form-group">
+					<label for="displayname">Display name</label>
+					<input type="text" class="form-control" id="displayname" name="displayname" {{if .user}}value="{{.user.DisplayName}}"{{end}} placeholder="Display name..." required>
+				</div>
+
+				<div class="form-group">
+					<label for="password">Password</label>
+					<input type="password" class="form-control" id="password" name="password" placeholder="Password...">
+				</div>
+
+				<div class="checkbox">
+					<label><input type="checkbox" id="admin" name="admin" value="on"{{if .IsAdmin}} checked{{end}}>Admin?</label>
+				</div>
+
+				<div class="checkbox">
+					<label><input type="checkbox" id="active" name="active" value="on"{{if .Active}} checked{{end}}>Is activated?</label>
+				</div>
+
+				{{ .csrfField }}
+
+				<button name="action" value="add" class="btn btn-primary" style="float:right">Speichern</button>
+			</form>
+		</div>
+	</div>
+</div>
+{{template "admin/footer"}}
+{{end}}

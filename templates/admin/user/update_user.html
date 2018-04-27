@@ -1,0 +1,53 @@
+{{define "admin/user_edit"}}
+{{template "admin/head" .}}
+<div class="container-fluid">
+	<div class="row">
+		<div class="col-sm-3 col-lg-2 sidebar">
+			{{template "admin/navigation" .}}
+		</div>
+
+		<div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+
+			<h1 class="page-header">Edit user</h1>
+			{{template "admin/flash" .}}
+
+		{{with .user}}
+			<form action="/admin/user/edit/{{.ID}}" method="post">
+				<div class="form-group">
+					<label for="username">Username</label>
+					<input type="username" class="form-control" name="username"  value="{{.Username}}" id="username" placeholder="Username...">
+				</div>
+
+				<div class="form-group">
+					<label for="email">E-mail</label>
+					<input type="email" class="form-control" name="email"  value="{{.Email}}" id="email" placeholder="E-Mail...">
+				</div>
+
+				<div class="form-group">
+					<label for="displayname">Display name</label>
+					<input type="text" class="form-control" value="{{.DisplayName}}" id="displayname" name="displayname" placeholder="Display name...">
+				</div>
+
+				<div class="form-group">
+					<label for="password">New password</label>
+					<input type="password" class="form-control" id="password" name="password" placeholder="Password...">
+				</div>
+
+				<div class="checkbox">
+					<label><input type="checkbox" id="admin" name="admin" value="on"{{if .IsAdmin}} checked{{end}}>Admin?</label>
+				</div>
+
+				<div class="checkbox">
+					<label><input type="checkbox" id="active" name="active" value="on"{{if .Active}} checked{{end}}>Is activated?</label>
+				</div>
+
+				{{ $.csrfField }}
+
+				<button name="action" value="update" class="btn btn-primary" style="float:right">Speichern</button>
+			</form>
+		{{end}}
+		</div>
+	</div>
+</div>
+{{template "admin/footer"}}
+{{end}}

@@ -1,0 +1,26 @@
+{{define "front/articles"}}
+{{template "front/header" .}}
+<main>
+	{{template "front/flash" .}}
+
+	{{if not .ErrorMsg}}
+		{{if not .articles}}
+			<div style="margin-top: 10px" class="alert alert-info" role="info">No articles here yet.</div>
+		{{end}}
+	{{end}}
+
+	{{range .articles}}
+	<article>
+		<h2 class="article_link"><a href="/article/{{.SlugEscape}}">{{.Headline}}</a></h2>
+		<p class="article_info">written by {{.Author.DisplayName}} on {{.PublishedOn.Time | FormatDate}}</p>
+		
+		{{.Content | ParseMarkdown}}
+	</article>
+
+	<hr>
+	{{end}}
+
+	{{PaginationBar .pagination}}
+</main>
+{{template "front/footer"}}
+{{end}}

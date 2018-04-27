@@ -1,0 +1,13 @@
+{{define "front/site"}}
+
+{{template "front/header" .}}
+
+<main>
+	{{template "front/flash" .}}
+	{{with .site}}
+	<h2>{{.Title}}</h2>
+			
+	<p>{{.Content | ParseMarkdown}}</p>
+	{{end}}
+</main>
+{{end}}
