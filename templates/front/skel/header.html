@@ -12,27 +12,27 @@
 
 <body>
 	<header>
-		<h1 class="header-text">{{PageTitle}} {{if .SubTitle}} | {{.SubTitle}}{{end}}</h1>
-		
-		<nav>
-			<ul>
-				<li>
-					<a class="{{if eq .active "articles"}} active{{end}}" href="/">Articles</a>
-				</li>
-
-				<li>
-					<a class="{{if eq .active "index"}} active{{end}}" href="/index">Index</a>
-				</li>
-
-				{{$sites := GetSites}}
-				{{range $key, $value := $sites}}
-				<li>
-					<a class="{{if $.site}}{{if eq $.site.Link .Link}} active{{end}}{{end}}" href="{{.LinkEscape}}">
-					{{.Title}}
-					</a>
-				</li>
-				{{end}}
-			</ul>
-		</nav>
+		<h1 class="header-text">{{PageTitle}} {{if SubTitle}} | {{SubTitle}}{{end}}</h1>
 	</header>
+
+	<nav>
+	    <ul>
+		<li>
+			<a{{if eq .active "articles"}} class="active"{{end}} href="/">Articles</a>
+		</li>
+
+		<li>
+			<a{{if eq .active "index"}} class="active"{{end}} href="/index">Index</a>
+		</li>
+
+		{{$sites := GetSites}}
+		{{range $key, $value := $sites}}
+		<li>
+			<a{{if $.site}}{{if eq $.site.Link .Link}} class="active"{{end}}{{end}} href="{{.LinkEscape}}">
+			{{.Title}}
+			</a>
+		</li>
+		{{end}}
+	    </ul>
+	</nav>
 {{end}}

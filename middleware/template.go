@@ -60,7 +60,7 @@ func FuncMap(ss models.SiteService, cfg *settings.Settings) template.FuncMap {
 		"PageTitle": func() string {
 			return cfg.Title
 		},
-		"Subtitle": func() string {
+		"SubTitle": func() string {
 			return cfg.Subtitle
 		},
 		"AppVersion": func() string {
