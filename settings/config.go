@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"git.hoogi.eu/cfg"
+	"git.hoogi.eu/go-blog/components/logger"
 	"git.hoogi.eu/go-blog/utils"
 )
 
@@ -31,7 +32,6 @@ func (lm *LoginMethod) Unmarshal(value string) error {
 		*lm = LoginMethod(Username)
 		return nil
 	}
-
 	return fmt.Errorf("unexpected config value for login method %s", value)
 }
 
@@ -51,7 +51,7 @@ func (de *DatabaseEngine) Unmarshal(value string) error {
 		return nil
 	}
 
-	return fmt.Errorf("unexpected config value for login method %s", value)
+	return fmt.Errorf("unexpected config value for database engine %s", value)
 }
 
 type Settings struct {
@@ -150,15 +150,22 @@ func MergeConfigs(configs []cfg.File) (*Settings, error) {
 	}
 
 	settings := new(Settings)
-	err := c.MergeConfigsInto(settings)
+	def, err := c.MergeConfigsInto(settings)
+
+	for k, d := range def {
+		logger.Log.Warnf("no config value for %s key found in any config - assuming default value %v", k, d.Value)
+	}
 
 	return settings, err
 }
 
-func LoadConfig(config string) (*Settings, error) {
+func LoadConfig(filename string) (*Settings, error) {
 	settings := new(Settings)
+	def, err := cfg.LoadConfigInto(filename, settings)
 
-	err := cfg.LoadConfig(config, settings)
+	for k, d := range def {
+		logger.Log.Warnf("no config value for %s key found in any config - assuming default value %v", k, d.Value)
+	}
 
 	return settings, err
 }
