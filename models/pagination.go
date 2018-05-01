@@ -77,30 +77,26 @@ func (p Pagination) previousPage() int {
 func (p Pagination) PaginationBar() template.HTML {
 	var buffer bytes.Buffer
 
-	buffer.WriteString(`<div class="dg dg--grid13 text--align">`)
+	buffer.WriteString(`<div id="pagination">`)
 
 	if !p.hasPrevious() {
-		buffer.WriteString(`<a class="btn bodytext btn--inactive" href="#">&laquo; Backward</a>`)
+		buffer.WriteString(`<a class="btn btn-inactive" href="#">&laquo; Backward</a>`)
 	} else {
-		buffer.WriteString(fmt.Sprintf(`<a class="btn bodytext btn--active" href="%s/%d">&laquo; Backward</a>`, p.url(), p.previousPage()))
+		buffer.WriteString(fmt.Sprintf(`<a class="btn btn-active" href="%s/%d">&laquo; Backward</a>`, p.url(), p.previousPage()))
 	}
-
-	buffer.WriteString(`<div class="amount--sites justify--self">`)
 
 	for i := 1; i <= p.pages(); i++ {
 		if p.CurrentPage == i {
-			buffer.WriteString(fmt.Sprintf(`<a class="bodytext link--inText fontColor--black font--actual" href="#">%d</a></li>`, i))
+			buffer.WriteString(fmt.Sprintf(`<a class="btn btn-inactive" href="#">%d</a></li>`, i))
 		} else {
-			buffer.WriteString(fmt.Sprintf(`<a class="bodytext link--inText fontColor--black" href="%s/%d">%d</a></li>`, p.url(), i, i))
+			buffer.WriteString(fmt.Sprintf(`<a class="btn btn-active" href="%s/%d">%d</a></li>`, p.url(), i, i))
 		}
 	}
 
-	buffer.WriteString(`</div>`)
-
 	if !p.hasNext() {
-		buffer.WriteString(`<a class="btn bodytext btn--inactive" href="#">Forward &raquo;</a>`)
+		buffer.WriteString(`<a class="btn btn-inactive" href="#">Forward &raquo;</a>`)
 	} else {
-		buffer.WriteString(fmt.Sprintf(`<a class="btn bodytext btn--active" href="%s/%d">Forward &raquo;</a>`, p.url(), p.nextPage()))
+		buffer.WriteString(fmt.Sprintf(`<a class="btn btn-active" href="%s/%d">Forward &raquo;</a>`, p.url(), p.nextPage()))
 	}
 
 	buffer.WriteString(`</div>`)

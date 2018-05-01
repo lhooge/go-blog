@@ -184,26 +184,36 @@ nav a.active {
 	border-right-width: 0.3125rem;
 }
 
+/* Pagination */
+#pagination {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
 
-.amount-sites {
+#pagination .pages {
 	padding: 1em 0;
 }
 
-.btn-active {
+#pagination .btn {
 	background-color: #285e8e;
 	color: #fffaf0;
-	cursor: pointer;
-	padding: 0.625rem 1rem;
+	margin: 0.4em;
+	padding: 0.625em 1em;
+	margin-top: 1em;
 	border-color: #285e8e;
 	border-radius: 0;
 	border-style: solid;
 	border-width: 0.125rem;
-	-webkit-transition-duration: 250ms;
-	transition-duration: 250ms;
-	-webkit-transition-property: all;
-	transition-property: all;
-	-webkit-transition-timing-function: ease-in-out;
-	transition-timing-function: ease-in-out;
+}
+
+
+#pagination .btn-inactive {
+    background-color: #fffaf0;
+    color: black;
+    pointer-events: none;
+    cursor: default;
+    text-decoration: none;
 }
 
 /* Main content */
