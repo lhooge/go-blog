@@ -120,7 +120,6 @@ func (dbFlags initDatabaseFlags) initSQLite(config string) error {
 		"salt CHAR(32) NOT NULL, " +
 		"is_admin boolean NOT NULL DEFAULT false, " +
 		"active boolean NOT NULL DEFAULT true, " +
-		"last_login datetime, " +
 		"last_modified datetime NOT NULL," +
 		"CONSTRAINT user_email_key UNIQUE (email) " +
 		");"); err != nil {
