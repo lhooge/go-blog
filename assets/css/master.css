@@ -44,6 +44,11 @@ a {
 	text-decoration: none;
 }
 
+p {
+    line-height: 1.5;
+    margin-bottom: 1em;
+}
+
 
 a:hover, 
 a:focus {
@@ -294,6 +299,10 @@ article .article_link {
 article.article_info {
 	font-size: 0.9em;
 	margin-bottom: 2em;
+}
+
+article p {
+        line-height: 1.7;
 }
 
 .alert {
