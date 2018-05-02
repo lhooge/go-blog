@@ -144,7 +144,7 @@ type Log struct {
 const csrfTokenFilename = ".csrftoken"
 
 func MergeConfigs(configs []cfg.File) (*Settings, error) {
-	c := cfg.Config{}
+	c := cfg.ConfigFiles{}
 
 	for _, cp := range configs {
 		c.AddConfig(cp.Path, cp.Name)
