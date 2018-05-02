@@ -82,11 +82,12 @@ Make sure -admin is set.
 
 TODOs
 -----
+ * Add and fix test
  * Support some environmental variables / flags
- * Add tests
  * Comment user interceptor
  * Rework preview of articles and sites / error handling
  * Revisit Makefile
+ * Migrations
 
 Licence
 -------

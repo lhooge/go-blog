@@ -1,0 +1,8 @@
+{{define "front/flash"}}
+{{if .ErrorMsg}}
+	<div style="margin-top: 10px" class="alert alert-danger" role="status">{{.ErrorMsg}}</div>
+{{end}}
+{{if .SuccessMsg}}
+	<div style="margin-top: 10px" class="alert alert-success" role="status">{{.SuccessMsg}}</div>
+{{end}}
+{{end}}

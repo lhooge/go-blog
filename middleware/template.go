@@ -54,6 +54,9 @@ func NotFound(ctx *AppContext, rw http.ResponseWriter, r *http.Request) *Templat
 //FuncMap some functions for use in templates
 func FuncMap(ss models.SiteService, cfg *settings.Settings) template.FuncMap {
 	return template.FuncMap{
+		"Language": func() string {
+			return cfg.Language
+		},
 		"KeepAliveInterval": func() int64 {
 			return (cfg.Session.TTL.Nanoseconds() / 1e9) - 5
 		},

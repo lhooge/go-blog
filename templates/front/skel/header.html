@@ -1,7 +1,7 @@
 {{define "front/header"}}
 <!DOCTYPE html>
 
-<html>
+<html{{if Language}} lang="{{Language}}"{{end}}>
     <head>
 		<meta charset="UTF-8">
 		<title>{{PageTitle}} {{if .actual}} | {{.actual}} {{end}}{{if $.site}}{{if $.site.Link}} | {{$.site.Link}}{{end}}{{end}}</title>
