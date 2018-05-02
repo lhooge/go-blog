@@ -11,9 +11,11 @@ import (
 	"net/http/httptest"
 	"net/url"
 
+	"git.hoogi.eu/go-blog/components/logger"
 	"git.hoogi.eu/go-blog/middleware"
 	"git.hoogi.eu/go-blog/models"
 	"git.hoogi.eu/go-blog/models/sessions"
+	"git.hoogi.eu/go-blog/settings"
 )
 
 var ctx *middleware.AppContext
@@ -21,6 +23,14 @@ var ctx *middleware.AppContext
 func init() {
 	articleService := models.ArticleService{Datasource: &inMemoryArticle{articles: make(map[int]*models.Article)}}
 	userService := models.UserService{Datasource: &inMemoryUser{users: make(map[int]*models.User)}}
+
+	//TODO proper test config
+	cfg, err := settings.LoadConfig("../go-blog.conf")
+
+	if err != nil {
+		logger.Log.Error(err)
+		panic(1)
+	}
 
 	sessionStore := sessions.CookieStore{
 		Path:            "/admin",
@@ -35,6 +45,7 @@ func init() {
 		UserService:    userService,
 		ArticleService: articleService,
 		SessionStore:   &sessionStore,
+		ConfigService:  cfg,
 	}
 }
 
@@ -47,15 +58,15 @@ func setValues(m url.Values, key, value string) {
 }
 
 func dummyAdminUser() *models.User {
-	return &models.User{ID: 1, Email: "test@example.com", Lastname: "Simpson", Firstname: "Homer", Active: true, IsAdmin: true}
+	return &models.User{ID: 1, Email: "test@example.com", DisplayName: "Homer Simpson", Active: true, IsAdmin: true}
 }
 
 func dummyUser() *models.User {
-	return &models.User{ID: 1, Email: "test@example.com", Lastname: "Simpson", Firstname: "Marge", Active: true, IsAdmin: false}
+	return &models.User{ID: 1, Email: "test@example.com", DisplayName: "Marge Simpson", Active: true, IsAdmin: false}
 }
 
 func dummyInactiveUser() models.User {
-	return models.User{ID: 1, Email: "test@example.com", Lastname: "Simpson", Firstname: "Bart", Active: false, IsAdmin: false}
+	return models.User{ID: 1, Email: "test@example.com", DisplayName: "Bart Simpson", Active: false, IsAdmin: false}
 }
 
 func postRequest(path string, values url.Values) (*http.Request, error) {

@@ -12,7 +12,7 @@ import (
 
 var testcases = []string{
 	"This is a simple headline with umlauts\x00 ä ö ß ü and non printables \x1f\x00",
-	"this-is-a-simple-headline-with-umlauts-ae-oe-ss-ue-and-non-printables",
+	"this-is-a-simple-headline-with-umlauts-ä-ö-ß-ü-and-non-printables",
 
 	"A headline & a sample / ",
 	"a-headline-a-sample",

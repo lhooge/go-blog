@@ -13,7 +13,6 @@ import (
 	"strconv"
 	"sync"
 	"testing"
-	"time"
 
 	"git.hoogi.eu/go-blog/controllers"
 	"git.hoogi.eu/go-blog/middleware"
@@ -24,13 +23,12 @@ func TestCreateGetEditUser(t *testing.T) {
 	defer ctx.UserService.Datasource.(*inMemoryUser).Flush()
 
 	expectedUser := &models.User{
-		Firstname: "Homer",
-		Lastname:  "Simpson",
-		Email:     "homer@example.com",
-		Username:  "homer",
-		Password:  []byte("1234567890"),
-		Active:    true,
-		IsAdmin:   false,
+		DisplayName: "Homer Simpson",
+		Email:       "homer@example.com",
+		Username:    "homer",
+		Password:    []byte("1234567890"),
+		Active:      true,
+		IsAdmin:     false,
 	}
 
 	userID, err := doCreateUserRequest(expectedUser)
@@ -39,14 +37,13 @@ func TestCreateGetEditUser(t *testing.T) {
 	}
 
 	expectedUser = &models.User{
-		ID:        userID,
-		Firstname: "Homer12",
-		Lastname:  "Simpson",
-		Email:     "homer@example.com",
-		Username:  "homer",
-		Password:  []byte("1234567890"),
-		Active:    true,
-		IsAdmin:   false,
+		ID:          userID,
+		DisplayName: "Homer12 Simpson",
+		Email:       "homer@example.com",
+		Username:    "homer",
+		Password:    []byte("1234567890"),
+		Active:      true,
+		IsAdmin:     false,
 	}
 
 	err = doEditUsersRequest(expectedUser)
@@ -66,11 +63,8 @@ func TestCreateGetEditUser(t *testing.T) {
 }
 
 func checkUser(user, expectedUser *models.User) error {
-	if user.Firstname != expectedUser.Firstname {
-		return fmt.Errorf("got an unexpected firstname. expected: %s, actual: %s", expectedUser.Firstname, user.Firstname)
-	}
-	if user.Lastname != expectedUser.Lastname {
-		return fmt.Errorf("got an unexpected lastname. expected: %s, actual: %s", expectedUser.Lastname, user.Lastname)
+	if user.DisplayName != expectedUser.DisplayName {
+		return fmt.Errorf("got an unexpected displayname. expected: %s, actual: %s", expectedUser.DisplayName, user.DisplayName)
 	}
 	if user.Email != expectedUser.Email {
 		return fmt.Errorf("got an unexpected email. expected: %s, actual: %s", expectedUser.Email, user.Email)
@@ -112,8 +106,7 @@ func doGetUserRequest(userid int) (*models.User, error) {
 func doEditUsersRequest(user *models.User) error {
 	values := url.Values{}
 
-	setValues(values, "firstname", user.Firstname)
-	setValues(values, "lastname", user.Lastname)
+	setValues(values, "displayname", user.DisplayName)
 	setValues(values, "username", user.Username)
 	setValues(values, "email", user.Email)
 	s := "on"
@@ -160,8 +153,7 @@ func doListUsersRequest() ([]models.User, error) {
 
 func doCreateUserRequest(user *models.User) (int, error) {
 	values := url.Values{}
-	setValues(values, "firstname", user.Firstname)
-	setValues(values, "lastname", user.Lastname)
+	setValues(values, "displayname", user.DisplayName)
 	setValues(values, "username", user.Username)
 	setValues(values, "email", user.Email)
 	setValues(values, "password", string(user.Password))
@@ -234,14 +226,6 @@ func (imu *inMemoryUser) Flush() {
 	for k := range imu.users {
 		delete(imu.users, k)
 	}
-}
-
-func (imu *inMemoryUser) UpdateLoginDate(userID int) error {
-	if k, ok := imu.users[userID]; ok {
-		k.LastLogin = models.NullTime{Time: time.Now(), Valid: true}
-		return nil
-	}
-	return sql.ErrNoRows
 }
 
 func (imu *inMemoryUser) GetByMail(mail string) (*models.User, error) {

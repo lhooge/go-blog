@@ -15,13 +15,12 @@ func TestLogin(t *testing.T) {
 	defer ctx.UserService.Datasource.(*inMemoryUser).Flush()
 
 	expectedUser := &models.User{
-		Firstname: "Homer",
-		Lastname:  "Simpson",
-		Email:     "homer@example.com",
-		Username:  "homer",
-		Password:  []byte("1234567890"),
-		Active:    true,
-		IsAdmin:   false,
+		DisplayName: "Homer",
+		Email:       "homer@example.com",
+		Username:    "homer",
+		Password:    []byte("1234567890"),
+		Active:      true,
+		IsAdmin:     false,
 	}
 
 	_, err := doCreateUserRequest(expectedUser)
@@ -62,13 +61,12 @@ func TestFailLogin(t *testing.T) {
 	defer ctx.UserService.Datasource.(*inMemoryUser).Flush()
 
 	expectedUser := &models.User{
-		Firstname: "Homer",
-		Lastname:  "Simpson",
-		Email:     "homer@example.com",
-		Username:  "homer",
-		Password:  []byte("12345678123"),
-		Active:    true,
-		IsAdmin:   false,
+		DisplayName: "Homer",
+		Email:       "homer@example.com",
+		Username:    "homer",
+		Password:    []byte("12345678123"),
+		Active:      true,
+		IsAdmin:     false,
 	}
 
 	_, err := doCreateUserRequest(expectedUser)

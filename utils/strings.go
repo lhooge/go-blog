@@ -6,6 +6,7 @@ package utils
 
 import (
 	"bytes"
+	"regexp"
 	"strconv"
 	"strings"
 	"unicode"
@@ -88,6 +89,8 @@ var slugSubs = map[rune]string{
 	'*':  "",
 }
 
+var multipleDashes = regexp.MustCompile(`[-]{2,}`)
+
 //CreateURLSafeSlug creates a url safe slug to use in urls
 func CreateURLSafeSlug(input string, suffix int) string {
 	input = removeNonPrintables(input)
@@ -98,9 +101,12 @@ func CreateURLSafeSlug(input string, suffix int) string {
 
 	input = strings.ToLower(input)
 
+	input = multipleDashes.ReplaceAllString(input, "-")
+
 	if suffix > 0 {
 		input += strconv.Itoa(suffix)
 	}
+
 	return input
 }
 
