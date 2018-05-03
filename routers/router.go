@@ -32,15 +32,17 @@ func InitRoutes(ctx *m.AppContext, cfg *settings.Settings) *mux.Router {
 			csrf.Path(cfg.CSRF.CookiePath),
 			csrf.CookieName(cfg.CSRF.CookieName))
 
-		//TODO
 	chain := alice.New()
-	if cfg.Log.AccessLogs {
+
+	if cfg.Log.Access {
 		if cfg.Environment == "dev" {
-			chain.Append(stdOutLoggingHandler)
+			chain = chain.Append(stdOutLoggingHandler)
+		} else {
+			chain = chain.Append(fileLoggingHandler(cfg.Log.AccessFile))
 		}
 	}
 
-	chain.Append(csrf)
+	chain = chain.Append(csrf)
 
 	publicRoutes(ctx, sr, chain)
 
@@ -61,6 +63,15 @@ func InitRoutes(ctx *m.AppContext, cfg *settings.Settings) *mux.Router {
 
 func stdOutLoggingHandler(h http.Handler) http.Handler {
 	return handlers.CombinedLoggingHandler(os.Stdout, h)
+}
+
+func fileLoggingHandler(accessLogPath string) (flh func(http.Handler) http.Handler) {
+	al, _ := os.OpenFile(accessLogPath, os.O_APPEND|os.O_WRONLY, os.ModeAppend)
+
+	flh = func(h http.Handler) http.Handler {
+		return handlers.CombinedLoggingHandler(al, h)
+	}
+	return
 }
 
 func restrictedRoutes(ctx *m.AppContext, router *mux.Router, chain alice.Chain) {

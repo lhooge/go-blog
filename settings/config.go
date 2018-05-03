@@ -137,8 +137,9 @@ type CSRF struct {
 
 type Log struct {
 	Level      string `cfg:"log_level"`
-	Path       string `cfg:"log_path"`
-	AccessLogs bool   `cfg:"log_access_logs"`
+	File       string `cfg:"log_file"`
+	Access     bool   `cfg:"log_access"`
+	AccessFile string `cfg:"log_access_file"`
 }
 
 const csrfTokenFilename = ".csrftoken"
@@ -174,18 +175,21 @@ func LoadConfig(filename string) (*Settings, error) {
 func (cfg *Settings) CheckConfig() error {
 	//check log file is rw in production mode
 	if cfg.Environment != "dev" {
-		if _, err := os.Open(cfg.Log.Path); err != nil {
-			return fmt.Errorf("could not open log file %s", cfg.Log.Path)
+		if _, err := os.OpenFile(cfg.Log.File, os.O_RDONLY|os.O_CREATE, 0644); err != nil {
+			return fmt.Errorf("could not open log file %s error %v", cfg.Log.File, err)
+		}
+		if _, err := os.OpenFile(cfg.Log.AccessFile, os.O_RDONLY|os.O_CREATE, 0644); err != nil {
+			return fmt.Errorf("could not open access log file %s error %v", cfg.Log.AccessFile, err)
 		}
 	}
 
 	//server settings
 	if cfg.Server.UseTLS {
 		if _, err := os.Open(cfg.Server.Cert); err != nil {
-			return fmt.Errorf("could not open certificate %s", cfg.Server.Cert)
+			return fmt.Errorf("could not open certificate %s error %v", cfg.Server.Cert, err)
 		}
 		if _, err := os.Open(cfg.Server.Key); err != nil {
-			return fmt.Errorf("could not open private key file %s", cfg.Server.Key)
+			return fmt.Errorf("could not open private key file %s error %v", cfg.Server.Key, err)
 		}
 	}
 
@@ -194,7 +198,7 @@ func (cfg *Settings) CheckConfig() error {
 	}
 
 	if _, err := os.Open(cfg.File.Location); err != nil {
-		return fmt.Errorf("could not open file path %s", cfg.File.Location)
+		return fmt.Errorf("could not open file path %s error %v", cfg.File.Location, err)
 	}
 
 	return nil
@@ -210,7 +214,7 @@ func (cfg *Settings) GenerateCSRF() (bool, error) {
 			r := utils.RandomSource{CharsToGen: utils.AlphaUpperLowerNumericSpecial}
 			b = r.RandomSequence(32)
 
-			err := ioutil.WriteFile(csrfTokenFilename, b, 0644)
+			err := ioutil.WriteFile(csrfTokenFilename, b, 0640)
 
 			if err != nil {
 				return false, err

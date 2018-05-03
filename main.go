@@ -69,7 +69,7 @@ func main() {
 	}
 
 	if cfg.Environment == "prod" {
-		logFile, err := os.OpenFile(cfg.Log.Path, os.O_APPEND|os.O_WRONLY, os.ModeAppend)
+		logFile, err := os.OpenFile(cfg.Log.File, os.O_APPEND|os.O_WRONLY, os.ModeAppend)
 
 		if err != nil {
 			fmt.Println(err)
