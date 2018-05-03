@@ -5,9 +5,7 @@
 <main>
 	{{template "front/flash" .}}
 	{{with .site}}
-	<h2>{{.Title}}</h2>
-			
-	<p>{{.Content | ParseMarkdown}}</p>
+	    {{.Content | ParseMarkdown}}
 	{{end}}
 </main>
 {{end}}
