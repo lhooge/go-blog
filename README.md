@@ -13,7 +13,8 @@ Small sample open-source blog written in Go using markdown for formatting articl
 
 * Additional sites can be created (by administrator)
 
-
+Not really for production use; started for learning Go for web development.
+   
 
 Prerequisites
 --------
@@ -83,11 +84,14 @@ Make sure -admin is set.
 TODOs
 -----
  * Add and fix test
- * Support some environmental variables / flags
  * Comment user interceptor
- * Rework preview of articles and sites / error handling
  * Revisit Makefile
- * Migrations
+ * Database update tasks
+ * Order possibilities in admin panel
+ * Redesign admin section
+ * Review preview of articles and sites / error handling
+ * Activation link when registering new users
+ * Support some environmental variables / flags
 
 Licence
 -------
