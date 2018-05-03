@@ -69,7 +69,7 @@ func (ctx AppContext) RequireAdmin(handler http.Handler) http.Handler {
 	return http.HandlerFunc(fn)
 }
 
-//User gets the user from the request conext
+//User gets the user from the request context
 func User(r *http.Request) (*models.User, error) {
 	v := r.Context().Value(UserContextKey)
 	if v == nil {
