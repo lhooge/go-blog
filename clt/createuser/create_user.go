@@ -79,11 +79,12 @@ func (userFlags createUserFlag) CreateUser(config string) error {
 		return fmt.Errorf("please specify the location of the configuration file")
 	}
 
-	c, err := settings.LoadConfig(config)
+	c, _, err := settings.LoadConfig(config)
 
 	if err != nil {
 		return err
 	}
+
 	var userService models.UserService
 
 	if c.Database.Engine == settings.MySQL {
@@ -105,8 +106,8 @@ func (userFlags createUserFlag) CreateUser(config string) error {
 			Datasource: models.MySQLUserDatasource{
 				SQLConn: db,
 			},
+			Config: c.User,
 		}
-		fmt.Println("sql")
 	} else if c.Database.Engine == settings.SQLite {
 		dbConfig := database.SQLiteConfig{
 			File: c.Database.File,
@@ -118,11 +119,11 @@ func (userFlags createUserFlag) CreateUser(config string) error {
 			return err
 		}
 
-		fmt.Println("dodao")
 		userService = models.UserService{
 			Datasource: models.SQLiteUserDatasource{
 				SQLConn: db,
 			},
+			Config: c.User,
 		}
 	}
 

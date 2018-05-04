@@ -46,7 +46,7 @@ func main() {
 		},
 	}
 
-	cfg, err := settings.MergeConfigs(configFiles)
+	cfg, def, err := settings.MergeConfigs(configFiles)
 
 	if err != nil {
 		exitCode = 1
@@ -87,6 +87,10 @@ func main() {
 	logger.Log.Infof("Go-Blog version: %s, commit: %s", BuildVersion, GitHash)
 	logger.Log.Info("Server startup")
 	logger.Log.Infof("Running in %s mode", cfg.Environment)
+
+	for k, v := range def {
+		logger.Log.Warnf("no value for key '%s' found in config files using default value '%s'", k, v.Value)
+	}
 
 	var db *sql.DB
 	if cfg.Database.Engine == settings.MySQL {

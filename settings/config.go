@@ -13,7 +13,6 @@ import (
 	"time"
 
 	"git.hoogi.eu/cfg"
-	"git.hoogi.eu/go-blog/components/logger"
 	"git.hoogi.eu/go-blog/utils"
 )
 
@@ -144,7 +143,8 @@ type Log struct {
 
 const csrfTokenFilename = ".csrftoken"
 
-func MergeConfigs(configs []cfg.File) (*Settings, error) {
+//MergeConfigs merges the multiple config files. Returns the parsed settings and applied defaults or an error
+func MergeConfigs(configs []cfg.File) (*Settings, map[string]cfg.Default, error) {
 	c := cfg.ConfigFiles{}
 
 	for _, cp := range configs {
@@ -154,24 +154,17 @@ func MergeConfigs(configs []cfg.File) (*Settings, error) {
 	settings := new(Settings)
 	def, err := c.MergeConfigsInto(settings)
 
-	for k, d := range def {
-		logger.Log.Warnf("no config value for %s key found in any config - assuming default value %v", k, d.Value)
-	}
-
-	return settings, err
+	return settings, def, err
 }
 
-func LoadConfig(filename string) (*Settings, error) {
+//LoadConfig load a single config file. Returns the settings and applied defaults or an error
+func LoadConfig(filename string) (*Settings, map[string]cfg.Default, error) {
 	settings := new(Settings)
 	def, err := cfg.LoadConfigInto(filename, settings)
-
-	for k, d := range def {
-		logger.Log.Warnf("no config value for %s key found in any config - assuming default value %v", k, d.Value)
-	}
-
-	return settings, err
+	return settings, def, err
 }
 
+//CheckConfig checks some config values
 func (cfg *Settings) CheckConfig() error {
 	//check log file is rw in production mode
 	if cfg.Environment != "dev" {
@@ -204,6 +197,7 @@ func (cfg *Settings) CheckConfig() error {
 	return nil
 }
 
+//GenerateCSRF generates a random csrf token and saves it in the .csrftoken file
 func (cfg *Settings) GenerateCSRF() (bool, error) {
 	if len(cfg.CSRF.RandomKey) == 0 {
 

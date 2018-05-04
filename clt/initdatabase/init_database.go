@@ -90,7 +90,7 @@ func (dbFlags initDatabaseFlags) initSQLite(config string) error {
 	}
 
 	if len(config) > 0 {
-		c, err := settings.LoadConfig(config)
+		c, _, err := settings.LoadConfig(config)
 
 		if err != nil {
 			return err
@@ -216,7 +216,7 @@ func (dbFlags initDatabaseFlags) initMySQL(config string) error {
 	}
 
 	if len(config) > 0 {
-		c, err := settings.LoadConfig(config)
+		c, _, err := settings.LoadConfig(config)
 
 		if err != nil {
 			return err
