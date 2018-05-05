@@ -113,6 +113,7 @@ type Mail struct {
 	Host     string `cfg:"mail_smtp_host" default:"127.0.0.1"`
 	Port     int    `cfg:"mail_smtp_port" default:"25"`
 	User     string `cfg:"mail_smtp_user"`
+	Helo     string `cfg:"mail_smtp_helo"`
 	Password string `cfg:"mail_smtp_password"`
 
 	SenderAddress string `cfg:"mail_sender_address"`

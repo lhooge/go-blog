@@ -239,6 +239,7 @@ func context(db *sql.DB, cfg *settings.Settings) (*m.AppContext, error) {
 		Address:  cfg.Mail.Host,
 		Port:     cfg.Mail.Port,
 		User:     cfg.Mail.User,
+		Helo:     cfg.Mail.Helo,
 		Password: []byte(cfg.Mail.Password),
 	}
 
