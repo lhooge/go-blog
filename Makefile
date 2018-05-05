@@ -1,7 +1,7 @@
 BINARYNAME=go-blog
 TMP=tmp
 GITHASH=$(shell git rev-parse HEAD)
-BUILD_VERSION=$(git describe --tags)
+BUILD_VERSION=$(shell git describe --tags)
 BUILD_DATE=$(shell date -u '+%Y-%m-%d %I:%M:%S %Z')
 
 RELEASE="releases"
