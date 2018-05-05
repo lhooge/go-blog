@@ -158,3 +158,27 @@ The -binding suffix was added to avoid build failures under gccgo.
 
 In this repository, those files are an amalgamation of code that was copied from SQLite3. The license of that code is the same as the license of SQLite3.
 
+
+====================================================================================
+Open Iconic An open source icon set with 223 marks in SVG, webfont and raster formats
+
+Github: https://github.com/iconic/open-iconic
+=====================================================================================
+
+Icons
+All code (including SVG markup) is under the MIT License.
+
+Fonts
+All fonts are under the SIL Licensed.
+
+
+======================================================================================
+
+Bootstrap Build responsive, mobile-first projects on the web with the world's most popular front-end component library.
+
+Github: https://github.com/twbs/bootstrap
+
+======================================================================================
+
+Code and documentation copyright 2011-2018 the Bootstrap Authors and Twitter, Inc. Code released under the MIT License. 
+Docs released under Creative Commons.
