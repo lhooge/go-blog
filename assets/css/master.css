@@ -50,7 +50,7 @@ p {
 }
 
 
-a:hover, 
+a:hover,
 a:focus {
 	text-decoration: underline;
 }
@@ -229,7 +229,7 @@ main {
 main a[href^='http'] {
     background: url('../svg/external-link.svg') no-repeat left center;
     background-size: 10px 10px;
-    display: inline-block; 
+    display: inline-block;
     padding-left: 15px;
 }
 
@@ -272,11 +272,6 @@ main h4 {
 	margin-top: 0.4em;
 }
 
-main ul {
-	margin-left: 0.2em;
-	line-height: 1.5;
-}
-
 main ol {
 	margin-left: 2.2em;
 	line-height: 1.5;
@@ -286,6 +281,12 @@ main p {
   margin-top: 0.8em;
   line-height: 1.5;
 }
+
+main ul {
+	margin-left: 2.5em;
+	line-height: 1.5;
+}
+
 
 main ul li {
   padding-left: 0.5em;
@@ -312,7 +313,7 @@ article.article_info {
 	font-weight:bold;
 }
 
-/* Index page */ 
+/* Index page */
 #index .menu {
 	list-style-type: none;
 }
