@@ -1,9 +1,9 @@
 {{define "front/site"}}
 
-{{template "front/header" .}}
+{{template "skel/header" .}}
 
 <main>
-	{{template "front/flash" .}}
+	{{template "skel/flash" .}}
 	{{with .site}}
 	    {{.Content | ParseMarkdown}}
 	{{end}}

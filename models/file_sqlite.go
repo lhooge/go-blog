@@ -185,7 +185,8 @@ func (rdb SQLiteFileDatasource) Count(u *User) (int, error) {
 	return total, nil
 }
 
-//Delete deletes a file based on fileID; users which are not the owner are not allowed to remove files; except admins
+//Delete deletes a file based on fileID; users which are not the owner are not allowed to remove files;
+//except admins
 func (rdb SQLiteFileDatasource) Delete(fileID int) error {
 	if _, err := rdb.SQLConn.Exec("DELETE FROM file WHERE rowid=?", fileID); err != nil {
 		return err

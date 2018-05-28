@@ -1,9 +1,9 @@
 {{define "front/index"}}
-{{template "front/header" .}}
+{{template "skel/header" .}}
 <main>
 	<div id="index">
 		<h2>Index</h2>
-		{{template "front/flash" .}}
+		{{template "skel/flash" .}}
 
 		{{if not .ErrorMsg}}
 			{{if not .indexed_articles}}
@@ -30,5 +30,5 @@
 		{{end}}
 	</div>
 </main>
-{{template "front/footer"}}
+{{template "skel/footer"}}
 {{end}}
