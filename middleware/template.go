@@ -46,7 +46,7 @@ func NotFound(ctx *AppContext, rw http.ResponseWriter, r *http.Request) *Templat
 	getFlash(rw, r, "SuccessMsg")
 
 	return &Template{
-		Name: "front/error",
+		Name: "skel/error",
 		Err:  httperror.New(http.StatusNotFound, "Nothing was found at this location", errors.New("not found")),
 	}
 }
@@ -62,9 +62,6 @@ func FuncMap(ss models.SiteService, cfg *settings.Settings) template.FuncMap {
 		},
 		"PageTitle": func() string {
 			return cfg.Title
-		},
-		"SubTitle": func() string {
-			return cfg.Subtitle
 		},
 		"AppVersion": func() string {
 			return cfg.AppVersion
