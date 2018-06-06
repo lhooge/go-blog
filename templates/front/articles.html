@@ -1,5 +1,6 @@
 {{define "front/articles"}}
-{{template "skel/header" .}}
+{{template "front/header" .}}
+{{template "front/navigation" .}}
 <main>
 	{{template "skel/flash" .}}
 
@@ -22,5 +23,5 @@
 
 	{{PaginationBar .pagination}}
 </main>
-{{template "skel/footer"}}
+{{template "front/footer"}}
 {{end}}

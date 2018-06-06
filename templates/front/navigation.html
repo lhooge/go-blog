@@ -1,0 +1,22 @@
+{{define "front/navigation"}}
+	<nav>
+	    <ul>
+		<li>
+			<a{{if eq .active "articles"}} class="active"{{end}} href="/">Articles</a>
+		</li>
+
+		<li>
+			<a{{if eq .active "index"}} class="active"{{end}} href="/index">Index</a>
+		</li>
+
+		{{$sites := GetSites}}
+		{{range $key, $value := $sites}}
+		<li>
+			<a{{if $.site}}{{if eq $.site.Link .Link}} class="active"{{end}}{{end}} href="{{.LinkEscape}}">
+			{{.Title}}
+			</a>
+		</li>
+		{{end}}
+	    </ul>
+	</nav>
+{{end}}

@@ -1,0 +1,27 @@
+{{define "admin/navigation"}}
+<nav>
+	<ul>
+		<li {{if .active}}{{if eq .active "articles"}}class="active"{{end}}{{end}}>
+			<a href="/admin/articles"><span class="glyphicon glyphicon-font" aria-hidden="true"></span> Articles</a>
+		</li>
+
+	{{if .currentUser.IsAdmin}}
+		<li {{if .active}}{{if eq .active "users"}}class="active"{{end}}{{end}}>
+			<a href="/admin/users"><span class="glyphicon glyphicon-user" aria-hidden="true"></span> Users</a>
+		</li>
+
+		<li {{if .active}}{{if eq .active "sites"}}class="active"{{end}}{{end}}>
+			<a href="/admin/sites"><span class="glyphicon glyphicon-list" aria-hidden="true"></span> Sites</a>
+		</li>
+	{{end}}
+
+		<li {{if .active}}{{if eq .active "files"}}class="active"{{end}}{{end}}>
+			<a href="/admin/files"><span class="glyphicon glyphicon-file" aria-hidden="true"></span> Files</a>
+		</li>
+
+		<li>
+			<a href="/admin/logout"><span class="glyphicon glyphicon-lock" aria-hidden="true"></span> Logout</a>
+		</li>
+	</ul>
+</nav>
+{{end}}

@@ -45,7 +45,7 @@ func (rdb SQLiteTokenDatasource) Get(hash string, tt TokenType) (*Token, error) 
 
 //Remove removes a token based on the hash
 func (rdb SQLiteTokenDatasource) Remove(hash string, tt TokenType) error {
-	if _, err := rdb.SQLConn.Exec("DELETE FROM token WHERE hash=? AND token_type=?  ", hash, tt.String()); err != nil {
+	if _, err := rdb.SQLConn.Exec("DELETE FROM token WHERE hash=? AND token_type=? ", hash, tt.String()); err != nil {
 		return err
 	}
 	return nil

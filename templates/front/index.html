@@ -1,5 +1,6 @@
 {{define "front/index"}}
-{{template "skel/header" .}}
+{{template "front/header" .}}
+{{template "front/navigation" .}}
 <main>
 	<div id="index">
 		<h2>Index</h2>
@@ -30,5 +31,5 @@
 		{{end}}
 	</div>
 </main>
-{{template "skel/footer"}}
+{{template "front/footer"}}
 {{end}}
