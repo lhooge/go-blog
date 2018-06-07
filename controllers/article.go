@@ -20,8 +20,8 @@ const (
 	tplIndexArticles = "front/index"
 
 	tplAdminArticles    = "admin/articles"
-	tplAdminArticleNew  = "admin/new_article"
-	tplAdminArticleEdit = "admin/edit_article"
+	tplAdminArticleNew  = "admin/article_add"
+	tplAdminArticleEdit = "admin/article_edit"
 )
 
 //GetArticleHandler returns a specific article

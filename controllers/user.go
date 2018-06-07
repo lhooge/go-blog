@@ -18,7 +18,7 @@ import (
 const (
 	tplAdminUsers      = "admin/users"
 	tplAdminUserEdit   = "admin/user_edit"
-	tplAdminUserNew    = "admin/user_new"
+	tplAdminUserNew    = "admin/user_add"
 	tplAdminUserDelete = "admin/user_delete"
 	tplAdminProfile    = "admin/user_profile"
 )

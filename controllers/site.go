@@ -18,8 +18,8 @@ import (
 const (
 	tplSite          = "front/site"
 	tplAdminSites    = "admin/sites"
-	tplAdminSiteEdit = "admin/edit_site"
-	tplAdminSiteNew  = "admin/new_site"
+	tplAdminSiteEdit = "admin/site_edit"
+	tplAdminSiteNew  = "admin/site_add"
 )
 
 //SiteHandler returns the site template only published sites are considered

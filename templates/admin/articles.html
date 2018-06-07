@@ -13,7 +13,7 @@
 		</a>
 	</p>
 
-	<table class="table">
+	<table>
 		<thead>
 			<tr>
 				<th></th>
@@ -24,40 +24,40 @@
 				<th>Actions</th>
 			</tr>
 		</thead>
-	{{range .articles}}
 		<tbody>
-			<tr>
-				<td>{{.Published | BoolToIcon}}</td>
-				<td>{{.PublishedOn | FormatNilDate}}</td>
-				<td>{{.Headline}}</td>
-				<td>{{.Author.Username}}</td>
-				<td>{{.LastModified | FormatDateTime}}</td>
-				<td>
-					{{if not .Published}}
-						<a href="/admin/article/publish/{{.ID}}" title="Publish">
-							<span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span>
-						</a>
-					{{else}}
-						<a href="/article/{{.Slug}}" target="_blank" title="Show">
-							<span class="glyphicon glyphicon-new-window" aria-hidden="true"></span>
+		{{range .articles}}
+				<tr>
+					<td>{{.Published | BoolToIcon}}</td>
+					<td>{{.PublishedOn | FormatNilDate}}</td>
+					<td>{{.Headline}}</td>
+					<td>{{.Author.Username}}</td>
+					<td>{{.LastModified | FormatDateTime}}</td>
+					<td>
+						{{if not .Published}}
+							<a href="/admin/article/publish/{{.ID}}" title="Publish">
+								Publish
+							</a>
+						{{else}}
+							<a href="/article/{{.Slug}}" target="_blank" title="Show">
+								Show
+							</a>
+
+							<a href="/admin/article/publish/{{.ID}}" title="Depublish">
+								Depublish
+							</a>
+						{{end}}
+
+						<a href="/admin/article/edit/{{.ID}}" title="Edit">
+							Edit
 						</a>
 
-						<a href="/admin/article/publish/{{.ID}}" title="Depublish">
-							<span class="glyphicon glyphicon-eye-close" aria-hidden="true"></span>
+						<a href="/admin/article/delete/{{.ID}}" title="Remove">
+							Delete
 						</a>
-					{{end}}
-
-					<a href="/admin/article/edit/{{.ID}}" title="Edit">
-						<span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
-					</a>
-
-					<a href="/admin/article/delete/{{.ID}}" title="Remove">
-						<span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
-					</a>
-				</td>
-			</tr>
+					</td>
+				</tr>
+		{{end}}
 		</tbody>
-	{{end}}
 	</table>
 	{{PaginationBar .pagination}}
 </main>
