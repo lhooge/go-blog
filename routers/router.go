@@ -42,13 +42,10 @@ func InitRoutes(ctx *m.AppContext, cfg *settings.Settings) *mux.Router {
 		}
 	}
 
-	chain = chain.Append(csrf)
-
 	publicRoutes(ctx, sr, chain)
-
 	ar := router.PathPrefix("/admin").Subrouter()
 
-	restrictedChain := chain.Append(ctx.AuthHandler)
+	restrictedChain := chain.Append(csrf).Append(ctx.AuthHandler)
 
 	restrictedRoutes(ctx, ar, restrictedChain)
 
