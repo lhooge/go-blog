@@ -1,59 +1,48 @@
 {{define "admin/files"}}
-{{template "admin/head" .}}
+{{template "admin/header" .}}
+{{template "admin/navigation" .}}
+<main>
+	{{template "skel/flash" .}}
 
-<div class="container-fluid">
-	<div class="row">
-		<div class="col-sm-3 col-lg-2 sidebar">
-			{{template "admin/navigation" .}}
-		</div>
+	<h2>Files</h2>
 
-		<div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
-			<h1 class="page-header">File management</h1>
+	<p><a href="/admin/file/upload">Upload a file</a></p>
 
-			{{template "admin/flash" .}}
-			<p>
-				<a href="/admin/file/upload" class="btn btn-default btn-md">
-					<span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span> Upload a file
-				</a>
-			</p>
-			<table class="table">
-				<thead>
-					<tr>
-						<th>Last modified</th>
-						<th>Filename</th>
-						<th>ContentType</th>
-						<th>Size</th>
-						<th>User</th>
-						<th>Actions</th>
-					</tr>
-				</thead>
+	<table class="table">
+		<thead>
+			<tr>
+				<th>Last modified</th>
+				<th>Filename</th>
+				<th>ContentType</th>
+				<th>Size</th>
+				<th>User</th>
+				<th>Actions</th>
+			</tr>
+		</thead>
 
-				<tbody>
-				    {{range .files}} 
-						<tr>
-							<td>{{.LastModified | FormatDateTime}}</td>
-							<td>{{.Filename}}</td>
-							<td>{{.ContentType}}</td>
-							<td>{{.Size}}</td>
-							<td>{{.Author.Username}}</td>
-							<td>
-								<a href="/file/{{.Filename}}" title="Show file">
-									<span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span>
-								</a>
+		<tbody>
+			{{range .files}} 
+				<tr>
+					<td>{{.LastModified | FormatDateTime}}</td>
+					<td>{{.Filename}}</td>
+					<td>{{.ContentType}}</td>
+					<td>{{.Size}}</td>
+					<td>{{.Author.Username}}</td>
+					<td class="action-data">
+						<a href="/file/{{.Filename}}" title="Show file">
+							<span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span>
+						</a>
 
-								<a href="/admin/file/delete/{{.ID}}" title="Remove">
-									<span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
-								</a>
-							</td>
-						</tr>
-					{{end}}
-				</tbody>
-			</table>
+						<a href="/admin/file/delete/{{.ID}}" title="Remove">
+							<span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+						</a>
+					</td>
+				</tr>
+			{{end}}
+		</tbody>
+	</table>
 
-			{{template "admin/pagination" .}}
-		</div>
-	</div>
-</div>
-
+	{{template "skel/pagination" .}}
+</main>
 {{template "admin/footer"}}
 {{end}}

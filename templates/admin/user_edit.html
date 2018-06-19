@@ -1,15 +1,10 @@
 {{define "admin/user_edit"}}
-{{template "admin/head" .}}
-<div class="container-fluid">
-	<div class="row">
-		<div class="col-sm-3 col-lg-2 sidebar">
-			{{template "admin/navigation" .}}
-		</div>
+{{template "admin/header" .}}
+{{template "admin/navigation" .}}
+<main>
+	{{template "skel/flash" .}}
 
-		<div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
-
-			<h1 class="page-header">Edit user</h1>
-			{{template "admin/flash" .}}
+	<h2>Edit user</h2>
 
 		{{with .user}}
 			<form action="/admin/user/edit/{{.ID}}" method="post">
@@ -43,11 +38,11 @@
 
 				{{ $.csrfField }}
 
-				<button name="action" value="update" class="btn btn-primary" style="float:right">Speichern</button>
+				<div class="button-group">
+					<button name="action" value="update" class="button">Save</button>
+				</div>
 			</form>
 		{{end}}
-		</div>
-	</div>
-</div>
+</main>
 {{template "admin/footer"}}
 {{end}}

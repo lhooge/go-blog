@@ -80,23 +80,23 @@ func (p Pagination) PaginationBar() template.HTML {
 	buffer.WriteString(`<div id="pagination">`)
 
 	if !p.hasPrevious() {
-		buffer.WriteString(`<a class="btn btn-inactive" href="#">&laquo; Backward</a>`)
+		buffer.WriteString(`<a class="button button-inactive" href="#">&laquo; Backward</a>`)
 	} else {
-		buffer.WriteString(fmt.Sprintf(`<a class="btn btn-active" href="%s/%d">&laquo; Backward</a>`, p.url(), p.previousPage()))
+		buffer.WriteString(fmt.Sprintf(`<a class="button button-active" href="%s/%d">&laquo; Backward</a>`, p.url(), p.previousPage()))
 	}
 
 	for i := 1; i <= p.pages(); i++ {
 		if p.CurrentPage == i {
-			buffer.WriteString(fmt.Sprintf(`<a class="btn btn-inactive" href="#">%d</a></li>`, i))
+			buffer.WriteString(fmt.Sprintf(`<a class="button button-inactive" href="#">%d</a></li>`, i))
 		} else {
-			buffer.WriteString(fmt.Sprintf(`<a class="btn btn-active" href="%s/%d">%d</a></li>`, p.url(), i, i))
+			buffer.WriteString(fmt.Sprintf(`<a class="button button-active" href="%s/%d">%d</a></li>`, p.url(), i, i))
 		}
 	}
 
 	if !p.hasNext() {
-		buffer.WriteString(`<a class="btn btn-inactive" href="#">Forward &raquo;</a>`)
+		buffer.WriteString(`<a class="button button-inactive" href="#">Forward &raquo;</a>`)
 	} else {
-		buffer.WriteString(fmt.Sprintf(`<a class="btn btn-active" href="%s/%d">Forward &raquo;</a>`, p.url(), p.nextPage()))
+		buffer.WriteString(fmt.Sprintf(`<a class="button button-active" href="%s/%d">Forward &raquo;</a>`, p.url(), p.nextPage()))
 	}
 
 	buffer.WriteString(`</div>`)

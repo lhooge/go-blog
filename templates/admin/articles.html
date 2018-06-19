@@ -4,14 +4,9 @@
 <main>
 	{{template "skel/flash" .}}
 
-	<h2>Article management</h1>
-	<hr>
+	<h2>Article management</h2>
 
-	<p>
-		<a href="/admin/article/new" class="btn btn-default btn-md">
-			<span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span> Add an article
-		</a>
-	</p>
+	<p><a href="/admin/article/new">Add an article</a></p>
 
 	<table>
 		<thead>
@@ -26,36 +21,27 @@
 		</thead>
 		<tbody>
 		{{range .articles}}
-				<tr>
-					<td>{{.Published | BoolToIcon}}</td>
-					<td>{{.PublishedOn | FormatNilDate}}</td>
-					<td>{{.Headline}}</td>
-					<td>{{.Author.Username}}</td>
-					<td>{{.LastModified | FormatDateTime}}</td>
-					<td>
-						{{if not .Published}}
-							<a href="/admin/article/publish/{{.ID}}" title="Publish">
-								Publish
-							</a>
-						{{else}}
-							<a href="/article/{{.Slug}}" target="_blank" title="Show">
-								Show
-							</a>
+			<tr>
+				<td>{{.Published | BoolToIcon}}</td>
+				<td>{{.PublishedOn | FormatNilDate}}</td>
+				<td>{{.Headline}}</td>
+				<td>{{.Author.Username}}</td>
+				<td>{{.LastModified | FormatDateTime}}</td>
+				<td class="action-data">
+					{{if not .Published}}
+						<a href="/admin/article/publish/{{.ID}}" title="Publish">Publish</a>
+					{{else}}
+						<a href="/admin/article/publish/{{.ID}}" title="Depublish">Depublish</a>
+					{{end}}
 
-							<a href="/admin/article/publish/{{.ID}}" title="Depublish">
-								Depublish
-							</a>
-						{{end}}
-
-						<a href="/admin/article/edit/{{.ID}}" title="Edit">
-							Edit
-						</a>
-
-						<a href="/admin/article/delete/{{.ID}}" title="Remove">
-							Delete
-						</a>
-					</td>
-				</tr>
+					<a href="/admin/article/edit/{{.ID}}" title="Edit">Edit</a>
+					<a href="/admin/article/delete/{{.ID}}" title="Remove">Delete</a>
+					
+					{{if .Published}}	
+						<a href="/article/{{.Slug}}" target="_blank" title="Show">Show</a>
+					{{end}}
+				</td>
+			</tr>
 		{{end}}
 		</tbody>
 	</table>
