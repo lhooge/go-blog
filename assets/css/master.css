@@ -393,7 +393,8 @@ button:hover, button:focus {
     text-decoration: none;
 }
 
-.action-data button:not(:first-child), .action-data a:not(:first-child) {
+.action-data button:not(:first-child), 
+.action-data a:not(:first-child) {
 	padding: 0 5px;
 	text-align: center;
 	border-left: 1px solid black;
@@ -413,11 +414,8 @@ button:hover, button:focus {
   font-family: serif;
 }
 
-.action-data button:focus {
+.action-data button:focus,
+.action-data button:hover{
   outline: none;
   text-decoration: none;
-}
-
-.action-data button:active {
-  color:red;
 }
