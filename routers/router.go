@@ -107,7 +107,7 @@ func restrictedRoutes(ctx *m.AppContext, router *mux.Router, chain alice.Chain) 
 	router.Handle("/site/edit/{siteID}", chain.Append(ctx.RequireAdmin).Then(useTemplateHandler(ctx, c.AdminSiteEditPostHandler))).Methods("POST")
 	router.Handle("/site/delete/{siteID}", chain.Append(ctx.RequireAdmin).Then(useTemplateHandler(ctx, c.AdminSiteDeleteHandler))).Methods("GET")
 	router.Handle("/site/delete/{siteID}", chain.Append(ctx.RequireAdmin).Then(useTemplateHandler(ctx, c.AdminSiteDeletePostHandler))).Methods("POST")
-	router.Handle("/site/order/{siteID}", chain.Append(ctx.RequireAdmin).Then(useTemplateHandler(ctx, c.AdminSiteOrderHandler))).Methods("GET")
+	router.Handle("/site/order/{siteID}", chain.Append(ctx.RequireAdmin).Then(useTemplateHandler(ctx, c.AdminSiteOrderHandler))).Methods("POST")
 
 	//file routes
 	router.Handle("/files", chain.Then(useTemplateHandler(ctx, c.AdminListFilesHandler))).Methods("GET")

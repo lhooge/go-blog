@@ -89,7 +89,7 @@ func FuncMap(ss models.SiteService, cfg *settings.Settings) template.FuncMap {
 		},
 		"BoolToIcon": func(b bool) template.HTML {
 			if b {
-				return template.HTML(`<img alt="" src="Self-Logo.svg"><img alt="self-Logo" src="../assets/svg/circle-check.svg">`)
+				return template.HTML(`<img alt="self-Logo" src="../assets/svg/circle-check.svg">`)
 			}
 			return template.HTML("")
 		},

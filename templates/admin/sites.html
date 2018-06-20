@@ -32,8 +32,17 @@
 					<td>{{.Author.Username}}</td>
 					<td>{{.LastModified | FormatDateTime}}</td>
 					<td class="action-data">
-						<a href="/admin/site/order/{{.ID}}?direction=up" title="Up">Up</a>
-						<a href="/admin/site/order/{{.ID}}?direction=down" title="Down">Down</a>
+						<form method="post" action="/admin/site/order/{{.ID}}">
+							<button type="submit" name="direction" value="up">
+								Up
+							</button>
+
+							<button type="submit" name="direction" value="down">
+								Down
+							</button>
+
+							{{$.csrfField}}
+						</form>
 
 						{{if not .Published}}
 							<a href="/admin/site/publish/{{.ID}}" title="Publish">Publish</a>

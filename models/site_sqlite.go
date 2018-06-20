@@ -8,7 +8,7 @@ import (
 	"git.hoogi.eu/go-blog/components/logger"
 )
 
-//SQLiteSiteDatasource providing an implementation of SiteDatasourceService using MariaDB
+//SQLiteSiteDatasource providing an implementation of SiteDatasourceService for sqlite
 type SQLiteSiteDatasource struct {
 	SQLConn *sql.DB
 }
