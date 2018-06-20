@@ -77,6 +77,7 @@ func (fn TemplateHandler) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 		t.Data["active"] = t.Active
 
 		rw.WriteHeader(statusCode)
+
 		if err := fn.AppCtx.Templates.ExecuteTemplate(rw, t.Name, t.Data); err != nil {
 			logger.Log.Error(err)
 			http.Error(rw, err.Error(), http.StatusInternalServerError)
