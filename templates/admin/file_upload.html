@@ -7,20 +7,16 @@
 	<h2>Upload a file</h2>
 
 	<form enctype="multipart/form-data" action="/admin/file/upload" method="post">
-		<div class="form-group">
-			<label for="file">File</label>
-			<input type="file" class="form-control" id="file" name="file" placeholder="Choose a file" required>
-		</div>
+		<label for="file">File</label>
+		<input type="file" id="file" name="file" placeholder="Choose a file" required>
 
-		<div class="form-group">
-			<label for="content">Optional change filename (do not include extension)</label>
-			<input type="text" class="form-control" id="newfilename" name="newfilename" placeholder="New filename...">
-		</div>
+		<label for="content">Optional change filename (do not include extension)</label>
+		<input type="text" id="newfilename" name="newfilename" placeholder="New filename...">
 
 		{{ .csrfField }}
 		
 		<div class="button-group">
-			<button name="action" value="upload" class="button">Upload</button>
+			<button name="action" value="upload">Upload</button>
 		</div>
 	</form>
 </main>

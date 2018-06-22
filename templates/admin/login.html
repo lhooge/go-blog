@@ -2,27 +2,19 @@
 {{template "admin/header"}}
 <body>
 	<main>
-		<form action="/admin" method="POST" class="form-horizontal">
+		<form action="/admin" method="POST">
 			{{template "skel/flash" .}}
 			
 			<h2>Login</h2>
 
-			<div class="form-group">
-				<label for="username" class="col-sm-2 control-label">Username</label>
-				<div class="col-sm-10">
-					<input type="text" required="required" class="form-control" name="username" id="username" value="{{.user.Username}}" placeholder="Username...">
-				</div>
-			</div>
+			<label for="username">Username</label>
+			<input type="text" required="required" name="username" id="username" value="{{.user.Username}}" placeholder="Username...">
 
-			<div class="form-group">
-				<label for="password" class="col-sm-2 control-label">Password</label>
-				<div class="col-sm-10">
-					<input type="password" required="required" autocomplete="off" class="form-control" name="password" id="password" placeholder="Password...">
-				</div>
-			</div>
+			<label for="password">Password</label>
+			<input type="password" required="required" autocomplete="off" name="password" id="password" placeholder="Password...">
 
 			{{if .state}}
-				<input type="hidden" required="required" class="form-control" name="state" value="{{.state}}">
+				<input type="hidden" required="required" name="state" value="{{.state}}">
 			{{end}}
 
 			{{ .csrfField }}

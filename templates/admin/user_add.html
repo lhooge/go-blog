@@ -7,37 +7,29 @@
 	<h2>Add user</h2>
 			
 	<form action="/admin/user/new" method="post">
-		<div class="form-group">
 			<label for="username">Username</label>
-			<input type="username" class="form-control" name="username" {{if .user}}value="{{.user.Username}}"{{end}} value="{{.Username}}" id="username" placeholder="Username..." required>
-		</div>
+			<input type="username" name="username" {{if .user}}value="{{.user.Username}}"{{end}} value="{{.Username}}" id="username" placeholder="Username..." required>
 
-		<div class="form-group">
 			<label for="email">E-mail</label>
-			<input type="email" class="form-control" id="email" name="email" {{if .user}}value="{{.user.Email}}"{{end}} placeholder="e-Mail..." required>
-		</div>
+			<input type="email" id="email" name="email" {{if .user}}value="{{.user.Email}}"{{end}} placeholder="e-Mail..." required>
 
-		<div class="form-group">
 			<label for="displayname">Display name</label>
-			<input type="text" class="form-control" id="displayname" name="displayname" {{if .user}}value="{{.user.DisplayName}}"{{end}} placeholder="Display name..." required>
-		</div>
+			<input type="text" id="displayname" name="displayname" {{if .user}}value="{{.user.DisplayName}}"{{end}} placeholder="Display name..." required>
 
-		<div class="form-group">
 			<label for="password">Password</label>
-			<input type="password" class="form-control" id="password" name="password" placeholder="Password...">
-		</div>
+			<input type="password" id="password" name="password" placeholder="Password...">
+		
+			<div class="checkbox">
+				<label><input type="checkbox" id="admin" name="admin" value="on"{{if .IsAdmin}} checked{{end}}>Admin?</label>
+			</div>
 
-		<div class="checkbox">
-			<label><input type="checkbox" id="admin" name="admin" value="on"{{if .IsAdmin}} checked{{end}}>Admin?</label>
-		</div>
-
-		<div class="checkbox">
-			<label><input type="checkbox" id="active" name="active" value="on"{{if .Active}} checked{{end}}>Is activated?</label>
-		</div>
+			<div class="checkbox">
+				<label><input type="checkbox" id="active" name="active" value="on"{{if .Active}} checked{{end}}>Is activated?</label>
+			</div>
 
 		{{ .csrfField }}
 		<div class="button-group">
-			<button name="action" value="add" class="button">Save</button>
+			<button name="action" value="add">Save</button>
 		</div>
 	</form>
 </main>

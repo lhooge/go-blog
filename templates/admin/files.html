@@ -29,13 +29,8 @@
 					<td>{{.Size}}</td>
 					<td>{{.Author.Username}}</td>
 					<td class="action-data">
-						<a href="/file/{{.Filename}}" title="Show file">
-							<span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span>
-						</a>
-
-						<a href="/admin/file/delete/{{.ID}}" title="Remove">
-							<span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
-						</a>
+						<a href="/file/{{.Filename}}" title="Show file">Show file</a>
+						<a href="/admin/file/delete/{{.ID}}" title="Remove">Remove</a>
 					</td>
 				</tr>
 			{{end}}

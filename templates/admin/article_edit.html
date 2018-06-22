@@ -8,21 +8,17 @@
 
 	{{with .article}}
 		<form action="/admin/article/edit/{{.ID}}" method="post">
-			<div class="form-group">
-				<label for="headline">Headline</label>
-				<input type="text" class="form-control" value="{{.Headline}}" id="headline" name="headline" placeholder="Headline..." required>
-			</div>
+			<label for="headline">Headline</label>
+			<input type="text" value="{{.Headline}}" id="headline" name="headline" placeholder="Headline..." required>
 
-			<div class="form-group">
-				<label for="content">Content</label>
-				<textarea class="form-control" rows="25" id="content" name="content">{{.Content}}</textarea>
-			</div>
+			<label for="content">Content</label>
+			<textarea rows="25" id="content" name="content">{{.Content}}</textarea>
 
 			{{ $.csrfField }}
 			
 			<div class="button-group">
-				<button name="action" value="save" class="button">Save</button>
-				<button name="action" formtarget="_blank" value="preview" class="button">Preview</button>
+				<button name="action" value="save">Save</button>
+				<button name="action" formtarget="_blank" value="preview">Preview</button>
 			</div>
 		</form>
 	{{end}}

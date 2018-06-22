@@ -8,26 +8,20 @@
 	<h2>Add a new site</h2>
 
 	<form action="/admin/site/new" method="post">
-		<div class="form-group">
-			<label for="title">Title</label>
-			<input type="text" class="form-control" id="title" name="title" placeholder="Title..." {{if .site.Title}}value="{{.site.Title}}"{{end}} required>
-		</div>
+		<label for="title">Title</label>
+		<input type="text" id="title" name="title" placeholder="Title..." {{if .site.Title}}value="{{.site.Title}}"{{end}} required>
 
-		<div class="form-group">
-			<label for="site">Link</label>
-			<input type="text" class="form-control" id="link" name="link" placeholder="Link..." {{if .site.Link}}value="{{.site.Link}}"{{end}} required>
-		</div>
+		<label for="site">Link</label>
+		<input type="text" id="link" name="link" placeholder="Link..." {{if .site.Link}}value="{{.site.Link}}"{{end}} required>
 
-		<div class="form-group">
-			<label for="content">Content</label>
-			<textarea class="form-control" rows="25" id="content" name="content" placeholder="Content...">{{.site.Content}}</textarea>
-		</div>
+		<label for="content">Content</label>
+		<textarea rows="25" id="content" name="content" placeholder="Content...">{{.site.Content}}</textarea>
 
 		{{ .csrfField }}
 		
 		<div class="button-group">
-			<button name="action" value="save" class="button">Save</button>
-			<button name="action" formtarget="_blank" value="preview" class="button">Preview</button>
+			<button name="action" value="save">Save</button>
+			<button name="action" formtarget="_blank" value="preview">Preview</button>
 		</div>
 	</form>
 </main>
@@ -35,4 +29,3 @@
 {{template "admin/footer"}}
 
 {{end}}
-
