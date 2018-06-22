@@ -42,10 +42,10 @@ type Templates struct {
 //NotFound returned if no route matches
 func NotFound(ctx *AppContext, rw http.ResponseWriter, r *http.Request) *Template {
 	//For deleting flash cookies
-	session, _ := ctx.SessionStore.Get(rw, r)
 	getFlash(rw, r, "ErrorMsg")
 	getFlash(rw, r, "SuccessMsg")
 
+	session, _ := ctx.SessionStore.Get(rw, r)
 	if session != nil && strings.HasPrefix(r.URL.EscapedPath(), "/admin") {
 		return &Template{
 			Name: "admin/error",
@@ -97,7 +97,7 @@ func FuncMap(ss models.SiteService, cfg *settings.Settings) template.FuncMap {
 		},
 		"BoolToIcon": func(b bool) template.HTML {
 			if b {
-				return template.HTML(`<img alt="self-Logo" src="../assets/svg/circle-check.svg">`)
+				return template.HTML(`<img alt="circle-checked" src="../assets/svg/circle-check.svg">`)
 			}
 			return template.HTML("")
 		},
