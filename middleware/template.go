@@ -42,12 +42,20 @@ type Templates struct {
 //NotFound returned if no route matches
 func NotFound(ctx *AppContext, rw http.ResponseWriter, r *http.Request) *Template {
 	//For deleting flash cookies
+	session, _ := ctx.SessionStore.Get(rw, r)
 	getFlash(rw, r, "ErrorMsg")
 	getFlash(rw, r, "SuccessMsg")
 
-	return &Template{
-		Name: "skel/error",
-		Err:  httperror.New(http.StatusNotFound, "Nothing was found at this location", errors.New("not found")),
+	if session != nil && strings.HasPrefix(r.URL.EscapedPath(), "/admin") {
+		return &Template{
+			Name: "admin/error",
+			Err:  httperror.New(http.StatusNotFound, "Nothing was found at this location", errors.New("page not found")),
+		}
+	} else {
+		return &Template{
+			Name: "front/error",
+			Err:  httperror.New(http.StatusNotFound, "Nothing was found at this location", errors.New("page not found")),
+		}
 	}
 }
 
