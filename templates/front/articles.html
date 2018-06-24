@@ -20,8 +20,10 @@
 
 	<hr>
 	{{end}}
-
-	{{PaginationBar .pagination}}
+	
+	{{if .pagination}}
+		{{PaginationBar .pagination}}
+	{{end}}
 </main>
 {{template "front/footer"}}
 {{end}}
