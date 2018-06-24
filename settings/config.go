@@ -87,17 +87,17 @@ type Server struct {
 }
 
 type Database struct {
-	Engine   DatabaseEngine `cfg:"database_engine"`
-	Host     string         `cfg:"mysql_host" default:"127.0.0.1"`
-	Port     int            `cfg:"mysql_port" default:"3306"`
-	User     string         `cfg:"mysql_user" default:"root"`
-	Password string         `cfg:"mysql_password" default:""`
-	Name     string         `cfg:"mysql_database" default:"go_blog"`
-	File     string         `cfg:"sqlite_file"`
+	Engine   DatabaseEngine `cfg:"database_engine" default:"sqlite"`
+	Host     string         `cfg:"mysql_host"`
+	Port     int            `cfg:"mysql_port"`
+	User     string         `cfg:"mysql_user"`
+	Password string         `cfg:"mysql_password"`
+	Name     string         `cfg:"mysql_database"`
+	File     string         `cfg:"sqlite_file' default:"data/goblog.sqlite"`
 }
 type File struct {
-	Location      string       `cfg:"file_location"`
-	MaxUploadSize cfg.FileSize `cfg:"file_max_upload_size"`
+	Location      string       `cfg:"file_location" default: "/srv/goblog/files/`
+	MaxUploadSize cfg.FileSize `cfg:"file_max_upload_size" default: 20MB`
 }
 
 type Blog struct {
@@ -107,7 +107,7 @@ type Blog struct {
 type User struct {
 	MinPasswordLength int         `cfg:"user_min_password_length" default:"12"`
 	InterceptorPlugin string      `cfg:"user_interceptor_plugin"`
-	LoginMethod       LoginMethod `cfg:"user_login_method"`
+	LoginMethod       LoginMethod `cfg:"user_login_method" default:"username"`
 }
 
 type Mail struct {
@@ -121,25 +121,25 @@ type Mail struct {
 }
 
 type Session struct {
-	TTL               time.Duration `cfg:"session_time_to_live"`
-	GarbageCollection time.Duration `cfg:"session_garbage_collection"`
-	CookieName        string        `cfg:"session_cookie_name"`
-	CookieSecure      bool          `cfg:"session_cookie_secure"`
-	CookiePath        string        `cfg:"session_cookie_path"`
+	TTL               time.Duration `cfg:"session_time_to_live" default: "2h"`
+	GarbageCollection time.Duration `cfg:"session_garbage_collection" default: "5m"`
+	CookieName        string        `cfg:"session_cookie_name" default: "goblog"`
+	CookieSecure      bool          `cfg:"session_cookie_secure" default: "true"`
+	CookiePath        string        `cfg:"session_cookie_path" default: "/admin"`
 }
 
 type CSRF struct {
-	CookieName   string `cfg:"csrf_cookie_name"`
-	CookieSecure bool   `cfg:"csrf_cookie_secure"`
-	CookiePath   string `cfg:"csrf_cookie_path"`
+	CookieName   string `cfg:"csrf_cookie_name" default: "csrf"`
+	CookieSecure bool   `cfg:"csrf_cookie_secure" default: "true"`
+	CookiePath   string `cfg:"csrf_cookie_path" default: "/admin"`
 	RandomKey    string `cfg:"csrf_random_key"`
 }
 
 type Log struct {
-	Level      string `cfg:"log_level"`
-	File       string `cfg:"log_file"`
-	Access     bool   `cfg:"log_access"`
-	AccessFile string `cfg:"log_access_file"`
+	Level      string `cfg:"log_level" default: "info"`
+	File       string `cfg:"log_file" default: "/var/log/goblog/error.log"`
+	Access     bool   `cfg:"log_access" default: "true"`
+	AccessFile string `cfg:"log_access_file" default: "/var/log/goblog/access.log"`
 }
 
 const csrfTokenFilename = ".csrftoken"
@@ -148,14 +148,15 @@ func MergeConfigs(configs []cfg.File) (*Settings, error) {
 	c := cfg.ConfigFiles{}
 
 	for _, cp := range configs {
-		c.AddConfig(cp.Path, cp.Name)
+		c.AddConfig(cp.Path, cp.Name, cp.Required)
 	}
 
 	settings := new(Settings)
+
 	def, err := c.MergeConfigsInto(settings)
 
 	for k, d := range def {
-		logger.Log.Warnf("no config value for %s key found in any config - assuming default value %v", k, d.Value)
+		logger.Log.Warnf("no config value for key '%s' found in any config - assuming default value: '%v'", k, d.Value)
 	}
 
 	return settings, err

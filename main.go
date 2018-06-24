@@ -37,12 +37,14 @@ func main() {
 
 	configFiles := []cfg.File{
 		cfg.File{
-			Name: "go-blog.conf",
-			Path: ".",
+			Name:     "go-blog.conf",
+			Path:     ".",
+			Required: true,
 		},
 		cfg.File{
-			Name: "go-blog.conf",
-			Path: "./custom",
+			Name:     "go-blog.conf",
+			Path:     "./custom",
+			Required: false,
 		},
 	}
 
