@@ -18,8 +18,10 @@
 
 			{{ $.csrfField }}
 			
-			<button type="submit" name="action" value="yes">Yes</button>
-			<a href="{{.BackLinkURL}}" class="button" role="button" aria-disabled="true">No</a>
+			<div class="button-group">
+				<button type="submit" name="action" value="yes">Yes</button>
+				<a href="{{.BackLinkURL}}" class="button" role="button" aria-disabled="true">No</a>
+			</div>
 		</form>
 	{{end}}
 </main>
