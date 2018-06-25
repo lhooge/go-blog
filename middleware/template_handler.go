@@ -83,7 +83,7 @@ func (fn TemplateHandler) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 			http.Error(rw, err.Error(), http.StatusInternalServerError)
 		}
 	} else {
-		statusCode = http.StatusMovedPermanently
+		statusCode = http.StatusFound
 		if len(errorMsg) > 0 {
 			setCookie(rw, "ErrorMsg", "/", errorMsg)
 		} else if len(successMsg) > 0 {
