@@ -3,7 +3,8 @@
 {{template "admin/navigation" .}}
 
 <main>
-	{{template "skel/flash"}}
+	{{template "skel/flash" .}}
+
 	<h2>Update article</h2>
 
 	{{with .article}}
@@ -11,11 +12,14 @@
 			<label for="headline">Headline</label>
 			<input type="text" value="{{.Headline}}" id="headline" name="headline" placeholder="Headline..." required>
 
+			<label for="teaser">Teaser</label>
+			<textarea rows="5" id="teaser" name="teaser">{{.Teaser}}</textarea>
+
 			<label for="content">Content</label>
 			<textarea rows="25" id="content" name="content">{{.Content}}</textarea>
 
 			{{ $.csrfField }}
-			
+
 			<div class="button-group">
 				<button name="action" value="save">Save</button>
 				<button name="action" formtarget="_blank" value="preview">Preview</button>

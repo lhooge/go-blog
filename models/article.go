@@ -23,6 +23,7 @@ type Article struct {
 	Headline     string
 	PublishedOn  NullTime
 	Published    bool
+	Teaser       string
 	Content      string
 	Slug         string
 	LastModified time.Time
@@ -41,7 +42,10 @@ type ArticleDatasourceService interface {
 	Delete(articleID int) error
 }
 
-const maxHeadlineSize = 150
+const (
+	maxHeadlineSize = 150
+	maxTeaserSize   = 320
+)
 
 //SlugEscape escapes the slug for use in URLs
 func (a Article) SlugEscape() string {
@@ -64,6 +68,14 @@ func (a *Article) validate() error {
 
 	if len([]rune(a.Headline)) > maxHeadlineSize {
 		return httperror.ValueTooLong("headline", maxHeadlineSize)
+	}
+
+	if len(a.Teaser) == 0 {
+		return httperror.ValueRequired("teaser")
+	}
+
+	if len([]rune(a.Teaser)) > maxTeaserSize {
+		return httperror.ValueTooLong("teaser", maxTeaserSize)
 	}
 
 	if a.Author == nil {

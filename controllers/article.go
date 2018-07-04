@@ -161,8 +161,9 @@ func AdminArticleNewPostHandler(ctx *middleware.AppContext, w http.ResponseWrite
 	user, _ := middleware.User(r)
 
 	article := &models.Article{
-		Content:  r.FormValue("content"),
 		Headline: r.FormValue("headline"),
+		Teaser:   r.FormValue("teaser"),
+		Content:  r.FormValue("content"),
 		Author:   user,
 	}
 
@@ -239,8 +240,9 @@ func AdminArticleEditPostHandler(ctx *middleware.AppContext, w http.ResponseWrit
 
 	article := &models.Article{
 		ID:       articleID,
-		Content:  r.FormValue("content"),
 		Headline: r.FormValue("headline"),
+		Teaser:   r.FormValue("teaser"),
+		Content:  r.FormValue("content"),
 		Author:   user,
 	}
 

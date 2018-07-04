@@ -62,7 +62,6 @@ type Settings struct {
 
 	Language string `cfg:"language"`
 	Title    string `cfg:"title"`
-	Subtitle string `cfg:"subtitle"`
 
 	Blog
 	User

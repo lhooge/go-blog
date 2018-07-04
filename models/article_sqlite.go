@@ -13,9 +13,10 @@ type SQLiteArticleDatasource struct {
 
 //Create creates a article
 func (rdb SQLiteArticleDatasource) Create(a *Article) (int, error) {
-	res, err := rdb.SQLConn.Exec("INSERT INTO article (headline, content, slug, published_on, published, last_modified, user_id) "+
-		"VALUES (?, ?, ?, ?, ?, ?, ?)",
+	res, err := rdb.SQLConn.Exec("INSERT INTO article (headline, teaser, content, slug, published_on, published, last_modified, user_id) "+
+		"VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
 		a.Headline,
+		a.Teaser,
 		a.Content,
 		a.Slug,
 		nil,
@@ -53,7 +54,7 @@ func (rdb SQLiteArticleDatasource) List(u *User, p *Pagination, pc PublishedCrit
 		var a Article
 		var ru User
 
-		if err := rows.Scan(&a.ID, &a.Headline, &a.Content, &a.Published, &a.PublishedOn, &a.Slug, &a.LastModified, &ru.ID, &ru.DisplayName,
+		if err := rows.Scan(&a.ID, &a.Headline, &a.Teaser, &a.Content, &a.Published, &a.PublishedOn, &a.Slug, &a.LastModified, &ru.ID, &ru.DisplayName,
 			&ru.Email, &ru.Username, &ru.IsAdmin); err != nil {
 			return nil, err
 		}
@@ -108,7 +109,7 @@ func (rdb SQLiteArticleDatasource) Get(articleID int, u *User, pc PublishedCrite
 	var a Article
 	var ru User
 
-	if err := selectSQLiteArticleStmt(rdb.SQLConn, articleID, "", u, pc).Scan(&a.ID, &a.Headline, &a.PublishedOn, &a.Published, &a.Slug, &a.Content,
+	if err := selectSQLiteArticleStmt(rdb.SQLConn, articleID, "", u, pc).Scan(&a.ID, &a.Headline, &a.PublishedOn, &a.Published, &a.Teaser, &a.Slug, &a.Content,
 		&a.LastModified, &ru.ID, &ru.DisplayName, &ru.Email, &ru.Username, &ru.IsAdmin); err != nil {
 		return nil, err
 	}
@@ -124,7 +125,7 @@ func (rdb SQLiteArticleDatasource) GetBySlug(slug string, u *User, pc PublishedC
 	var a Article
 	var ru User
 
-	if err := selectSQLiteArticleStmt(rdb.SQLConn, -1, slug, u, pc).Scan(&a.ID, &a.Headline, &a.PublishedOn, &a.Published, &a.Slug, &a.Content,
+	if err := selectSQLiteArticleStmt(rdb.SQLConn, -1, slug, u, pc).Scan(&a.ID, &a.Headline, &a.PublishedOn, &a.Published, &a.Slug, &a.Teaser, &a.Content,
 		&a.LastModified, &ru.ID, &ru.DisplayName, &ru.Email, &ru.Username, &ru.IsAdmin); err != nil {
 		return nil, err
 	}
@@ -136,7 +137,7 @@ func (rdb SQLiteArticleDatasource) GetBySlug(slug string, u *User, pc PublishedC
 
 // Update updates an aricle
 func (rdb SQLiteArticleDatasource) Update(a *Article) error {
-	if _, err := rdb.SQLConn.Exec("UPDATE article SET headline=?, content=?, last_modified=? WHERE rowid=? ", a.Headline, a.Content,
+	if _, err := rdb.SQLConn.Exec("UPDATE article SET headline=?, teaser=?, content=?, last_modified=? WHERE rowid=? ", a.Headline, &a.Teaser, a.Content,
 		time.Now(), a.ID); err != nil {
 		return err
 	}
@@ -173,7 +174,7 @@ func selectSQLiteArticleStmt(db *sql.DB, articleID int, slug string, u *User, pc
 
 	var args []interface{}
 
-	stmt.WriteString("SELECT a.rowid, a.headline, a.published_on, a.published, a.slug, a.content, a.last_modified, ")
+	stmt.WriteString("SELECT a.rowid, a.headline, a.published_on, a.published, a.slug, a.teaser, a.content, a.last_modified, ")
 	stmt.WriteString("u.rowid, u.display_name, u.email, u.username, u.is_admin ")
 	stmt.WriteString("FROM article a ")
 	stmt.WriteString("INNER JOIN user u ON (a.user_id = u.rowid) ")
@@ -209,7 +210,7 @@ func selectSQLiteArticlesStmt(db *sql.DB, u *User, p *Pagination, pc PublishedCr
 
 	var args []interface{}
 
-	stmt.WriteString("SELECT a.rowid, a.headline, a.content, a.published, a.published_on, a.slug, a.last_modified, ")
+	stmt.WriteString("SELECT a.rowid, a.headline, a.teaser, a.content, a.published, a.published_on, a.slug, a.last_modified, ")
 	stmt.WriteString("u.rowid, u.display_name, u.email, u.username, u.is_admin ")
 	stmt.WriteString("FROM article a ")
 	stmt.WriteString("INNER JOIN user u ON (a.user_id = u.rowid) ")

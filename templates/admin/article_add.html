@@ -4,13 +4,16 @@
 {{template "admin/navigation" .}}
 
 <main>
-	{{template "skel/flash"}}
+	{{template "skel/flash" .}}
 
     <h2>Write an article</h2>
 
     <form action="/admin/article/new" method="post">
 		<label for="headline">Headline</label>
 		<input type="text" id="headline" name="headline" placeholder="Headline..." {{if .article.Headline}}value="{{.article.Headline}}"{{end}} required>
+
+		<label for="teaser">Teaser</label>
+		<textarea rows="5" id="teaser" name="teaser">{{.Teaser}}</textarea>
 
 		<label for="content">Content</label>
 		<textarea rows="25" id="content" name="content" placeholder="Content...">{{.article.Content}}</textarea>

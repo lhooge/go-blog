@@ -130,6 +130,7 @@ func (dbFlags initDatabaseFlags) initSQLite(config string) error {
 		"(" +
 		"headline VARCHAR(100) NOT NULL, " +
 		"slug VARCHAR(191) NOT NULL, " +
+		"teaser text NOT NULL, " +
 		"content text NOT NULL, " +
 		"published boolean NOT NULL DEFAULT false, " +
 		"published_on datetime, " +
@@ -283,6 +284,7 @@ func (dbFlags initDatabaseFlags) initMySQL(config string) error {
 		"id INT NOT NULL AUTO_INCREMENT, " +
 		"title VARCHAR(100) NOT NULL, " +
 		"link VARCHAR(100) NOT NULL, " +
+		"teaser text NOT NULL, " +
 		"content text NOT NULL, " +
 		"published boolean NOT NULL DEFAULT false, " +
 		"published_on datetime, " +

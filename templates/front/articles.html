@@ -15,12 +15,12 @@
 		<h2 class="article_link"><a href="/article/{{.SlugEscape}}">{{.Headline}}</a></h2>
 		<p class="article_info">written by {{.Author.DisplayName}} on {{.PublishedOn.Time | FormatDate}}</p>
 
-		{{.Content | ParseMarkdown}}
+		{{.Teaser}}
 	</article>
 
 	<hr>
 	{{end}}
-	
+
 	{{if .pagination}}
 		{{PaginationBar .pagination}}
 	{{end}}
