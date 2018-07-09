@@ -18,9 +18,9 @@ import (
 	"git.hoogi.eu/go-blog/components/mail"
 	m "git.hoogi.eu/go-blog/middleware"
 	"git.hoogi.eu/go-blog/models"
-	"git.hoogi.eu/go-blog/models/sessions"
 	"git.hoogi.eu/go-blog/routers"
 	"git.hoogi.eu/go-blog/settings"
+	"git.hoogi.eu/session"
 )
 
 var (
@@ -258,20 +258,21 @@ func context(db *sql.DB, cfg *settings.Settings) (*m.AppContext, error) {
 	}
 
 	idleTTL := cfg.Session.TTL
+	fmt.Println(idleTTL)
 
-	sessionStore := sessions.CookieStore{
+	sessionService := session.SessionService{
 		Path:            cfg.Session.CookiePath,
 		Name:            cfg.Session.CookieName,
 		Secure:          cfg.Session.CookieSecure,
 		HTTPOnly:        true,
-		SessionProvider: sessions.NewInMemoryProvider(),
+		SessionProvider: session.NewInMemoryProvider(),
 		IdleSessionTTL:  idleTTL.Nanoseconds() / 1e9,
 	}
 
 	ticker := time.NewTicker(cfg.Session.GarbageCollection)
 	timeoutAfter := cfg.Session.TTL
 
-	sessionStore.InitGC(ticker, timeoutAfter)
+	sessionService.InitGC(ticker, timeoutAfter)
 
 	return &m.AppContext{
 		Templates:      tpl,
@@ -281,7 +282,7 @@ func context(db *sql.DB, cfg *settings.Settings) (*m.AppContext, error) {
 		FileService:    fileService,
 		TokenService:   tokenService,
 		MailService:    mailService,
-		SessionStore:   &sessionStore,
+		SessionService: &sessionService,
 		ConfigService:  cfg,
 	}, nil
 }

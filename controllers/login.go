@@ -192,7 +192,7 @@ func ForgotPasswordPostHandler(ctx *middleware.AppContext, w http.ResponseWriter
 // LoginHandler shows the login form;
 // if the user is already logged in the user will be redirected to the administration page of aricles
 func LoginHandler(ctx *middleware.AppContext, rw http.ResponseWriter, r *http.Request) *middleware.Template {
-	_, err := ctx.SessionStore.Get(rw, r)
+	_, err := ctx.SessionService.Get(rw, r)
 
 	if err != nil {
 		return &middleware.Template{
@@ -261,7 +261,8 @@ func LoginPostHandler(ctx *middleware.AppContext, rw http.ResponseWriter, r *htt
 		}
 	}
 
-	ctx.SessionStore.CreateForUser(rw, r, user.ID)
+	session := ctx.SessionService.Create(rw, r)
+	session.SetValue("userid", user.ID)
 
 	return &middleware.Template{
 		RedirectPath: redirectTo,
@@ -270,7 +271,7 @@ func LoginPostHandler(ctx *middleware.AppContext, rw http.ResponseWriter, r *htt
 
 // LogoutHandler logs the user out by removing the cookie and removing the session from the session store
 func LogoutHandler(ctx *middleware.AppContext, rw http.ResponseWriter, r *http.Request) *middleware.Template {
-	ctx.SessionStore.Remove(rw, r)
+	ctx.SessionService.Remove(rw, r)
 
 	return &middleware.Template{
 		RedirectPath: "admin",

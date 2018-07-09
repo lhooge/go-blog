@@ -9,13 +9,13 @@ import (
 
 	"git.hoogi.eu/go-blog/components/mail"
 	"git.hoogi.eu/go-blog/models"
-	"git.hoogi.eu/go-blog/models/sessions"
 	"git.hoogi.eu/go-blog/settings"
+	"git.hoogi.eu/session"
 )
 
 //AppContext contains the services, session store, templates
 type AppContext struct {
-	SessionStore   *sessions.CookieStore
+	SessionService *session.SessionService
 	ArticleService models.ArticleService
 	UserService    models.UserService
 	SiteService    models.SiteService

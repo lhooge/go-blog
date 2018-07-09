@@ -45,7 +45,7 @@ func NotFound(ctx *AppContext, rw http.ResponseWriter, r *http.Request) *Templat
 	getFlash(rw, r, "ErrorMsg")
 	getFlash(rw, r, "SuccessMsg")
 
-	session, _ := ctx.SessionStore.Get(rw, r)
+	session, _ := ctx.SessionService.Get(rw, r)
 	if session != nil && strings.HasPrefix(r.URL.EscapedPath(), "/admin") {
 		return &Template{
 			Name: "admin/error",

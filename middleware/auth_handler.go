@@ -24,7 +24,7 @@ var (
 //AuthHandler checks if the user is authenticated; if not next handler in chain is not called
 func (ctx AppContext) AuthHandler(handler http.Handler) http.Handler {
 	fn := func(rw http.ResponseWriter, r *http.Request) {
-		session, err := ctx.SessionStore.Get(rw, r)
+		session, err := ctx.SessionService.Get(rw, r)
 
 		if err != nil {
 			logger.Log.Error(err)
@@ -37,7 +37,31 @@ func (ctx AppContext) AuthHandler(handler http.Handler) http.Handler {
 			return
 		}
 
-		u := session.GetUser(ctx.UserService)
+		userid, ok := session.GetValue("userid").(int)
+		if !ok {
+			logger.Log.Error("userid is not an integer %v", userid)
+
+			rw.WriteHeader(http.StatusUnauthorized)
+			ctx.Templates.ExecuteTemplate(rw, "admin/login", map[string]interface{}{
+				"ErrorMsg":       "Please provide login credentials.",
+				"state":          r.URL.EscapedPath(),
+				csrf.TemplateTag: csrf.TemplateField(r),
+			})
+			return
+		}
+
+		u, err := ctx.UserService.GetUserByID(userid)
+		if err != nil {
+			logger.Log.Error(err)
+			rw.WriteHeader(http.StatusUnauthorized)
+			ctx.Templates.ExecuteTemplate(rw, "admin/login", map[string]interface{}{
+				"ErrorMsg":       "Please provide login credentials.",
+				"state":          r.URL.EscapedPath(),
+				csrf.TemplateTag: csrf.TemplateField(r),
+			})
+			return
+		}
+
 		ctx := context.WithValue(r.Context(), UserContextKey, u)
 		handler.ServeHTTP(rw, r.WithContext(ctx))
 	}
