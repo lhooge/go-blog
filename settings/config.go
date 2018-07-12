@@ -60,8 +60,9 @@ type Settings struct {
 	AppVersion string
 	BuildDate  string
 
-	Language string `cfg:"language"`
-	Title    string `cfg:"title"`
+	Title       string `cfg:"title"`
+	Language    string `cfg:"language"`
+	Description string `cfg:"description"`
 
 	Blog
 	User

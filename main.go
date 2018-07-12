@@ -52,21 +52,13 @@ func main() {
 
 	if err != nil {
 		exitCode = 1
-		logger.Log.Error(err)
-		panic(err)
+		fmt.Println(err)
+		return
 	}
 
 	if err = cfg.CheckConfig(); err != nil {
 		exitCode = 1
-		logger.Log.Error(err)
-		return
-	}
-
-	csrf, err := cfg.GenerateCSRF()
-
-	if err != nil {
-		exitCode = 1
-		logger.Log.Error(err)
+		fmt.Println(err)
 		return
 	}
 
@@ -82,13 +74,20 @@ func main() {
 		logger.InitLogger(os.Stderr, cfg.Log.Level)
 	}
 
+	csrf, err := cfg.GenerateCSRF()
+
+	if err != nil {
+		exitCode = 1
+		logger.Log.Error(err)
+		return
+	}
+
 	if csrf {
-		logger.Log.Info("a random csrf were generated")
+		logger.Log.Info("a random key for CSRF protection was generated")
 	}
 
 	logger.Log.Infof("Go-Blog version: %s, commit: %s", BuildVersion, GitHash)
-	logger.Log.Info("Server startup")
-	logger.Log.Infof("Running in %s mode", cfg.Environment)
+	logger.Log.Infof("running in %s mode", cfg.Environment)
 
 	var db *sql.DB
 	if cfg.Database.Engine == settings.MySQL {
@@ -257,22 +256,17 @@ func context(db *sql.DB, cfg *settings.Settings) (*m.AppContext, error) {
 		return nil, err
 	}
 
-	idleTTL := cfg.Session.TTL
-	fmt.Println(idleTTL)
-
 	sessionService := session.SessionService{
 		Path:            cfg.Session.CookiePath,
 		Name:            cfg.Session.CookieName,
 		Secure:          cfg.Session.CookieSecure,
 		HTTPOnly:        true,
 		SessionProvider: session.NewInMemoryProvider(),
-		IdleSessionTTL:  idleTTL.Nanoseconds() / 1e9,
+		IdleSessionTTL:  cfg.Session.TTL.Nanoseconds() / 1e9,
 	}
 
 	ticker := time.NewTicker(cfg.Session.GarbageCollection)
-	timeoutAfter := cfg.Session.TTL
-
-	sessionService.InitGC(ticker, timeoutAfter)
+	sessionService.InitGC(ticker, cfg.Session.TTL)
 
 	return &m.AppContext{
 		Templates:      tpl,

@@ -106,7 +106,6 @@ func (userFlags createUserFlag) CreateUser(config string) error {
 				SQLConn: db,
 			},
 		}
-		fmt.Println("sql")
 	} else if c.Database.Engine == settings.SQLite {
 		dbConfig := database.SQLiteConfig{
 			File: c.Database.File,
@@ -118,7 +117,6 @@ func (userFlags createUserFlag) CreateUser(config string) error {
 			return err
 		}
 
-		fmt.Println("dodao")
 		userService = models.UserService{
 			Datasource: models.SQLiteUserDatasource{
 				SQLConn: db,

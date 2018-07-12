@@ -6,6 +6,7 @@ package middleware
 
 import (
 	"errors"
+	"fmt"
 	"html/template"
 	"net/http"
 	"os"
@@ -62,6 +63,25 @@ func NotFound(ctx *AppContext, rw http.ResponseWriter, r *http.Request) *Templat
 //FuncMap some functions for use in templates
 func FuncMap(ss models.SiteService, cfg *settings.Settings) template.FuncMap {
 	return template.FuncMap{
+		"GetMetadata": func(data map[string]interface{}) template.HTML {
+			var meta string
+
+			if len(cfg.Description) > 0 {
+				meta = fmt.Sprintf("<meta name=\"description\" content=\"%s\">\n", cfg.Description)
+			}
+
+			if value, ok := data["article"]; ok {
+				if art, ok := value.(*models.Article); ok {
+					meta = fmt.Sprintf("<meta name=\"description\" content=\"%s\">\n", art.Teaser)
+					meta += fmt.Sprintf("\t\t<meta name=\"author\" content=\"%s\">\n", art.Author.DisplayName)
+				}
+			} else if value, ok := data["site"]; ok {
+				if site, ok := value.(*models.Site); ok {
+					meta = fmt.Sprintf("\t\t<meta name=\"author\" content=\"%s\">\n", site.Author.DisplayName)
+				}
+			}
+			return template.HTML(meta)
+		},
 		"Language": func() string {
 			return cfg.Language
 		},

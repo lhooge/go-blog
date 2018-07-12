@@ -8,9 +8,8 @@
 		<meta name="viewport" content="width=device-width,initial-scale=1.0">
 		<link rel="stylesheet" href="/assets/css/master.css">
 		<link rel="icon" href="/assets/favicon.ico" type="image/vnd.microsoft.icon">
-		{{if .article}}
-		<meta name="description" content="{{.article.Teaser}}">
-		{{end}}
+		
+		{{GetMetadata .}}
     </head>
 
 <body>
@@ -18,3 +17,5 @@
 		<h1 class="header-text">{{PageTitle}}</h1>
 	</header>
 {{end}}
+
+
