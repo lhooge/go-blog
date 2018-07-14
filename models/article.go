@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"git.hoogi.eu/go-blog/components/httperror"
+	"git.hoogi.eu/go-blog/settings"
 	"git.hoogi.eu/go-blog/utils"
 )
 
@@ -44,7 +45,6 @@ type ArticleDatasourceService interface {
 
 const (
 	maxHeadlineSize = 150
-	maxTeaserSize   = 320
 )
 
 //SlugEscape escapes the slug for use in URLs
@@ -74,10 +74,6 @@ func (a *Article) validate() error {
 		return httperror.ValueRequired("teaser")
 	}
 
-	if len([]rune(a.Teaser)) > maxTeaserSize {
-		return httperror.ValueTooLong("teaser", maxTeaserSize)
-	}
-
 	if a.Author == nil {
 		return httperror.InternalServerError(errors.New("article validation failed - the author is missing"))
 	}
@@ -87,6 +83,7 @@ func (a *Article) validate() error {
 //ArticleService containing the service to access articles
 type ArticleService struct {
 	Datasource ArticleDatasourceService
+	BlogConfig settings.Blog
 }
 
 // CreateArticle creates an article
@@ -228,6 +225,43 @@ func (as ArticleService) CountArticles(user *User, publishedCriteria PublishedCr
 // The publishedCriteria defines whether the published and/or unpublished articles should be considered
 func (as ArticleService) ListArticles(user *User, pagination *Pagination, publishedCriteria PublishedCriteria) ([]Article, error) {
 	return as.Datasource.List(user, pagination, publishedCriteria)
+}
+
+// RSSFeed receives a specified number of articles in RSS
+func (as ArticleService) RSSFeed(user *User, pagination *Pagination, pc PublishedCriteria) (RSS, error) {
+	c := RSSChannel{
+		Title:       as.BlogConfig.Title,
+		Link:        as.BlogConfig.Domain,
+		Description: as.BlogConfig.Description,
+		Language:    as.BlogConfig.Language,
+	}
+
+	articles, err := as.Datasource.List(user, pagination, pc)
+
+	if err != nil {
+		return RSS{}, err
+	}
+
+	items := []RSSItem{}
+
+	for _, a := range articles {
+		link := fmt.Sprint(as.BlogConfig.Domain, "/", a.Slug)
+		item := RSSItem{
+			GUID:        link,
+			Link:        link,
+			Title:       a.Headline,
+			Description: a.Teaser,
+		}
+
+		items = append(items, item)
+	}
+
+	c.Items = items
+
+	return RSS{
+		Version: "2.0",
+		Channel: c,
+	}, nil
 }
 
 type IndexArticle struct {

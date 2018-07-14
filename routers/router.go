@@ -9,7 +9,6 @@ import (
 	"os"
 
 	c "git.hoogi.eu/go-blog/controllers"
-	"git.hoogi.eu/go-blog/controllers/json"
 	m "git.hoogi.eu/go-blog/middleware"
 	"git.hoogi.eu/go-blog/settings"
 
@@ -119,18 +118,20 @@ func restrictedRoutes(ctx *m.AppContext, router *mux.Router, chain alice.Chain) 
 
 	router.Handle("/logout", chain.Then(useTemplateHandler(ctx, c.LogoutHandler))).Methods("GET")
 
-	router.Handle("/json/session/keep-alive", chain.Then(useJSONHandler(ctx, json.KeepAliveSessionHandler))).Methods("GET")
+	router.Handle("/json/session/keep-alive", chain.Then(useJSONHandler(ctx, c.KeepAliveSessionHandler))).Methods("GET")
 }
 
 func publicRoutes(ctx *m.AppContext, router *mux.Router, chain alice.Chain) {
+
 	router.Handle("/", chain.Then(useTemplateHandler(ctx, c.ListArticlesHandler))).Methods("GET")
 	router.Handle("/index", chain.Then(useTemplateHandler(ctx, c.IndexArticlesHandler))).Methods("GET")
 	router.Handle("/site/{site}", chain.Then(useTemplateHandler(ctx, c.SiteHandler))).Methods("GET")
 	router.Handle("/articles/page/{page}", chain.Then(useTemplateHandler(ctx, c.ListArticlesHandler))).Methods("GET")
 	router.Handle("/article/{year}/{month}/{slug}", chain.Then(useTemplateHandler(ctx, c.GetArticleHandler))).Methods("GET")
 
-	router.Handle("/file/{filename}", chain.Then(c.FileGetHandler(ctx))).Methods("GET")
+	router.Handle("/rss.xml", chain.Then(useXMLHandler(ctx, c.RSSFeed))).Methods("GET")
 
+	router.Handle("/file/{filename}", chain.Then(c.FileGetHandler(ctx))).Methods("GET")
 	router.Handle("/admin", chain.Then(useTemplateHandler(ctx, c.LoginHandler))).Methods("GET")
 	router.Handle("/admin", chain.Then(useTemplateHandler(ctx, c.LoginPostHandler))).Methods("POST")
 
@@ -148,4 +149,8 @@ func useTemplateHandler(ctx *m.AppContext, handler m.Handler) m.TemplateHandler 
 
 func useJSONHandler(ctx *m.AppContext, handler m.JHandler) m.JSONHandler {
 	return m.JSONHandler{AppCtx: ctx, Handler: handler}
+}
+
+func useXMLHandler(ctx *m.AppContext, handler m.XHandler) m.XMLHandler {
+	return m.XMLHandler{AppCtx: ctx, Handler: handler}
 }

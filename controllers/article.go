@@ -84,7 +84,8 @@ func ListArticlesHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *h
 		Data: map[string]interface{}{
 			"articles":   article,
 			"pagination": pagination,
-		}}
+		},
+	}
 }
 
 //IndexArticlesHandler returns the template information for the index page
@@ -104,7 +105,26 @@ func IndexArticlesHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *
 		Active: "index",
 		Data: map[string]interface{}{
 			"indexed_articles": article,
-		}}
+		},
+	}
+}
+
+//GetArticleHandler returns a specific article
+//Parameters in the url form 2016/03/my-headline are used for obtaining the article
+func RSSFeed(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) (*models.Data, error) {
+	pagination := &models.Pagination{
+		Limit: ctx.ConfigService.RSSFeedItems,
+	}
+
+	rss, err := ctx.ArticleService.RSSFeed(nil, pagination, models.OnlyPublished)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &models.Data{
+		Data: rss,
+	}, nil
 }
 
 //AdminListArticlesHandler returns all articles, also not yet published articles will be shown

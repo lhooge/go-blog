@@ -55,14 +55,9 @@ func (de *DatabaseEngine) Unmarshal(value string) error {
 }
 
 type Settings struct {
-	Environment string `cfg:"environment" default:"prod"`
-
-	AppVersion string
-	BuildDate  string
-
-	Title       string `cfg:"title"`
-	Language    string `cfg:"language"`
-	Description string `cfg:"description"`
+	Environment  string `cfg:"environment" default:"prod"`
+	BuildVersion string `cfg:"-"`
+	BuildDate    string `cfg:"-"`
 
 	Blog
 	User
@@ -75,6 +70,9 @@ type Settings struct {
 	Log
 }
 
+type App struct {
+}
+
 type Server struct {
 	Address string `cfg:"server_address" default:"127.0.0.1"`
 	Port    int    `cfg:"server_port" default:"4730"`
@@ -82,8 +80,6 @@ type Server struct {
 	UseTLS bool   `cfg:"use_tls" default:"yes"`
 	Cert   string `cfg:"ssl_certificate_file"`
 	Key    string `cfg:"ssl_certificate_key_file"`
-
-	Domain string `cfg:"domain"`
 }
 
 type Database struct {
@@ -95,13 +91,20 @@ type Database struct {
 	Name     string         `cfg:"mysql_database"`
 	File     string         `cfg:"sqlite_file" default:"data/goblog.sqlite"`
 }
+
 type File struct {
-	Location      string       `cfg:"file_location" default: "/srv/goblog/files/`
-	MaxUploadSize cfg.FileSize `cfg:"file_max_upload_size" default: 20MB`
+	Location      string       `cfg:"file_location" default:"/srv/goblog/files/`
+	MaxUploadSize cfg.FileSize `cfg:"file_max_upload_size" default:"20MB"`
 }
 
 type Blog struct {
-	ArticlesPerPage int `cfg:"blog_articles_per_page" default:"12"`
+	Title       string `cfg:"blog_title"`
+	Language    string `cfg:"blog_language"`
+	Description string `cfg:"blog_description"`
+	Domain      string `cfg:"blog_domain"`
+
+	ArticlesPerPage int `cfg:"blog_articles_per_page" default:"20"`
+	RSSFeedItems    int `cfg:"blog_rss_feed_items" default:"10"`
 }
 
 type User struct {
@@ -121,25 +124,25 @@ type Mail struct {
 }
 
 type Session struct {
-	TTL               time.Duration `cfg:"session_time_to_live" default: "2h"`
-	GarbageCollection time.Duration `cfg:"session_garbage_collection" default: "5m"`
-	CookieName        string        `cfg:"session_cookie_name" default: "goblog"`
-	CookieSecure      bool          `cfg:"session_cookie_secure" default: "true"`
-	CookiePath        string        `cfg:"session_cookie_path" default: "/admin"`
+	TTL               time.Duration `cfg:"session_time_to_live" default:"2h"`
+	GarbageCollection time.Duration `cfg:"session_garbage_collection" default:"5m"`
+	CookieName        string        `cfg:"session_cookie_name" default:"goblog"`
+	CookieSecure      bool          `cfg:"session_cookie_secure" default:"true"`
+	CookiePath        string        `cfg:"session_cookie_path" default:"/admin"`
 }
 
 type CSRF struct {
-	CookieName   string `cfg:"csrf_cookie_name" default: "csrf"`
-	CookieSecure bool   `cfg:"csrf_cookie_secure" default: "true"`
-	CookiePath   string `cfg:"csrf_cookie_path" default: "/admin"`
+	CookieName   string `cfg:"csrf_cookie_name" default:"csrf"`
+	CookieSecure bool   `cfg:"csrf_cookie_secure" default:"true"`
+	CookiePath   string `cfg:"csrf_cookie_path" default:"/admin"`
 	RandomKey    string `cfg:"csrf_random_key"`
 }
 
 type Log struct {
-	Level      string `cfg:"log_level" default: "info"`
-	File       string `cfg:"log_file" default: "/var/log/goblog/error.log"`
-	Access     bool   `cfg:"log_access" default: "true"`
-	AccessFile string `cfg:"log_access_file" default: "/var/log/goblog/access.log"`
+	Level      string `cfg:"log_level" default:"info"`
+	File       string `cfg:"log_file" default:"/var/log/goblog/error.log"`
+	Access     bool   `cfg:"log_access" default:"true"`
+	AccessFile string `cfg:"log_access_file" default:"/var/log/goblog/access.log"`
 }
 
 const csrfTokenFilename = ".csrftoken"

@@ -166,7 +166,7 @@ func ForgotPasswordPostHandler(ctx *middleware.AppContext, w http.ResponseWriter
 		}
 	}
 
-	resetLink := utils.AppendString(ctx.ConfigService.Server.Domain, "/reset-password/", t.Hash)
+	resetLink := utils.AppendString(ctx.ConfigService.Blog.Domain, "/reset-password/", t.Hash)
 
 	m := mail.Mail{
 		To:      u.Email,
@@ -277,4 +277,21 @@ func LogoutHandler(ctx *middleware.AppContext, rw http.ResponseWriter, r *http.R
 		RedirectPath: "admin",
 		SuccessMsg:   "Successfully logged out",
 	}
+}
+
+// KeepAliveSessionHandler keeps a session alive.
+func KeepAliveSessionHandler(ctx *middleware.AppContext, rw http.ResponseWriter, r *http.Request) (*models.Data, error) {
+	_, err := ctx.SessionService.Get(rw, r)
+
+	if err != nil {
+		return nil, err
+	}
+
+	data := &models.Data{
+		Data: map[string]bool{
+			"acknowledge": true,
+		},
+	}
+
+	return data, nil
 }

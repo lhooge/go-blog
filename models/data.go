@@ -4,7 +4,7 @@
 
 package models
 
-// JSONData Represents arbritary JSON data
-type JSONData struct {
-	Data interface{} `json:"data,-"`
+// Data represents arbritary JSON and XML data
+type Data struct {
+	Data interface{} `json:"data,-" xml:"data,-"`
 }

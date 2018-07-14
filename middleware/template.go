@@ -91,8 +91,8 @@ func FuncMap(ss models.SiteService, cfg *settings.Settings) template.FuncMap {
 		"PageTitle": func() string {
 			return cfg.Title
 		},
-		"AppVersion": func() string {
-			return cfg.AppVersion
+		"BuildVersion": func() string {
+			return cfg.BuildVersion
 		},
 		"BuildDate": func() string {
 			return cfg.BuildDate

@@ -218,6 +218,7 @@ func context(db *sql.DB, cfg *settings.Settings) (*m.AppContext, error) {
 
 	articleService := models.ArticleService{
 		Datasource: ads,
+		BlogConfig: cfg.Blog,
 	}
 
 	siteService := models.SiteService{
