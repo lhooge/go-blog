@@ -37,7 +37,7 @@ func (fn XMLHandler) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	x, err2 := xml.Marshal(h.Data)
+	x, err2 := xml.MarshalIndent(h.Data, "", "\t")
 
 	if err2 != nil {
 		http.Error(rw, err2.Error(), http.StatusInternalServerError)

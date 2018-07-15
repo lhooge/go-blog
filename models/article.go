@@ -245,12 +245,14 @@ func (as ArticleService) RSSFeed(user *User, pagination *Pagination, pc Publishe
 	items := []RSSItem{}
 
 	for _, a := range articles {
-		link := fmt.Sprint(as.BlogConfig.Domain, "/", a.Slug)
+		link := fmt.Sprint(as.BlogConfig.Domain, "/article/", a.Slug)
 		item := RSSItem{
 			GUID:        link,
 			Link:        link,
 			Title:       a.Headline,
+			Author:      fmt.Sprintf("%s (%s)", a.Author.Email, a.Author.DisplayName),
 			Description: a.Teaser,
+			PubDate:     a.PublishedOn.Time,
 		}
 
 		items = append(items, item)
