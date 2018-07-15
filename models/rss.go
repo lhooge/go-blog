@@ -21,10 +21,18 @@ type RSSChannel struct {
 }
 
 type RSSItem struct {
-	GUID        string    `xml:"guid"`
-	Author      string    `xml:"author"`
-	Title       string    `xml:"title"`
-	Link        string    `xml:"link"`
-	Description string    `xml:"description"`
-	PubDate     time.Time `xml:"pubDate"`
+	GUID        string  `xml:"guid"`
+	Author      string  `xml:"author"`
+	Title       string  `xml:"title"`
+	Link        string  `xml:"link"`
+	Description string  `xml:"description"`
+	PubDate     RSSTime `xml:"pubDate"`
+}
+
+type RSSTime time.Time
+
+func (r RSSTime) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
+	t := time.Time(r)
+	v := t.Format("Mon, 2 Jan 2007 15:04:05 GMT")
+	return e.EncodeElement(v, start)
 }

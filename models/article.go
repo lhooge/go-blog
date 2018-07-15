@@ -252,7 +252,7 @@ func (as ArticleService) RSSFeed(user *User, pagination *Pagination, pc Publishe
 			Title:       a.Headline,
 			Author:      fmt.Sprintf("%s (%s)", a.Author.Email, a.Author.DisplayName),
 			Description: a.Teaser,
-			PubDate:     a.PublishedOn.Time,
+			PubDate:     RSSTime(a.PublishedOn.Time),
 		}
 
 		items = append(items, item)
