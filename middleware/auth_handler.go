@@ -74,6 +74,7 @@ func (ctx AppContext) RequireAdmin(handler http.Handler) http.Handler {
 		u, err := User(r)
 
 		if err != nil {
+			logger.Log.Error(err)
 			ctx.Templates.ExecuteTemplate(rw, "admin/error", map[string]interface{}{
 				"ErrorMsg": "An internal server error occured",
 			})
