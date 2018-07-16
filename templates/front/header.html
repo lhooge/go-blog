@@ -8,6 +8,10 @@
 		<meta name="viewport" content="width=device-width,initial-scale=1.0">
 		<link rel="stylesheet" href="/assets/css/master.css">
 		<link rel="icon" href="/assets/favicon.ico" type="image/vnd.microsoft.icon">
+				
+		{{if .articles}}
+		<link rel="alternate" type="application/rss+xml" href="/rss.xml" />
+		{{end}}
 		
 		{{GetMetadata .}}
     </head>

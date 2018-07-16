@@ -31,5 +31,9 @@ func init() {
 //MarkdownToHTML sanitizes and parses markdown to HTML
 func MarkdownToHTML(md string) string {
 	md = strings.Replace(md, "\r\n", "\n", -1)
-	return p.Sanitize(string(bf.Run([]byte(md), bf.WithExtensions(exts))))
+	return sanitize(string(bf.Run([]byte(md), bf.WithExtensions(exts))))
+}
+
+func sanitize(in string) string {
+	return p.Sanitize(in)
 }

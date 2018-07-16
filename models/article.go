@@ -8,6 +8,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"html"
 	"net/url"
 	"strconv"
 	"strings"
@@ -250,9 +251,9 @@ func (as ArticleService) RSSFeed(p *Pagination, pc PublishedCriteria) (RSS, erro
 		item := RSSItem{
 			GUID:        link,
 			Link:        link,
-			Title:       a.Headline,
-			Author:      fmt.Sprintf("%s (%s)", a.Author.Email, a.Author.DisplayName),
-			Description: a.Teaser,
+			Title:       html.EscapeString(a.Headline),
+			Author:      html.EscapeString(fmt.Sprintf("%s (%s)", a.Author.Email, a.Author.DisplayName)),
+			Description: html.EscapeString(a.Teaser),
 			PubDate:     RSSTime(a.PublishedOn.Time),
 		}
 
