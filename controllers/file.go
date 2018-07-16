@@ -21,49 +21,49 @@ const (
 //FileGetHandler serves the file based on the url filename
 func FileGetHandler(ctx *middleware.AppContext) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
-		filename := getVar(r, "filename")
+		rv := getVar(r, "filename")
 
-		file, err := ctx.FileService.GetFileByName(filename, nil)
+		f, err := ctx.FileService.GetFileByName(rv, nil)
 
 		if err != nil {
 			http.Error(w, "the file was not found", http.StatusNotFound)
 			return
 		}
 
-		fileLoc := filepath.Join(ctx.ConfigService.Location, file.Filename)
+		loc := filepath.Join(ctx.ConfigService.Location, f.Filename)
 
-		w.Header().Set("Content-Type", file.ContentType)
+		w.Header().Set("Content-Type", f.ContentType)
 		w.Header().Set("Content-Disposition", "attachment")
 
-		rf, err := os.Open(fileLoc)
+		rf, err := os.Open(loc)
 
 		if err != nil {
 			if os.IsNotExist(err) {
-				logger.Log.Errorf("the file %s was not found - %v", fileLoc, err)
+				logger.Log.Errorf("the file %s was not found - %v", loc, err)
 				http.Error(w, "404 page not found", http.StatusNotFound)
 			}
 			if os.IsPermission(err) {
-				logger.Log.Errorf("not permitted to read file %s - %v", fileLoc, err)
+				logger.Log.Errorf("not permitted to read file %s - %v", loc, err)
 				http.Error(w, "404 page not found", http.StatusForbidden)
 			}
-			logger.Log.Errorf("an internal error while reading file %s - %v", fileLoc, err)
+			logger.Log.Errorf("an internal error while reading file %s - %v", loc, err)
 			http.Error(w, "500 Internal Server Error", http.StatusInternalServerError)
 		}
 
 		defer rf.Close()
 
-		http.ServeContent(w, r, fileLoc, file.LastModified, rf)
+		http.ServeContent(w, r, loc, f.LastModified, rf)
 	}
 	return http.HandlerFunc(fn)
 }
 
 //AdminListFilesHandler returns the template which lists alle uploaded files belonging to a user, admins will see all files
 func AdminListFilesHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
-	user, _ := middleware.User(r)
+	u, _ := middleware.User(r)
 
 	page := getPageParam(r)
 
-	total, err := ctx.FileService.CountFiles(user)
+	t, err := ctx.FileService.CountFiles(u)
 
 	if err != nil {
 		return &middleware.Template{
@@ -73,14 +73,14 @@ func AdminListFilesHandler(ctx *middleware.AppContext, w http.ResponseWriter, r 
 		}
 	}
 
-	pagination := &models.Pagination{
-		Total:       total,
+	p := &models.Pagination{
+		Total:       t,
 		Limit:       20,
 		CurrentPage: page,
 		RelURL:      "admin/files/page",
 	}
 
-	files, err := ctx.FileService.ListFiles(user, pagination)
+	fs, err := ctx.FileService.ListFiles(u, p)
 
 	if err != nil {
 		return &middleware.Template{
@@ -94,8 +94,8 @@ func AdminListFilesHandler(ctx *middleware.AppContext, w http.ResponseWriter, r 
 		Name:   tplAdminFiles,
 		Active: "files",
 		Data: map[string]interface{}{
-			"files":      files,
-			"pagination": pagination,
+			"files":      fs,
+			"pagination": p,
 		}}
 }
 
@@ -120,9 +120,9 @@ func AdminUploadFilePostHandler(ctx *middleware.AppContext, w http.ResponseWrite
 		}
 	}
 
-	user, _ := middleware.User(r)
+	u, _ := middleware.User(r)
 
-	cf, header, err := r.FormFile("file")
+	ff, h, err := r.FormFile("file")
 
 	if err != nil {
 		return &middleware.Template{
@@ -132,9 +132,9 @@ func AdminUploadFilePostHandler(ctx *middleware.AppContext, w http.ResponseWrite
 		}
 	}
 
-	defer cf.Close()
+	defer ff.Close()
 
-	data, err := ioutil.ReadAll(cf)
+	data, err := ioutil.ReadAll(ff)
 
 	if err != nil {
 		return &middleware.Template{
@@ -151,7 +151,7 @@ func AdminUploadFilePostHandler(ctx *middleware.AppContext, w http.ResponseWrite
 	file := &models.File{
 		ContentType: ct,
 		Location:    ctx.ConfigService.File.Location,
-		Author:      user,
+		Author:      u,
 		Size:        int64(len(data)),
 	}
 
@@ -160,14 +160,14 @@ func AdminUploadFilePostHandler(ctx *middleware.AppContext, w http.ResponseWrite
 
 		//check if an extension were provided in the new file name; if not try to use extension from form data
 		if idx > 0 {
-			ue := filepath.Ext(header.Filename)
+			ue := filepath.Ext(h.Filename)
 
 			file.Filename = fmt.Sprintf("%s%s", nf, ue)
 		} else {
 			file.Filename = nf
 		}
 	} else {
-		file.Filename = header.Filename
+		file.Filename = h.Filename
 	}
 
 	_, err = ctx.FileService.UploadFile(file, data)
@@ -189,21 +189,11 @@ func AdminUploadFilePostHandler(ctx *middleware.AppContext, w http.ResponseWrite
 
 //AdminUploadDeleteHandler returns the action template which asks the user if the file should be removed
 func AdminUploadDeleteHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
-	user, _ := middleware.User(r)
+	u, _ := middleware.User(r)
 
-	reqVar := getVar(r, "fileID")
+	rv := getVar(r, "fileID")
 
-	fileID, err := parseInt(reqVar)
-
-	if err != nil {
-		return &middleware.Template{
-			Name:   tplAdminFiles,
-			Err:    err,
-			Active: "files",
-		}
-	}
-
-	file, err := ctx.FileService.GetFileByID(fileID, user)
+	id, err := parseInt(rv)
 
 	if err != nil {
 		return &middleware.Template{
@@ -213,10 +203,20 @@ func AdminUploadDeleteHandler(ctx *middleware.AppContext, w http.ResponseWriter,
 		}
 	}
 
-	deleteInfo := models.Action{
+	f, err := ctx.FileService.GetFileByID(id, u)
+
+	if err != nil {
+		return &middleware.Template{
+			Name:   tplAdminFiles,
+			Err:    err,
+			Active: "files",
+		}
+	}
+
+	action := models.Action{
 		ID:          "deleteFile",
-		ActionURL:   fmt.Sprintf("/admin/file/delete/%d", file.ID),
-		Description: fmt.Sprintf("%s %s?", "Do you want to delete the file ", file.Filename),
+		ActionURL:   fmt.Sprintf("/admin/file/delete/%d", f.ID),
+		Description: fmt.Sprintf("%s %s?", "Do you want to delete the file ", f.Filename),
 		Title:       "Confirm removal of file",
 	}
 
@@ -224,18 +224,18 @@ func AdminUploadDeleteHandler(ctx *middleware.AppContext, w http.ResponseWriter,
 		Name:   tplAdminAction,
 		Active: "articles",
 		Data: map[string]interface{}{
-			"action": deleteInfo,
+			"action": action,
 		},
 	}
 }
 
 //AdminUploadDeletePostHandler removes a file
 func AdminUploadDeletePostHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
-	user, _ := middleware.User(r)
+	u, _ := middleware.User(r)
 
-	reqVar := getVar(r, "fileID")
+	rv := getVar(r, "fileID")
 
-	fileID, err := parseInt(reqVar)
+	id, err := parseInt(rv)
 
 	if err != nil {
 		return &middleware.Template{
@@ -245,7 +245,7 @@ func AdminUploadDeletePostHandler(ctx *middleware.AppContext, w http.ResponseWri
 		}
 	}
 
-	err = ctx.FileService.DeleteFile(fileID, ctx.ConfigService.File.Location, user)
+	err = ctx.FileService.DeleteFile(id, ctx.ConfigService.File.Location, u)
 
 	if err != nil {
 		return &middleware.Template{

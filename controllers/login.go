@@ -30,6 +30,7 @@ const (
 //ResetPasswordHandler returns the form for the resetting the password
 func ResetPasswordHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
 	hash := getVar(r, "hash")
+
 	t, err := ctx.TokenService.GetToken(hash, models.PasswordReset, time.Duration(1)*time.Hour)
 
 	if err != nil {
@@ -56,7 +57,7 @@ func ResetPasswordHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *
 //ResetPasswordPostHandler handles the resetting of the password
 func ResetPasswordPostHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
 	password := r.FormValue("password")
-	repassword := r.FormValue("reenter_password")
+	repassword := r.FormValue("password_repeat")
 	hash := getVar(r, "hash")
 
 	t, err := ctx.TokenService.GetToken(hash, models.PasswordReset, time.Duration(1)*time.Hour)
