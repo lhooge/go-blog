@@ -129,7 +129,7 @@ func (as ArticleService) UpdateArticle(a *Article, u *User) error {
 
 	if !u.IsAdmin {
 		if art.Author.ID != u.ID {
-			return httperror.PermissionDenied("update", "article", fmt.Errorf("could not update article %d user %d has no permission", art.ID, u.ID))
+			return httperror.PermissionDenied("update", "article", fmt.Errorf("could not update article %d user %d has no permission", a.ID, u.ID))
 		}
 	}
 
@@ -137,43 +137,43 @@ func (as ArticleService) UpdateArticle(a *Article, u *User) error {
 }
 
 //PublishArticle publishes or 'unpublishes' an article
-func (as ArticleService) PublishArticle(articleID int, u *User) error {
-	art, err := as.Datasource.Get(articleID, nil, All)
+func (as ArticleService) PublishArticle(id int, u *User) error {
+	a, err := as.Datasource.Get(id, nil, All)
 
 	if err != nil {
 		return err
 	}
 
 	if !u.IsAdmin {
-		if art.Author.ID != u.ID {
-			return httperror.PermissionDenied("publish", "article", fmt.Errorf("could not publish article %d user %d has no permission", art.ID, u.ID))
+		if a.Author.ID != u.ID {
+			return httperror.PermissionDenied("publish", "article", fmt.Errorf("could not publish article %d user %d has no permission", a.ID, u.ID))
 		}
 	}
 
-	return as.Datasource.Publish(art)
+	return as.Datasource.Publish(a)
 }
 
 //DeleteArticle deletes an article
-func (as ArticleService) DeleteArticle(articleID int, u *User) error {
-	art, err := as.Datasource.Get(articleID, nil, All)
+func (as ArticleService) DeleteArticle(id int, u *User) error {
+	a, err := as.Datasource.Get(id, nil, All)
 
 	if err != nil {
 		return err
 	}
 
 	if !u.IsAdmin {
-		if art.Author.ID != u.ID {
-			return httperror.PermissionDenied("delete", "article", fmt.Errorf("could not delete article %d user %d has no permission", art.ID, u.ID))
+		if a.Author.ID != u.ID {
+			return httperror.PermissionDenied("delete", "article", fmt.Errorf("could not delete article %d user %d has no permission", a.ID, u.ID))
 		}
 	}
 
-	return as.Datasource.Delete(art.ID)
+	return as.Datasource.Delete(a.ID)
 }
 
 // GetArticleBySlug gets a article by the slug.
 // The publishedCriteria defines whether the published and/or unpublished articles should be considered
-func (as ArticleService) GetArticleBySlug(user *User, slug string, publishedCriteria PublishedCriteria) (*Article, error) {
-	art, err := as.Datasource.GetBySlug(slug, user, publishedCriteria)
+func (as ArticleService) GetArticleBySlug(s string, u *User, pc PublishedCriteria) (*Article, error) {
+	a, err := as.Datasource.GetBySlug(s, u, pc)
 
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -182,53 +182,54 @@ func (as ArticleService) GetArticleBySlug(user *User, slug string, publishedCrit
 		return nil, err
 	}
 
-	if user != nil {
-		if !user.IsAdmin {
-			if art.Author.ID != user.ID {
-				return nil, httperror.PermissionDenied("view", "article", fmt.Errorf("could not get article %s user %d has no permission", art.Slug, user.ID))
+	if u != nil {
+		if !u.IsAdmin {
+			if a.Author.ID != u.ID {
+				return nil, httperror.PermissionDenied("view", "article", fmt.Errorf("could not get article %s user %d has no permission", a.Slug, u.ID))
 			}
 		}
 	}
 
-	return art, nil
+	return a, nil
 }
 
 // GetArticleByID get a article by the id.
 // The publishedCriteria defines whether the published and/or unpublished articles should be considered
-func (as ArticleService) GetArticleByID(user *User, articleID int, publishedCriteria PublishedCriteria) (*Article, error) {
-	art, err := as.Datasource.Get(articleID, user, publishedCriteria)
+func (as ArticleService) GetArticleByID(id int, u *User, pc PublishedCriteria) (*Article, error) {
+	a, err := as.Datasource.Get(id, u, pc)
+
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return nil, httperror.NotFound("article", fmt.Errorf("the article with id %d was not found", articleID))
+			return nil, httperror.NotFound("article", fmt.Errorf("the article with id %d was not found", id))
 		}
 		return nil, err
 	}
 
-	if user != nil {
-		if !user.IsAdmin {
-			if art.Author.ID != user.ID {
-				return nil, httperror.PermissionDenied("get", "article", fmt.Errorf("could not get article %d user %d has no permission", art.ID, user.ID))
+	if u != nil {
+		if !u.IsAdmin {
+			if a.Author.ID != u.ID {
+				return nil, httperror.PermissionDenied("get", "article", fmt.Errorf("could not get article %d user %d has no permission", a.ID, u.ID))
 			}
 		}
 	}
 
-	return art, nil
+	return a, nil
 }
 
 // CountArticles returns the number of articles.
 // The publishedCriteria defines whether the published and/or unpublished articles should be considered
-func (as ArticleService) CountArticles(user *User, publishedCriteria PublishedCriteria) (int, error) {
-	return as.Datasource.Count(user, publishedCriteria)
+func (as ArticleService) CountArticles(u *User, pc PublishedCriteria) (int, error) {
+	return as.Datasource.Count(u, pc)
 }
 
 // ListArticles returns all article by the slug.
 // The publishedCriteria defines whether the published and/or unpublished articles should be considered
-func (as ArticleService) ListArticles(user *User, pagination *Pagination, publishedCriteria PublishedCriteria) ([]Article, error) {
-	return as.Datasource.List(user, pagination, publishedCriteria)
+func (as ArticleService) ListArticles(u *User, p *Pagination, pc PublishedCriteria) ([]Article, error) {
+	return as.Datasource.List(u, p, pc)
 }
 
 // RSSFeed receives a specified number of articles in RSS
-func (as ArticleService) RSSFeed(user *User, pagination *Pagination, pc PublishedCriteria) (RSS, error) {
+func (as ArticleService) RSSFeed(p *Pagination, pc PublishedCriteria) (RSS, error) {
 	c := RSSChannel{
 		Title:       as.BlogConfig.Title,
 		Link:        as.BlogConfig.Domain,
@@ -236,7 +237,7 @@ func (as ArticleService) RSSFeed(user *User, pagination *Pagination, pc Publishe
 		Language:    as.BlogConfig.Language,
 	}
 
-	articles, err := as.Datasource.List(user, pagination, pc)
+	articles, err := as.Datasource.List(nil, p, pc)
 
 	if err != nil {
 		return RSS{}, err
@@ -271,8 +272,8 @@ type IndexArticle struct {
 	Articles []Article
 }
 
-func (as ArticleService) IndexArticles(user *User, pagination *Pagination, publishedCriteria PublishedCriteria) ([]IndexArticle, error) {
-	arts, err := as.Datasource.List(user, pagination, publishedCriteria)
+func (as ArticleService) IndexArticles(u *User, p *Pagination, pc PublishedCriteria) ([]IndexArticle, error) {
+	arts, err := as.Datasource.List(u, p, pc)
 
 	if err != nil {
 		return nil, err
