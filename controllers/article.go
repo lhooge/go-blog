@@ -104,7 +104,7 @@ func IndexArticlesHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *
 		Name:   tplIndexArticles,
 		Active: "index",
 		Data: map[string]interface{}{
-			"indexed_articles": a,
+			"articles": a,
 		},
 	}
 }
