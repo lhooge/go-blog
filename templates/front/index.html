@@ -30,7 +30,7 @@
 					<ul class="submenu">
 						{{range .Articles}}
 						<li class="submenu-item">
-							<a href="/article/{{.SlugEscape}}">{{.Headline}} | {{.PublishedOn.Time | FormatDate}} Author: {{.Author.DisplayName}}
+							<a href="/article/{{.SlugEscape}}">{{.PublishedOn.Time | FormatDate}} Author: {{.Author.DisplayName}} | {{.Headline}}
 						</li>
 						{{end}}
 					</ul>
