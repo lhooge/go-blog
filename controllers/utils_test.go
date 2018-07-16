@@ -14,8 +14,8 @@ import (
 	"git.hoogi.eu/go-blog/components/logger"
 	"git.hoogi.eu/go-blog/middleware"
 	"git.hoogi.eu/go-blog/models"
-	"git.hoogi.eu/go-blog/models/sessions"
 	"git.hoogi.eu/go-blog/settings"
+	"git.hoogi.eu/session"
 )
 
 var ctx *middleware.AppContext
@@ -32,19 +32,19 @@ func init() {
 		panic(1)
 	}
 
-	sessionStore := sessions.CookieStore{
+	s := session.SessionService{
 		Path:            "/admin",
 		Name:            "test-session",
 		HTTPOnly:        true,
 		Secure:          true,
-		SessionProvider: sessions.NewInMemoryProvider(),
+		SessionProvider: session.NewInMemoryProvider(),
 		IdleSessionTTL:  10,
 	}
 
 	ctx = &middleware.AppContext{
 		UserService:    userService,
 		ArticleService: articleService,
-		SessionStore:   &sessionStore,
+		SessionService: &s,
 		ConfigService:  cfg,
 	}
 }

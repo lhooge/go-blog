@@ -29,7 +29,7 @@ func TestCreateGetArticle(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	rcvArticle, err2 := ctx.ArticleService.GetArticleByID(dummyUser(), artID, models.All)
+	rcvArticle, err2 := ctx.ArticleService.GetArticleByID(artID, dummyUser(), models.All)
 	if err2 != nil {
 		t.Fatal(err)
 	}
@@ -52,6 +52,7 @@ func TestCreateGetArticle(t *testing.T) {
 		ID:       artID,
 		Slug:     rcvArticle.Slug,
 		Headline: "a new headline",
+		Teaser:   "A sample teaser",
 		Content:  "A new h1 header\n============\nthis is sample new content...",
 	}
 
@@ -89,6 +90,7 @@ func checkArticle(article *models.Article, expectedArticle *models.Article) erro
 func getSampleArticle() *models.Article {
 	return &models.Article{
 		Headline: "a sample headline",
+		Teaser:   "A sample teaser",
 		Content:  "An h1 header\n============\nthis is sample content...",
 	}
 }
@@ -96,6 +98,7 @@ func getSampleArticle() *models.Article {
 func doEditArticleRequest(articleID int, article *models.Article) error {
 	values := url.Values{}
 	setValues(values, "headline", article.Headline)
+	setValues(values, "teaser", article.Teaser)
 	setValues(values, "content", article.Content)
 
 	req, err := postRequest("/admin/article/edit", values)
@@ -125,6 +128,7 @@ func doEditArticleRequest(articleID int, article *models.Article) error {
 func doCreateArticleRequest(article *models.Article) (int, error) {
 	values := url.Values{}
 	setValues(values, "headline", article.Headline)
+	setValues(values, "teaser", article.Teaser)
 	setValues(values, "content", article.Content)
 
 	req, err := postRequest("/admin/article/new", values)

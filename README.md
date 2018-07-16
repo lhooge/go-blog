@@ -88,14 +88,12 @@ TODOs
  * Revisit Makefile
  * Database update tasks
  * Order possibilities in admin panel
- * Redesign admin section
  * Review preview of articles and sites / error handling
  * Activation link when registering new users
  * Support some environmental variables / flags
 
 Licence
 -------
-
     The MIT License (MIT)
     Copyright (c) 2018 Lars Hoogestraat
 
