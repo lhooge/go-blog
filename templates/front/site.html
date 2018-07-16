@@ -1,12 +1,17 @@
 {{define "front/site"}}
 
-{{template "front/header" .}}
-{{template "front/navigation" .}}
+{{template "front/head" .}}
+</head>
 
-<main>
-	{{template "skel/flash" .}}
-	{{with .site}}
-	    {{.Content | ParseMarkdown}}
+<body>
+	{{template "front/title"}}
+		
+	{{template "front/navigation" .}}
+	
+	<main>
+		{{template "skel/flash" .}}
+		{{with .site}}
+		    {{.Content | ParseMarkdown}}
+		{{end}}
+	</main>
 	{{end}}
-</main>
-{{end}}

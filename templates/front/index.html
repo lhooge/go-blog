@@ -1,35 +1,42 @@
 {{define "front/index"}}
-{{template "front/header" .}}
-{{template "front/navigation" .}}
-<main>
-	<div id="index">
-		<h2>Index</h2>
-		{{template "skel/flash" .}}
 
-		{{if not .ErrorMsg}}
-			{{if not .indexed_articles}}
-				<div style="margin-top: 10px" class="alert alert-info" role="info">No articles here yet.</div>
+{{template "front/head" .}}
+	<link rel="alternate" type="application/rss+xml" href="/rss.xml" />
+</head>
+
+<body>
+	{{template "front/title"}}
+	
+	{{template "front/navigation" .}}
+	<main>
+		<div id="index">
+			<h2>Index</h2>
+			{{template "skel/flash" .}}
+	
+			{{if not .ErrorMsg}}
+				{{if not .articles}}
+					<div style="margin-top: 10px" class="alert alert-info" role="info">No articles here yet.</div>
+				{{end}}
 			{{end}}
-		{{end}}
-
-		{{range .articles}}
-			<ul>
-				<li class="year">
-					<div class="year">
-						<span>{{.Year}}</span>
-					</div>
-				</li>
-
-				<ul class="submenu">
-					{{range .Articles}}
-					<li class="submenu-item">
-						<a href="/article/{{.SlugEscape}}">{{.Headline}} | {{.PublishedOn.Time | FormatDate}} Author: {{.Author.DisplayName}}
+	
+			{{range .articles}}
+				<ul>
+					<li class="year">
+						<div class="year">
+							<span>{{.Year}}</span>
+						</div>
 					</li>
-					{{end}}
+	
+					<ul class="submenu">
+						{{range .Articles}}
+						<li class="submenu-item">
+							<a href="/article/{{.SlugEscape}}">{{.Headline}} | {{.PublishedOn.Time | FormatDate}} Author: {{.Author.DisplayName}}
+						</li>
+						{{end}}
+					</ul>
 				</ul>
-			</ul>
-		{{end}}
-	</div>
-</main>
-{{template "front/footer"}}
+			{{end}}
+		</div>
+	</main>
+	{{template "front/footer"}}
 {{end}}

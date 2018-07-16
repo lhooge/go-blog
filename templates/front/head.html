@@ -1,4 +1,4 @@
-{{define "front/header"}}
+{{define "front/head"}}
 <!DOCTYPE html>
 
 <html{{if Language}} lang="{{Language}}"{{end}}>
@@ -14,12 +14,7 @@
 		{{end}}
 		
 		{{GetMetadata .}}
-    </head>
 
-<body>
-	<header>
-		<h1 class="header-text">{{PageTitle}}</h1>
-	</header>
 {{end}}
 
 

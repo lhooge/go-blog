@@ -1,22 +1,28 @@
 {{define "front/article"}}
 
-{{template "front/header" .}}
-{{template "front/navigation" .}}
+{{template "front/head" .}}
+	<link rel="alternate" type="application/rss+xml" href="/rss.xml" />
+</head>
 
-<main>
-{{template "skel/flash" .}}
-	<article>
-	{{with .article}}
-		<h2 class="article_link">{{.Headline}}</h2>
-		<p class="article_info">written by {{.Author.DisplayName}} on {{.PublishedOn.Time | FormatDate}}</p>
-
-		<b>{{.Teaser}}</b>
-
-		{{.Content | ParseMarkdown}}
-
-		<a href="/">&laquo; Go back</a>
-	{{end}}
-	</article>
-</main>
-{{template "front/footer"}}
+<body>
+	{{template "front/title"}}
+	
+	{{template "front/navigation" .}}
+	
+	<main>
+	{{template "skel/flash" .}}
+		<article>
+		{{with .article}}
+			<h2 class="article_link">{{.Headline}}</h2>
+			<p class="article_info">written by {{.Author.DisplayName}} on {{.PublishedOn.Time | FormatDate}}</p>
+	
+			<b>{{.Teaser}}</b>
+	
+			{{.Content | ParseMarkdown}}
+	
+			<a href="/">&laquo; Go back</a>
+		{{end}}
+		</article>
+	</main>
+	{{template "front/footer"}}
 {{end}}

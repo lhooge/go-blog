@@ -1,29 +1,38 @@
 {{define "front/articles"}}
-{{template "front/header" .}}
-{{template "front/navigation" .}}
-<main>
-	{{template "skel/flash" .}}
 
-	{{if not .ErrorMsg}}
-		{{if not .articles}}
-			<div style="margin-top: 10px" class="alert alert-info" role="info">No articles here yet.</div>
+{{template "front/head" .}}
+
+	<link rel="alternate" type="application/rss+xml" href="/rss.xml" />
+</head>
+
+<body>
+	{{template "front/title"}}
+	
+	{{template "front/navigation" .}}
+	
+	<main>
+		{{template "skel/flash" .}}
+	
+		{{if not .ErrorMsg}}
+			{{if not .articles}}
+				<div style="margin-top: 10px" class="alert alert-info" role="info">No articles here yet.</div>
+			{{end}}
 		{{end}}
-	{{end}}
-
-	{{range .articles}}
-	<article>
-		<h2 class="article_link"><a href="/article/{{.SlugEscape}}">{{.Headline}}</a></h2>
-		<p class="article_info">written by {{.Author.DisplayName}} on {{.PublishedOn.Time | FormatDate}}</p>
-
-		{{.Teaser}}
-	</article>
-
-	<hr>
-	{{end}}
-
-	{{if .pagination}}
-		{{PaginationBar .pagination}}
-	{{end}}
-</main>
-{{template "front/footer"}}
+	
+		{{range .articles}}
+		<article>
+			<h2 class="article_link"><a href="/article/{{.SlugEscape}}">{{.Headline}}</a></h2>
+			<p class="article_info">written by {{.Author.DisplayName}} on {{.PublishedOn.Time | FormatDate}}</p>
+	
+			{{.Teaser}}
+		</article>
+	
+		<hr>
+		{{end}}
+	
+		{{if .pagination}}
+			{{PaginationBar .pagination}}
+		{{end}}
+	</main>
+	{{template "front/footer"}}
 {{end}}

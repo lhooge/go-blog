@@ -1,12 +1,18 @@
 {{define "front/error"}}
-{{template "front/header" .}}
-{{template "front/navigation" .}}
 
-<main>
-	<section class="max--width">
-		<h2>Error</h2>
+{{template "front/head" .}}
+</head>
 
-		{{template "skel/flash" .}}
-	</section>
-</main>
+<body>
+	{{template "front/title"}}
+	
+	{{template "front/navigation" .}}
+	
+	<main>
+		<section class="max--width">
+			<h2>Error</h2>
+	
+			{{template "skel/flash" .}}
+		</section>
+	</main>
 {{end}}
