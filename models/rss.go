@@ -33,6 +33,6 @@ type RSSTime time.Time
 
 func (r RSSTime) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
 	t := time.Time(r)
-	v := t.Format("Mon, 2 Jan 2007 15:04:05 GMT")
+	v := t.Format("Mon, 2 Jan 2006 15:04:05 GMT")
 	return e.EncodeElement(v, start)
 }
