@@ -281,14 +281,14 @@ func LogoutHandler(ctx *middleware.AppContext, rw http.ResponseWriter, r *http.R
 }
 
 // KeepAliveSessionHandler keeps a session alive.
-func KeepAliveSessionHandler(ctx *middleware.AppContext, rw http.ResponseWriter, r *http.Request) (*models.Data, error) {
+func KeepAliveSessionHandler(ctx *middleware.AppContext, rw http.ResponseWriter, r *http.Request) (*models.JSONData, error) {
 	_, err := ctx.SessionService.Get(rw, r)
 
 	if err != nil {
 		return nil, err
 	}
 
-	data := &models.Data{
+	data := &models.JSONData{
 		Data: map[string]bool{
 			"acknowledge": true,
 		},

@@ -5,6 +5,11 @@
 package models
 
 // Data represents arbritary JSON and XML data
-type Data struct {
+type JSONData struct {
 	Data interface{} `json:"data,-" xml:"data,-"`
+}
+
+type XMLData struct {
+	Data      interface{} `xml:"data,-"`
+	HexEncode bool        `xml:"-"`
 }

@@ -122,14 +122,16 @@ func restrictedRoutes(ctx *m.AppContext, router *mux.Router, chain alice.Chain) 
 }
 
 func publicRoutes(ctx *m.AppContext, router *mux.Router, chain alice.Chain) {
-
 	router.Handle("/", chain.Then(useTemplateHandler(ctx, c.ListArticlesHandler))).Methods("GET")
 	router.Handle("/index", chain.Then(useTemplateHandler(ctx, c.IndexArticlesHandler))).Methods("GET")
-	router.Handle("/site/{site}", chain.Then(useTemplateHandler(ctx, c.SiteHandler))).Methods("GET")
+
 	router.Handle("/articles/page/{page}", chain.Then(useTemplateHandler(ctx, c.ListArticlesHandler))).Methods("GET")
 	router.Handle("/article/{year}/{month}/{slug}", chain.Then(useTemplateHandler(ctx, c.GetArticleHandler))).Methods("GET")
+	router.Handle("/article/by-id/{articleID}", chain.Then(useTemplateHandler(ctx, c.GetArticleByIDHandler))).Methods("GET")
 
 	router.Handle("/rss.xml", chain.Then(useXMLHandler(ctx, c.RSSFeed))).Methods("GET")
+
+	router.Handle("/site/{site}", chain.Then(useTemplateHandler(ctx, c.SiteHandler))).Methods("GET")
 
 	router.Handle("/file/{filename}", chain.Then(c.FileGetHandler(ctx))).Methods("GET")
 	router.Handle("/admin", chain.Then(useTemplateHandler(ctx, c.LoginHandler))).Methods("GET")

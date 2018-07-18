@@ -8,7 +8,6 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"html"
 	"net/url"
 	"strconv"
 	"strings"
@@ -247,13 +246,13 @@ func (as ArticleService) RSSFeed(p *Pagination, pc PublishedCriteria) (RSS, erro
 	items := []RSSItem{}
 
 	for _, a := range articles {
-		link := fmt.Sprint(as.BlogConfig.Domain, "/article/", a.Slug)
+		link := fmt.Sprint(as.BlogConfig.Domain, "/article/by-id/", a.ID)
 		item := RSSItem{
 			GUID:        link,
 			Link:        link,
-			Title:       html.EscapeString(a.Headline),
-			Author:      html.EscapeString(fmt.Sprintf("%s (%s)", a.Author.Email, a.Author.DisplayName)),
-			Description: html.EscapeString(a.Teaser),
+			Title:       sanitize(a.Headline),
+			Author:      fmt.Sprintf("%s (%s)", a.Author.Email, a.Author.DisplayName),
+			Description: sanitize(a.Teaser),
 			PubDate:     RSSTime(a.PublishedOn.Time),
 		}
 

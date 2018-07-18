@@ -47,6 +47,34 @@ func GetArticleHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *htt
 		}}
 }
 
+//GetArticleHandler returns a specific article
+//Parameters in the url form 2016/03/my-headline are used for obtaining the article
+func GetArticleByIDHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
+	id, err := parseInt(getVar(r, "articleID"))
+
+	if err != nil {
+		return &middleware.Template{
+			Name: tplAdminArticleEdit,
+			Err:  httperror.ParameterMissing("articleID", err),
+		}
+	}
+
+	a, err := ctx.ArticleService.GetArticleByID(id, nil, models.OnlyPublished)
+
+	if err != nil {
+		return &middleware.Template{
+			Name: tplArticle,
+			Err:  err,
+		}
+	}
+
+	return &middleware.Template{
+		Name: tplArticle,
+		Data: map[string]interface{}{
+			"article": a,
+		}}
+}
+
 //ListArticlesHandler returns the template which contains all published articles
 func ListArticlesHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
 	page := getPageParam(r)
@@ -111,7 +139,7 @@ func IndexArticlesHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *
 
 //GetArticleHandler returns a specific article
 //Parameters in the url form 2016/03/my-headline are used for obtaining the article
-func RSSFeed(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) (*models.Data, error) {
+func RSSFeed(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) (*models.XMLData, error) {
 	p := &models.Pagination{
 		Limit: ctx.ConfigService.RSSFeedItems,
 	}
@@ -122,8 +150,9 @@ func RSSFeed(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request)
 		return nil, err
 	}
 
-	return &models.Data{
-		Data: rss,
+	return &models.XMLData{
+		Data:      rss,
+		HexEncode: true,
 	}, nil
 }
 

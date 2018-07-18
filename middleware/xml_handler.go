@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"bytes"
 	"encoding/xml"
 	"net/http"
 
@@ -15,7 +16,7 @@ type XMLHandler struct {
 }
 
 //XNLHandler enriches handler with the AppContext
-type XHandler func(*AppContext, http.ResponseWriter, *http.Request) (*models.Data, error)
+type XHandler func(*AppContext, http.ResponseWriter, *http.Request) (*models.XMLData, error)
 
 func (fn XMLHandler) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	rw.Header().Set("Content-Type", "application/xml")
@@ -44,5 +45,14 @@ func (fn XMLHandler) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	x = []byte(xml.Header + string(x))
+
+	if h.HexEncode {
+		x = bytes.Replace(x, []byte("&amp;"), []byte("&#x26;"), -1) // &
+		x = bytes.Replace(x, []byte("&#39;"), []byte("&#x27;"), -1) // '
+		x = bytes.Replace(x, []byte("&#34;"), []byte("&#x22;"), -1) // "
+		x = bytes.Replace(x, []byte("&lt;"), []byte("&#x3c;"), -1)  // <
+		x = bytes.Replace(x, []byte("&gt;"), []byte("&#x3e;"), -1)  // >
+	}
 	rw.Write(x)
 }

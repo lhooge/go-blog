@@ -115,7 +115,7 @@ func substitute(input string, subs map[rune]string) string {
 
 	for _, c := range input {
 		if _, ok := subs[c]; ok {
-			b.WriteString(slugSubs[c])
+			b.WriteString(subs[c])
 		} else {
 			b.WriteRune(c)
 		}
