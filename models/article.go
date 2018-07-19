@@ -250,7 +250,7 @@ func (as ArticleService) RSSFeed(p *Pagination, pc PublishedCriteria) (RSS, erro
 		item := RSSItem{
 			GUID:        link,
 			Link:        link,
-			Title:       sanitize(a.Headline),
+			Title:       a.Headline,
 			Author:      fmt.Sprintf("%s (%s)", a.Author.Email, a.Author.DisplayName),
 			Description: sanitize(a.Teaser),
 			PubDate:     RSSTime(a.PublishedOn.Time),
