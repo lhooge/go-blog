@@ -16,7 +16,7 @@
 			<h2 class="article_link">{{.Headline}}</h2>
 			<p class="article_info">written by {{.Author.DisplayName}} on {{.PublishedOn.Time | FormatDate}}</p>
 	
-			<p><b>{{.Teaser}}</b></p>
+			<p><b>{{.Teaser | NToBr}}</b></p>
 	
 			{{.Content | ParseMarkdown}}
 	

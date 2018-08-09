@@ -24,7 +24,7 @@
 			<h2 class="article_link"><a href="/article/{{.SlugEscape}}">{{.Headline}}</a></h2>
 			<p class="article_info">written by {{.Author.DisplayName}} on {{.PublishedOn.Time | FormatDate}}</p>
 	
-			<p>{{.Teaser}}</p>
+			<p>{{.Teaser | NToBr}}</p>
 		</article>
 	
 		<hr>
