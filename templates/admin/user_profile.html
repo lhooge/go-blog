@@ -11,7 +11,7 @@
 	{{with .user}}
 		<form action="/admin/user/profile" method="post">
 			<label for="username">Username</label>
-			<input type="username" name="username"  value="{{.Username}}" id="username" placeholder="Username...">
+			<input type="username" name="username"  value="{{.Username}}" id="username" placeholder="Username..." required>
 
 			<label for="email">Email</label>
 			<input type="email" value="{{.Email}}" name="email" id="email" placeholder="Email..." required>
