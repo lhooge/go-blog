@@ -73,7 +73,10 @@ func (rdb SQLiteSiteDatasource) Get(siteID int, pc PublishedCriteria) (*Site, er
 	var stmt bytes.Buffer
 	var args []interface{}
 
-	stmt.WriteString("SELECT s.rowid, s.title, s.link, s.content, s.published, s.published_on, s.last_modified, s.order_no FROM site as s WHERE rowid=? ")
+	stmt.WriteString("SELECT s.rowid, s.title, s.link, s.content, s.published, s.published_on, s.last_modified, s.order_no, u.rowid, u.display_name, u.email, u.username FROM site as s ")
+	stmt.WriteString("INNER JOIN user u ON (s.user_id = u.rowid) ")
+	stmt.WriteString("WHERE rowid=? ")
+
 	args = append(args, siteID)
 
 	if pc == NotPublished {
@@ -83,10 +86,14 @@ func (rdb SQLiteSiteDatasource) Get(siteID int, pc PublishedCriteria) (*Site, er
 	}
 
 	var s Site
+	var u User
 
-	if err := rdb.SQLConn.QueryRow(stmt.String(), siteID).Scan(&s.ID, &s.Title, &s.Link, &s.Content, &s.Published, &s.PublishedOn, &s.LastModified, &s.OrderNo); err != nil {
+	if err := rdb.SQLConn.QueryRow(stmt.String(), siteID).Scan(&s.ID, &s.Title, &s.Link, &s.Content, &s.Published, &s.PublishedOn, &s.LastModified, &s.OrderNo, &u.ID, &u.DisplayName, &u.Email, &u.Username); err != nil {
 		return nil, err
 	}
+
+	s.Author = &u
+
 	return &s, nil
 }
 
@@ -95,7 +102,10 @@ func (rdb SQLiteSiteDatasource) GetByLink(link string, pc PublishedCriteria) (*S
 	var stmt bytes.Buffer
 	var args []interface{}
 
-	stmt.WriteString("SELECT s.rowid, s.title, s.link, s.content, s.published, s.published_on, s.order_no, s.last_modified FROM site as s WHERE link=? ")
+	stmt.WriteString("SELECT s.rowid, s.title, s.link, s.content, s.published, s.published_on, s.order_no, s.last_modified, u.rowid, u.display_name, u.email, u.username FROM site as s ")
+	stmt.WriteString("INNER JOIN user u ON (s.user_id = u.rowid) ")
+	stmt.WriteString("WHERE link=? ")
+
 	args = append(args, link)
 
 	if pc == NotPublished {
@@ -105,10 +115,14 @@ func (rdb SQLiteSiteDatasource) GetByLink(link string, pc PublishedCriteria) (*S
 	}
 
 	var s Site
+	var u User
 
-	if err := rdb.SQLConn.QueryRow(stmt.String(), link).Scan(&s.ID, &s.Title, &s.Link, &s.Content, &s.Published, &s.PublishedOn, &s.OrderNo, &s.LastModified); err != nil {
+	if err := rdb.SQLConn.QueryRow(stmt.String(), link).Scan(&s.ID, &s.Title, &s.Link, &s.Content, &s.Published, &s.PublishedOn, &s.OrderNo, &s.LastModified, &u.ID, &u.DisplayName, &u.Email, &u.Username); err != nil {
 		return nil, err
 	}
+
+	s.Author = &u
+
 	return &s, nil
 }
 
