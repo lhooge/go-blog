@@ -89,24 +89,11 @@ func main() {
 	logger.Log.Infof("Go-Blog version: %s, commit: %s", BuildVersion, GitHash)
 	logger.Log.Infof("running in %s mode", cfg.Environment)
 
-	var db *sql.DB
-	if cfg.Database.Engine == settings.MySQL {
-		mysqlConf := database.MySQLConfig{
-			Host:     cfg.Database.Host,
-			Port:     cfg.Database.Port,
-			User:     cfg.Database.User,
-			Password: cfg.Database.Password,
-			Database: cfg.Database.Name,
-		}
-
-		db, err = mysqlConf.Open()
-	} else {
-		sqliteConf := database.SQLiteConfig{
-			File: cfg.Database.File,
-		}
-
-		db, err = sqliteConf.Open()
+	sqliteConf := database.SQLiteConfig{
+		File: cfg.Database.File,
 	}
+
+	db, err := sqliteConf.Open()
 
 	if err != nil {
 		logger.Log.Error(err)
@@ -162,75 +149,37 @@ func main() {
 func context(db *sql.DB, cfg *settings.Settings) (*m.AppContext, error) {
 	ic := loadUserInterceptor(cfg.InterceptorPlugin)
 
-	var uds models.UserDatasourceService
-	var ads models.ArticleDatasourceService
-	var sds models.SiteDatasourceService
-	var fds models.FileDatasourceService
-	var tds models.TokenDatasourceService
-
-	if cfg.Database.Engine == settings.MySQL {
-		uds = models.MySQLUserDatasource{
-			SQLConn: db,
-		}
-
-		ads = models.MySQLArticleDatasource{
-			SQLConn: db,
-		}
-
-		sds = models.MySQLSiteDatasource{
-			SQLConn: db,
-		}
-
-		fds = models.MySQLFileDatasource{
-			SQLConn: db,
-		}
-
-		tds = models.MySQLTokenDatasource{
-			SQLConn: db,
-		}
-	} else {
-		uds = models.SQLiteUserDatasource{
-			SQLConn: db,
-		}
-
-		ads = models.SQLiteArticleDatasource{
-			SQLConn: db,
-		}
-
-		sds = models.SQLiteSiteDatasource{
-			SQLConn: db,
-		}
-
-		fds = models.SQLiteFileDatasource{
-			SQLConn: db,
-		}
-
-		tds = models.SQLiteTokenDatasource{
-			SQLConn: db,
-		}
-	}
-
 	userService := models.UserService{
-		Datasource:      uds,
+		Datasource: models.SQLiteUserDatasource{
+			SQLConn: db,
+		},
 		Config:          cfg.User,
 		UserInterceptor: ic,
 	}
 
 	articleService := models.ArticleService{
-		Datasource: ads,
 		BlogConfig: cfg.Blog,
+		Datasource: models.SQLiteArticleDatasource{
+			SQLConn: db,
+		},
 	}
 
 	siteService := models.SiteService{
-		Datasource: sds,
+		Datasource: models.SQLiteSiteDatasource{
+			SQLConn: db,
+		},
 	}
 
 	fileService := models.FileService{
-		Datasource: fds,
+		Datasource: models.SQLiteFileDatasource{
+			SQLConn: db,
+		},
 	}
 
 	tokenService := models.TokenService{
-		Datasource: tds,
+		Datasource: models.SQLiteTokenDatasource{
+			SQLConn: db,
+		},
 	}
 
 	smtpConfig := mail.SMTPConfig{

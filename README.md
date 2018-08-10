@@ -14,13 +14,12 @@ Small sample open-source blog written in Go using markdown for formatting articl
 * Additional sites can be created (by administrator)
 
 Not really for production use; started for learning Go for web development.
-   
+
 
 Prerequisites
 --------
 
- * SQLite3 or
- * MySQL
+ * SQLite3
 
 
 Configuration
@@ -38,45 +37,12 @@ The configuration for sqlite is simple:
   sqlite_file = /path/to/your/sqlite/database
 ~~~
 
-### MySQL ###
-
-Create a database on your mysql instance:
-~~~
-    CREATE DATABASE go_blog
-       CHARACTER SET utf8mb4
-       COLLATE utf8mb4_unicode_ci;
-~~~
-
-Create a user:
-~~~
-    CREATE USER 'goblog'@'localhost'
-       IDENTIFIED BY 'secret';
-~~~
-
-Grant the user the following privileges on the created database:
-~~~
-    GRANT CREATE, SELECT, INSERT, UPDATE, DELETE, REFERENCES
-       ON go_blog.* TO 'goblog'@'localhost';
-~~~
-
-~~~
-database_engine = mysql
-mysql_host = localhost
-mysql_port = 3306
-mysql_user = goblog
-mysql_password = secret
-mysql_database = go_blog
-~~~
-
-Run init_database in folder clt/
-    ./initdatabase -config {{BLOG_CONFIG}}
-
 
 ### Create user with administration rights ###
 
 Create your first administrator account with create_user:
 ~~~
-./createuser -admin -config {{BLOG_CONFIG}} -username test -email test@example.com -displayname "Hello World" -password secret1234 
+./createuser -admin -config {{BLOG_CONFIG}} -username test -email test@example.com -displayname "Hello World" -password secret1234
 ~~~
 
 Make sure -admin is set.
@@ -86,7 +52,7 @@ TODOs
  * Add and fix test
  * Comment user interceptor
  * Revisit Makefile
- * Database update tasks
+ * Database update tasks / simple query builder
  * Order possibilities in admin panel
  * Review preview of articles and sites / error handling
  * Activation link when registering new users

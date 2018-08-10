@@ -241,8 +241,18 @@ main h4 {
 }
 
 main ul {
-	margin-left: 0.2em;
+	margin-left: 1.5em;
 	line-height: 1.5;
+}
+
+main ul li {
+  padding-left: 0.2em;
+  line-height: 1.5;
+}
+
+main ul li p {
+  margin-bottom: 0;
+  line-height: 1.5;
 }
 
 main ol {
@@ -252,11 +262,6 @@ main ol {
 
 main p {
   margin-top: 0.8em;
-  line-height: 1.5;
-}
-
-main ul li {
-  padding-left: 3.5em;
   line-height: 1.5;
 }
 
@@ -348,7 +353,7 @@ input:not([type='submit']), textarea, select {
 	background-color: #fffaf0;
 	border: 1px solid grey;
 	font-size: 1.1em;
-	margin: 0 0 10px 0; 
+	margin: 0 0 10px 0;
 	padding: 0.5em;
 	font-family: 'dosis', sans-serif;
 	-webkit-box-sizing: border-box; /* For legacy WebKit based browsers */
@@ -363,7 +368,7 @@ input#headline {
 	color: #285e8e;
 }
 
-button, 
+button,
 input[type='submit'] {
 	cursor: pointer;
 	background-color: #285e8e;
@@ -412,7 +417,7 @@ input[type='submit']:hover, input[type='submit']:focus {
     text-decoration: none;
 }
 
-.action-data button:not(:first-child), 
+.action-data button:not(:first-child),
 .action-data a:not(:first-child) {
 	padding: 0 5px;
 	text-align: center;
