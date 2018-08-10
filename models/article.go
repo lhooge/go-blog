@@ -251,7 +251,7 @@ func (as ArticleService) RSSFeed(p *Pagination, pc PublishedCriteria) (RSS, erro
 			GUID:        link,
 			Link:        link,
 			Title:       EscapeHTML(a.Headline),
-			Author:      fmt.Sprintf("%s (%s)", a.Author.Email, a.Author.DisplayName),
+			Author:      fmt.Sprintf("%s (%s)", EscapeHTML(a.Author.Email), EscapeHTML(a.Author.DisplayName)),
 			Description: NewlineToBr(EscapeHTML(a.Teaser)),
 			PubDate:     RSSTime(a.PublishedOn.Time),
 		}
