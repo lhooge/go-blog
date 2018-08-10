@@ -244,15 +244,15 @@ func (as ArticleService) RSSFeed(p *Pagination, pc PublishedCriteria) (RSS, erro
 	}
 
 	items := []RSSItem{}
-
 	for _, a := range articles {
+		fmt.Println(sanitize(a.Teaser))
 		link := fmt.Sprint(as.BlogConfig.Domain, "/article/by-id/", a.ID)
 		item := RSSItem{
 			GUID:        link,
 			Link:        link,
-			Title:       a.Headline,
+			Title:       EscapeHTML(a.Headline),
 			Author:      fmt.Sprintf("%s (%s)", a.Author.Email, a.Author.DisplayName),
-			Description: a.Teaser,
+			Description: NewlineToBr(EscapeHTML(a.Teaser)),
 			PubDate:     RSSTime(a.PublishedOn.Time),
 		}
 

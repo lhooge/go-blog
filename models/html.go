@@ -5,6 +5,7 @@
 package models
 
 import (
+	"html/template"
 	"strings"
 
 	"github.com/microcosm-cc/bluemonday"
@@ -36,4 +37,15 @@ func MarkdownToHTML(md string) string {
 
 func sanitize(in string) string {
 	return p.Sanitize(in)
+}
+
+func EscapeHTML(in string) string {
+	return template.HTMLEscapeString(in)
+}
+
+func NewlineToBr(in string) string {
+	out := strings.Replace(in, "\r\n", "<br>", -1)
+	out = strings.Replace(out, "\n", "<br>", -1)
+	out = strings.Replace(out, "\r", "<br>", -1)
+	return out
 }

@@ -127,11 +127,8 @@ func FuncMap(ss models.SiteService, cfg *settings.Settings) template.FuncMap {
 		"ParseMarkdown": func(s string) template.HTML {
 			return template.HTML(models.MarkdownToHTML(s))
 		},
-		"NToBr": func(input string) template.HTML {
-			out := template.HTMLEscapeString(input)
-			out = strings.Replace(out, "\r\n", "<br>", -1)
-			out = strings.Replace(out, "\n", "<br>", -1)
-			out = strings.Replace(out, "\r", "<br>", -1)
+		"NToBr": func(in string) template.HTML {
+			out := models.NewlineToBr(models.EscapeHTML(in))
 			return template.HTML(out)
 		},
 		"GetSites": func() []models.Site {
