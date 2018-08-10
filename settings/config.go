@@ -6,8 +6,10 @@
 package settings
 
 import (
+	"errors"
 	"fmt"
 	"io/ioutil"
+	"net/url"
 	"os"
 	"strings"
 	"time"
@@ -68,9 +70,6 @@ type Settings struct {
 	Session
 	CSRF
 	Log
-}
-
-type App struct {
 }
 
 type Server struct {
@@ -159,7 +158,7 @@ func MergeConfigs(configs []cfg.File) (*Settings, error) {
 	def, err := c.MergeConfigsInto(settings)
 
 	for k, d := range def {
-		logger.Log.Warnf("no config value for key '%s' found in any config - assuming default value: '%v'", k, d.Value)
+		logger.Log.Warnf("config: no config value for key '%s' found in any config - assuming default value: '%v'", k, d.Value)
 	}
 
 	return settings, err
@@ -170,7 +169,7 @@ func LoadConfig(filename string) (*Settings, error) {
 	def, err := cfg.LoadConfigInto(filename, settings)
 
 	for k, d := range def {
-		logger.Log.Warnf("no config value for %s key found in any config - assuming default value %v", k, d.Value)
+		logger.Log.Warnf("config: no config value for %s key found in any config - assuming default value %v", k, d.Value)
 	}
 
 	return settings, err
@@ -180,29 +179,38 @@ func (cfg *Settings) CheckConfig() error {
 	//check log file is rw in production mode
 	if cfg.Environment != "dev" {
 		if _, err := os.OpenFile(cfg.Log.File, os.O_RDONLY|os.O_CREATE, 0644); err != nil {
-			return fmt.Errorf("could not open log file %s error %v", cfg.Log.File, err)
+			return fmt.Errorf("config: could not open log file %s error %v", cfg.Log.File, err)
 		}
 		if _, err := os.OpenFile(cfg.Log.AccessFile, os.O_RDONLY|os.O_CREATE, 0644); err != nil {
-			return fmt.Errorf("could not open access log file %s error %v", cfg.Log.AccessFile, err)
+			return fmt.Errorf("config: could not open access log file %s error %v", cfg.Log.AccessFile, err)
 		}
+	}
+
+	if len(cfg.Blog.Domain) == 0 {
+		return errors.New("config: please specify a domain name 'blog_domain'")
+	}
+
+	_, err := url.ParseRequestURI(cfg.Blog.Domain)
+	if err != nil {
+		return fmt.Errorf("config: invalid url setting for key 'blog_domain' value '%s'", cfg.Blog.Domain)
 	}
 
 	//server settings
 	if cfg.Server.UseTLS {
 		if _, err := os.Open(cfg.Server.Cert); err != nil {
-			return fmt.Errorf("could not open certificate %s error %v", cfg.Server.Cert, err)
+			return fmt.Errorf("config: could not open certificate %s error %v", cfg.Server.Cert, err)
 		}
 		if _, err := os.Open(cfg.Server.Key); err != nil {
-			return fmt.Errorf("could not open private key file %s error %v", cfg.Server.Key, err)
+			return fmt.Errorf("config: could not open private key file %s error %v", cfg.Server.Key, err)
 		}
 	}
 
 	if cfg.Server.Port < 1 || cfg.Server.Port > 65535 {
-		return fmt.Errorf("invalid port setting server_port is %d", cfg.Server.Port)
+		return fmt.Errorf("config: invalid port setting for key 'server_port' value %d", cfg.Server.Port)
 	}
 
 	if _, err := os.Open(cfg.File.Location); err != nil {
-		return fmt.Errorf("could not open file path %s error %v", cfg.File.Location, err)
+		return fmt.Errorf("config: could not open file path %s error %v", cfg.File.Location, err)
 	}
 
 	return nil
@@ -215,7 +223,10 @@ func (cfg *Settings) GenerateCSRF() (bool, error) {
 
 		if _, err := os.Stat(csrfTokenFilename); os.IsNotExist(err) {
 			//create a random csrf token
-			r := utils.RandomSource{CharsToGen: utils.AlphaUpperLowerNumericSpecial}
+			r := utils.RandomSource{
+				CharsToGen: utils.AlphaUpperLowerNumericSpecial,
+			}
+
 			b = r.RandomSequence(32)
 
 			err := ioutil.WriteFile(csrfTokenFilename, b, 0640)
