@@ -265,13 +265,13 @@ main p {
   line-height: 1.5;
 }
 
-article .article_link {
+.article_link {
 	margin: 0;
 }
 
-article.article_info {
+.article_info {
 	font-size: 0.9em;
-	margin-bottom: 2em;
+	margin: 0 0 1em 0;
 }
 
 .alert {
