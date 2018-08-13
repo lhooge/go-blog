@@ -82,13 +82,7 @@ type Server struct {
 }
 
 type Database struct {
-	Engine   DatabaseEngine `cfg:"database_engine" default:"sqlite"`
-	Host     string         `cfg:"mysql_host"`
-	Port     int            `cfg:"mysql_port"`
-	User     string         `cfg:"mysql_user"`
-	Password string         `cfg:"mysql_password"`
-	Name     string         `cfg:"mysql_database"`
-	File     string         `cfg:"sqlite_file" default:"data/goblog.sqlite"`
+	File string `cfg:"sqlite_file" default:"data/goblog.sqlite"`
 }
 
 type File struct {
