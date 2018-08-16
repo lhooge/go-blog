@@ -149,7 +149,6 @@ func publicRoutes(ctx *m.AppContext, router *mux.Router, chain alice.Chain) {
 
 	router.Handle("/admin/activate-account/{hash}", chain.Then(useTemplateHandler(ctx, c.ActivateAccountHandler))).Methods("GET")
 	router.Handle("/admin/activate-account/{hash}", chain.Then(useTemplateHandler(ctx, c.ActivateAccountPostHandler))).Methods("POST")
-
 }
 
 func useTemplateHandler(ctx *m.AppContext, handler m.Handler) m.TemplateHandler {

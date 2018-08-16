@@ -38,7 +38,6 @@ func main() {
 
 	fmt.Printf("init_database version %s\n", BuildVersion)
 
-	engine := flag.String("engine", "sqlite", "The database engine (mysql|sqlite)")
 	databaseName := flag.String("database", "", "The name of the database")
 	host := flag.String("host", "127.0.0.1", "The address of the database")
 	port := flag.Int("port", 3306, "The port of the database")
@@ -59,7 +58,7 @@ func main() {
 			file:         *file,
 		}
 
-		if err != nil {
+		if err := initDB.initSQLite(*config); err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}

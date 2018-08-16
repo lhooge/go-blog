@@ -85,6 +85,8 @@ func (userFlags createUserFlag) CreateUser(config string) error {
 		return err
 	}
 
+	var userService models.UserService
+
 	dbConfig := database.SQLiteConfig{
 		File: c.Database.File,
 	}
@@ -95,7 +97,7 @@ func (userFlags createUserFlag) CreateUser(config string) error {
 		return err
 	}
 
-	userService := models.UserService{
+	userService = models.UserService{
 		Datasource: models.SQLiteUserDatasource{
 			SQLConn: db,
 		},

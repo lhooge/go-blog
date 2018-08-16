@@ -63,7 +63,15 @@ type UserInterceptor interface {
 	PostUpdate(user *User) error
 }
 
-func (u *User) validate(us UserService, minPasswordLength int, changeMail, changeUserName, changePassword bool) error {
+type Validations int
+
+const (
+	VMail = iota
+	VUsername
+	VPassword
+)
+
+func (u *User) validate(us UserService, v Validations, minPasswordLength int) error {
 	u.DisplayName = strings.TrimSpace(u.DisplayName)
 	u.Email = strings.TrimSpace(u.Email)
 	u.Username = strings.TrimSpace(u.Username)
@@ -92,7 +100,7 @@ func (u *User) validate(us UserService, minPasswordLength int, changeMail, chang
 		return httperror.ValueTooLong("username", 60)
 	}
 
-	if changePassword {
+	if v == VPassword {
 		if len(u.Password) < minPasswordLength && len(u.Password) >= 0 {
 			return httperror.New(http.StatusUnprocessableEntity,
 				fmt.Sprintf("The password is too short. It must be at least %d characters long.", minPasswordLength),
@@ -101,7 +109,7 @@ func (u *User) validate(us UserService, minPasswordLength int, changeMail, chang
 		}
 	}
 
-	if changeMail {
+	if v == VMail {
 		err := us.DuplicateMail(u.Email)
 
 		if err != nil {
@@ -109,8 +117,8 @@ func (u *User) validate(us UserService, minPasswordLength int, changeMail, chang
 		}
 	}
 
-	if changeUserName {
-		err := us.DuplicateUsername(u.Email)
+	if v == VUsername {
+		err := us.DuplicateUsername(u.Username)
 
 		if err != nil {
 			return err

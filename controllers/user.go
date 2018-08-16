@@ -87,6 +87,8 @@ func AdminUserNewPostHandler(ctx *middleware.AppContext, w http.ResponseWriter, 
 		IsAdmin:     convertCheckbox(r, "admin"),
 	}
 
+	sendRegLink := convertCheckbox(r, "active")
+
 	userID, err := ctx.UserService.CreateUser(u)
 	if err != nil {
 		return &middleware.Template{
@@ -97,6 +99,10 @@ func AdminUserNewPostHandler(ctx *middleware.AppContext, w http.ResponseWriter, 
 				"user": u,
 			},
 		}
+	}
+
+	if sendRegLink {
+
 	}
 
 	return &middleware.Template{
