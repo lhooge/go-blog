@@ -157,6 +157,12 @@ func context(db *sql.DB, cfg *settings.Settings) (*m.AppContext, error) {
 		UserInterceptor: ic,
 	}
 
+	userInviteService := models.UserInviteService{
+		Datasource: models.SQLiteUserInviteDatasource{
+			SQLConn: db,
+		},
+	}
+
 	articleService := models.ArticleService{
 		BlogConfig: cfg.Blog,
 		Datasource: models.SQLiteArticleDatasource{
@@ -219,15 +225,16 @@ func context(db *sql.DB, cfg *settings.Settings) (*m.AppContext, error) {
 	sessionService.InitGC(ticker, cfg.Session.TTL)
 
 	return &m.AppContext{
-		Templates:      tpl,
-		UserService:    userService,
-		ArticleService: articleService,
-		SiteService:    siteService,
-		FileService:    fileService,
-		TokenService:   tokenService,
-		MailService:    mailService,
-		SessionService: &sessionService,
-		ConfigService:  cfg,
+		Templates:         tpl,
+		UserService:       userService,
+		UserInviteService: userInviteService,
+		ArticleService:    articleService,
+		SiteService:       siteService,
+		FileService:       fileService,
+		TokenService:      tokenService,
+		MailService:       mailService,
+		SessionService:    &sessionService,
+		ConfigService:     cfg,
 	}, nil
 }
 

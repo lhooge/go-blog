@@ -84,44 +84,21 @@ func (userFlags createUserFlag) CreateUser(config string) error {
 	if err != nil {
 		return err
 	}
-	var userService models.UserService
 
-	if c.Database.Engine == settings.MySQL {
-		dbConfig := database.MySQLConfig{
-			Host:     c.Database.Host,
-			User:     c.Database.User,
-			Port:     c.Database.Port,
-			Password: c.Database.Password,
-			Database: c.Database.Name,
-		}
+	dbConfig := database.SQLiteConfig{
+		File: c.Database.File,
+	}
 
-		db, err := dbConfig.Open()
+	db, err := dbConfig.Open()
 
-		if err != nil {
-			return err
-		}
+	if err != nil {
+		return err
+	}
 
-		userService = models.UserService{
-			Datasource: models.MySQLUserDatasource{
-				SQLConn: db,
-			},
-		}
-	} else if c.Database.Engine == settings.SQLite {
-		dbConfig := database.SQLiteConfig{
-			File: c.Database.File,
-		}
-
-		db, err := dbConfig.Open()
-
-		if err != nil {
-			return err
-		}
-
-		userService = models.UserService{
-			Datasource: models.SQLiteUserDatasource{
-				SQLConn: db,
-			},
-		}
+	userService := models.UserService{
+		Datasource: models.SQLiteUserDatasource{
+			SQLConn: db,
+		},
 	}
 
 	user := &models.User{

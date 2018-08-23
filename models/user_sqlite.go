@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-//SQLiteUserDatasource providing an implementation of UserDatasourceService using MariaDB
+//SQLiteUserDatasource providing an implementation of UserDatasourceService using SQLite
 type SQLiteUserDatasource struct {
 	SQLConn *sql.DB
 }

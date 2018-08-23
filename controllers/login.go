@@ -158,7 +158,7 @@ func ForgotPasswordPostHandler(ctx *middleware.AppContext, w http.ResponseWriter
 		Type:   models.PasswordReset,
 	}
 
-	err = ctx.TokenService.AddToken(t)
+	err = ctx.TokenService.CreateToken(t)
 
 	if err != nil {
 		return &middleware.Template{

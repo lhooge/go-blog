@@ -16,11 +16,12 @@ import (
 )
 
 const (
-	tplAdminUsers      = "admin/users"
-	tplAdminUserEdit   = "admin/user_edit"
-	tplAdminUserNew    = "admin/user_add"
-	tplAdminUserDelete = "admin/user_delete"
-	tplAdminProfile    = "admin/user_profile"
+	tplAdminUsers         = "admin/users"
+	tplAdminUserEdit      = "admin/user_edit"
+	tplAdminUserNew       = "admin/user_add"
+	tplAdminUserDelete    = "admin/user_delete"
+	tplAdminProfile       = "admin/user_profile"
+	tplAdminUserInviteNew = "admin/user_invite_add"
 )
 
 //AdminProfileHandler returns page for updating the profile of the currently logged-in user
@@ -115,23 +116,30 @@ func AdminUsersHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *htt
 		}
 	}
 
-	pagination := &models.Pagination{
+	p := &models.Pagination{
 		Total:       total,
 		Limit:       20,
 		CurrentPage: page,
-		RelURL:      "admin/sites/page",
+		RelURL:      "admin/users/page",
 	}
 
-	users, err := ctx.UserService.ListUsers(pagination)
+	users, err := ctx.UserService.ListUsers(p)
 
 	if err != nil {
 		return &middleware.Template{
 			Name:   tplAdminUsers,
 			Err:    err,
 			Active: "users",
-			Data: map[string]interface{}{
-				"pagination": pagination,
-			},
+		}
+	}
+
+	userInvites, err := ctx.UserInviteService.ListUserInvites()
+
+	if err != nil {
+		return &middleware.Template{
+			Name:   tplAdminUsers,
+			Err:    err,
+			Active: "users",
 		}
 	}
 
@@ -139,8 +147,9 @@ func AdminUsersHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *htt
 		Name:   tplAdminUsers,
 		Active: "users",
 		Data: map[string]interface{}{
-			"users":      users,
-			"pagination": pagination,
+			"users":        users,
+			"user_invites": userInvites,
+			"pagination":   p,
 		},
 	}
 }
@@ -327,5 +336,44 @@ func AdminUserDeletePostHandler(ctx *middleware.AppContext, w http.ResponseWrite
 	return &middleware.Template{
 		RedirectPath: "admin/users",
 		Active:       "users",
+	}
+}
+
+//AdminUserNewHandler returns the form for adding new user (admin only action)
+func AdminUserInviteNewHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
+	return &middleware.Template{
+		Name:   tplAdminUserInviteNew,
+		Active: "users",
+	}
+}
+
+//AdminUserNewPostHandler handles the creation of new users (admin only action)
+func AdminUserInviteNewPostHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
+	u := &models.UserInvite{
+		DisplayName: r.FormValue("displayname"),
+		Username:    r.FormValue("username"),
+		Email:       r.FormValue("email"),
+		IsAdmin:     convertCheckbox(r, "admin"),
+	}
+
+	inviteID, err := ctx.UserInviteService.CreateUserInvite(u)
+	if err != nil {
+		return &middleware.Template{
+			Name:   tplAdminUserInviteNew,
+			Err:    err,
+			Active: "users",
+			Data: map[string]interface{}{
+				"user": u,
+			},
+		}
+	}
+
+	return &middleware.Template{
+		RedirectPath: "admin/users",
+		Active:       "users",
+		SuccessMsg:   "Successfully added user " + u.Email,
+		Data: map[string]interface{}{
+			"userID": inviteID,
+		},
 	}
 }

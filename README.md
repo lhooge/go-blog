@@ -49,13 +49,13 @@ Make sure -admin is set.
 
 TODOs
 -----
+ * Activation link when registering new users
  * Add and fix test
  * Comment user interceptor
  * Revisit Makefile
  * Database update tasks / simple query builder
  * Order possibilities in admin panel
  * Review preview of articles and sites / error handling
- * Activation link when registering new users
  * Support some environmental variables / flags
 
 Licence

@@ -1,13 +1,13 @@
-{{define "admin/user_add"}}
+{{define "admin/user_invite_add"}}
 
 {{template "admin/head" .}}
 {{template "admin/navigation" .}}
 <main>
 	{{template "skel/flash" .}}
 
-	<h2>Add user</h2>
+	<h2>Invite user</h2>
 			
-	<form action="/admin/user/new" method="post">
+	<form action="/admin/user_invite/new" method="post">
 		<label for="username">Username</label>
 		<input type="username" name="username" {{if .user}}value="{{.user.Username}}"{{end}} value="{{.Username}}" id="username" placeholder="Username..." required>
 
@@ -17,20 +17,13 @@
 		<label for="displayname">Display name</label>
 		<input type="text" id="displayname" name="displayname" {{if .user}}value="{{.user.DisplayName}}"{{end}} placeholder="Display name..." required>
 
-		<label for="password">Password</label>
-		<input type="password" id="password" name="password" placeholder="Password..." required>
-	
 		<div class="checkbox">
 			<label><input type="checkbox" id="admin" name="admin" value="on"{{if .IsAdmin}} checked{{end}}>Admin?</label>
 		</div>
-
-		<div class="checkbox">
-			<label><input type="checkbox" id="active" name="active" value="on"{{if .Active}} checked{{end}}>Is activated?</label>
-		</div>
-
+			
 		{{ .csrfField }}
 		<div class="button-group">
-			<button name="action" value="add">Save</button>
+			<button name="action" value="add">Invite</button>
 		</div>
 	</form>
 </main>

@@ -7,8 +7,12 @@
 	
 	<h2>User management</h2>
 
-	<p><a href="/admin/user/new">Add a user</a></p>
+	<p><a href="/admin/user/new">Add an user</a> | <a href="/admin/user_invite/new">Invite an user</a></p>
 
+	{{with .userInvites}}
+	<h3>Open Invites</h3>
+	{{end}}
+	
 	<table>
 		<thead>
 			<tr>

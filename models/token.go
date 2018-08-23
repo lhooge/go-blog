@@ -1,10 +1,8 @@
 package models
 
 import (
-	"crypto/sha512"
 	"database/sql"
 	"database/sql/driver"
-	"encoding/hex"
 	"errors"
 	"fmt"
 	"net/http"
@@ -27,7 +25,8 @@ type Token struct {
 	Hash        string
 	Type        TokenType
 	RequestedAt time.Time
-	Author      *User
+
+	Author *User
 }
 
 const (
@@ -66,12 +65,9 @@ type TokenService struct {
 	Datasource TokenDatasourceService
 }
 
-//AddToken creates a random SHA512 hash is generated here
-func (ts TokenService) AddToken(t *Token) error {
-	hash := sha512.New()
-	hash.Write(utils.RandomSecureKey(32))
-
-	t.Hash = hex.EncodeToString(hash.Sum(nil))
+//CreateToken creates a new token
+func (ts TokenService) CreateToken(t *Token) error {
+	t.Hash = utils.RandomHash(32)
 
 	_, err := ts.Datasource.Create(t)
 
