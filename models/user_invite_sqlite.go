@@ -39,7 +39,7 @@ func (rdb SQLiteUserInviteDatasource) List() ([]UserInvite, error) {
 		if err = rows.Scan(&ui.ID, &ui.Username, &ui.Email, &ui.DisplayName, &ui.CreatedAt, &ui.IsAdmin, &u.ID, &u.Username, &u.Email, &u.DisplayName); err != nil {
 			return nil, err
 		}
-		ui.CreatedBy = u
+		ui.CreatedBy = &u
 		invites = append(invites, ui)
 	}
 
@@ -64,7 +64,7 @@ func (rdb SQLiteUserInviteDatasource) Get(inviteID int) (*UserInvite, error) {
 		return nil, err
 	}
 
-	ui.CreatedBy = u
+	ui.CreatedBy = &u
 
 	return &ui, nil
 }
@@ -83,7 +83,7 @@ func (rdb SQLiteUserInviteDatasource) GetByHash(hash string) (*UserInvite, error
 		return nil, err
 	}
 
-	ui.CreatedBy = u
+	ui.CreatedBy = &u
 
 	return &ui, nil
 }

@@ -134,12 +134,16 @@ func AdminUsersHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *htt
 	}
 
 	userInvites, err := ctx.UserInviteService.ListUserInvites()
-
+	fmt.Println("user_invites", userInvites)
 	if err != nil {
 		return &middleware.Template{
 			Name:   tplAdminUsers,
 			Err:    err,
 			Active: "users",
+			Data: map[string]interface{}{
+				"users":      users,
+				"pagination": p,
+			},
 		}
 	}
 
@@ -349,21 +353,24 @@ func AdminUserInviteNewHandler(ctx *middleware.AppContext, w http.ResponseWriter
 
 //AdminUserNewPostHandler handles the creation of new users (admin only action)
 func AdminUserInviteNewPostHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
-	u := &models.UserInvite{
+	user, _ := middleware.User(r)
+
+	ui := &models.UserInvite{
 		DisplayName: r.FormValue("displayname"),
 		Username:    r.FormValue("username"),
 		Email:       r.FormValue("email"),
 		IsAdmin:     convertCheckbox(r, "admin"),
+		CreatedBy:   user,
 	}
 
-	inviteID, err := ctx.UserInviteService.CreateUserInvite(u)
+	inviteID, err := ctx.UserInviteService.CreateUserInvite(ui)
 	if err != nil {
 		return &middleware.Template{
 			Name:   tplAdminUserInviteNew,
 			Err:    err,
 			Active: "users",
 			Data: map[string]interface{}{
-				"user": u,
+				"user_invite": ui,
 			},
 		}
 	}
@@ -371,7 +378,7 @@ func AdminUserInviteNewPostHandler(ctx *middleware.AppContext, w http.ResponseWr
 	return &middleware.Template{
 		RedirectPath: "admin/users",
 		Active:       "users",
-		SuccessMsg:   "Successfully added user " + u.Email,
+		SuccessMsg:   "Successfully invited user " + ui.Email,
 		Data: map[string]interface{}{
 			"userID": inviteID,
 		},

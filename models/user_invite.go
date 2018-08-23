@@ -16,7 +16,7 @@ type UserInvite struct {
 	CreatedAt   time.Time
 	IsAdmin     bool
 
-	CreatedBy User
+	CreatedBy *User
 }
 
 //UserInviteDatasourceService defines an interface for CRUD operations for users

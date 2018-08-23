@@ -9,16 +9,16 @@
 			
 	<form action="/admin/user_invite/new" method="post">
 		<label for="username">Username</label>
-		<input type="username" name="username" {{if .user}}value="{{.user.Username}}"{{end}} value="{{.Username}}" id="username" placeholder="Username..." required>
+		<input type="username" name="username" {{if .user_invite}}value="{{.user_invite.Username}}"{{end}} value="{{.Username}}" id="username" placeholder="Username..." required>
 
 		<label for="email">Email</label>
-		<input type="email" id="email" name="email" {{if .user}}value="{{.user.Email}}"{{end}} placeholder="Email..." required>
+		<input type="email" id="email" name="email" {{if .user_invite}}value="{{.user_invite.Email}}"{{end}} placeholder="Email..." required>
 
 		<label for="displayname">Display name</label>
-		<input type="text" id="displayname" name="displayname" {{if .user}}value="{{.user.DisplayName}}"{{end}} placeholder="Display name..." required>
+		<input type="text" id="displayname" name="displayname" {{if .user_invite}}value="{{.user_invite.DisplayName}}"{{end}} placeholder="Display name..." required>
 
 		<div class="checkbox">
-			<label><input type="checkbox" id="admin" name="admin" value="on"{{if .IsAdmin}} checked{{end}}>Admin?</label>
+			<label><input type="checkbox" id="admin" name="admin" value="on"{{if .user_invite.IsAdmin}} checked{{end}}>Admin?</label>
 		</div>
 			
 		{{ .csrfField }}
