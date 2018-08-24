@@ -13,11 +13,6 @@ import (
 	"git.hoogi.eu/go-blog/models"
 )
 
-const (
-	tplAdminFiles      = "admin/files"
-	tplAdminFileUpload = "admin/file_upload"
-)
-
 //FileGetHandler serves the file based on the url filename
 func FileGetHandler(ctx *middleware.AppContext) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {

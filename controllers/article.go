@@ -14,16 +14,6 @@ import (
 	"git.hoogi.eu/go-blog/utils"
 )
 
-const (
-	tplArticle       = "front/article"
-	tplArticles      = "front/articles"
-	tplIndexArticles = "front/index"
-
-	tplAdminArticles    = "admin/articles"
-	tplAdminArticleNew  = "admin/article_add"
-	tplAdminArticleEdit = "admin/article_edit"
-)
-
 //GetArticleHandler returns a specific article
 //Parameters in the url form 2016/03/my-headline are used for obtaining the article
 func GetArticleHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {

@@ -15,15 +15,6 @@ import (
 	"git.hoogi.eu/go-blog/models"
 )
 
-const (
-	tplAdminUsers         = "admin/users"
-	tplAdminUserEdit      = "admin/user_edit"
-	tplAdminUserNew       = "admin/user_add"
-	tplAdminUserDelete    = "admin/user_delete"
-	tplAdminProfile       = "admin/user_profile"
-	tplAdminUserInviteNew = "admin/user_invite_add"
-)
-
 //AdminProfileHandler returns page for updating the profile of the currently logged-in user
 func AdminProfileHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
 	user, _ := middleware.User(r)

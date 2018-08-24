@@ -16,12 +16,6 @@ import (
 	"git.hoogi.eu/go-blog/utils"
 )
 
-const (
-	tplAdminForgotPassword  = "admin/forgot_password"
-	tplAdminResetPassword   = "admin/reset_password"
-	tplAdminActivateAccount = "admin/activate_account"
-)
-
 func ActivateAccountHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
 	hash := getVar(r, "hash")
 

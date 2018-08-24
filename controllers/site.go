@@ -15,13 +15,6 @@ import (
 	"git.hoogi.eu/go-blog/models"
 )
 
-const (
-	tplSite          = "front/site"
-	tplAdminSites    = "admin/sites"
-	tplAdminSiteEdit = "admin/site_edit"
-	tplAdminSiteNew  = "admin/site_add"
-)
-
 //SiteHandler returns the site template only published sites are considered
 func SiteHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
 	site, err := ctx.SiteService.GetSiteByLink(getVar(r, "site"), models.OnlyPublished)
