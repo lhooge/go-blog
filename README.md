@@ -51,6 +51,7 @@ TODOs
 -----
  * Activation link when registering new users
  * Add and fix test
+ * Refactoring (redirect urls)
  * Comment user interceptor
  * Revisit Makefile
  * Database update tasks / simple query builder

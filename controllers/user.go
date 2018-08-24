@@ -5,8 +5,6 @@
 package controllers
 
 import (
-	"bytes"
-	"errors"
 	"fmt"
 	"net/http"
 
@@ -14,85 +12,6 @@ import (
 	"git.hoogi.eu/go-blog/middleware"
 	"git.hoogi.eu/go-blog/models"
 )
-
-//AdminProfileHandler returns page for updating the profile of the currently logged-in user
-func AdminProfileHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
-	user, _ := middleware.User(r)
-
-	return &middleware.Template{
-		Name: tplAdminProfile,
-		Data: map[string]interface{}{
-			"user": user,
-		},
-		Active: "profile",
-	}
-}
-
-//AdminProfilePostHandler handles the updating of the user profile
-func AdminProfilePostHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
-	ctxUser, _ := middleware.User(r)
-
-	u := &models.User{
-		ID:          ctxUser.ID,
-		Username:    r.FormValue("username"),
-		Email:       r.FormValue("email"),
-		DisplayName: r.FormValue("displayname"),
-		Active:      true,
-		IsAdmin:     ctxUser.IsAdmin,
-	}
-
-	if _, err := ctx.UserService.Authenticate(ctxUser, ctx.ConfigService.LoginMethod, []byte(r.PostFormValue("current_password"))); err != nil {
-		return &middleware.Template{
-			Name:   tplAdminProfile,
-			Err:    httperror.New(http.StatusUnauthorized, "Your password is invalid.", err),
-			Active: "profile",
-			Data: map[string]interface{}{
-				"user": u,
-			},
-		}
-	}
-
-	changePassword := false
-
-	if len(r.FormValue("password")) > 0 {
-		changePassword = true
-		// Password change
-		u.Password = []byte(r.FormValue("password"))
-
-		if !bytes.Equal(u.Password, []byte(r.FormValue("retyped_password"))) {
-			return &middleware.Template{
-				Name:   tplAdminProfile,
-				Active: "profile",
-				Err: httperror.New(http.StatusUnprocessableEntity,
-					"Please check your retyped password",
-					errors.New("the password did not match the retyped one")),
-				Data: map[string]interface{}{
-					"user": u,
-				},
-			}
-		}
-	}
-
-	if err := ctx.UserService.UpdateUser(u, changePassword); err != nil {
-		return &middleware.Template{
-			Name:   tplAdminProfile,
-			Active: "profile",
-			Err:    err,
-			Data: map[string]interface{}{
-				"user": u,
-			},
-		}
-	}
-
-	return &middleware.Template{
-		RedirectPath: "admin/user/profile",
-		Active:       "profile",
-		SuccessMsg:   "Your profile update was successful",
-		Data: map[string]interface{}{
-			"user": u,
-		},
-	}
-}
 
 //AdminUsersHandler returns an overview of the created users  (admin only action)
 func AdminUsersHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
