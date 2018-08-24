@@ -12,11 +12,6 @@ import (
 	"github.com/gorilla/mux"
 )
 
-const (
-	tplAdminAction = "admin/action"
-	tplAdminError  = "admin/error"
-)
-
 func getVar(r *http.Request, key string) string {
 	v := mux.Vars(r)[key]
 	if len(v) > 0 {
