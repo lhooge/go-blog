@@ -71,7 +71,6 @@ func fileLoggingHandler(accessLogPath string) (flh func(http.Handler) http.Handl
 }
 
 func restrictedRoutes(ctx *m.AppContext, router *mux.Router, chain alice.Chain) {
-
 	//article
 	router.Handle("/articles", chain.Then(useTemplateHandler(ctx, c.AdminListArticlesHandler))).Methods("GET")
 	router.Handle("/articles/page/{page}", chain.Then(useTemplateHandler(ctx, c.AdminListArticlesHandler))).Methods("GET")

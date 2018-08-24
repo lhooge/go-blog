@@ -242,7 +242,7 @@ func ForgotPasswordPostHandler(ctx *middleware.AppContext, w http.ResponseWriter
 		}
 	}
 
-	resetLink := utils.AppendString(ctx.ConfigService.Blog.Domain, "/reset-password/", t.Hash)
+	resetLink := utils.AppendString(ctx.ConfigService.Blog.Domain, "/admin/reset-password/", t.Hash)
 
 	m := mail.Mail{
 		To:      u.Email,
