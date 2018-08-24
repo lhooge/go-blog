@@ -7,43 +7,43 @@
 	
 	<h2>User management</h2>
 
-	<p><a href="/admin/user/new">Add an user</a> | <a href="/admin/user_invite/new">Invite an user</a></p>
+	<p><a href="/admin/user/new">Add an user</a> | <a href="/admin/user-invite/new">Invite an user</a></p>
 
 	{{with .user_invites}}
 		<h3>Open Invites</h3>
-		
+			
 		<table>
-		<thead>
-			<tr>
-			<th>Created at</th>
-			<th>Username</th>
-			<th>E-mail</th>
-			<th>Display name</th>
-			<th>Admin</th>
-			<th>Invited by</th>
-			<th>Actions</th>
-			</tr>
-		</thead>
-		<tbody>
-			{{range .}}
+			<thead>
 				<tr>
-					<td>{{.CreatedAt | FormatDateTime}}</td>
-					<td>{{.Username}}</td>
-					<td>{{.Email}}</td>
-					<td>{{.DisplayName}}</td>
-					<td>{{.IsAdmin | BoolToIcon}}</td>
-					<td>{{.CreatedBy.DisplayName}}</td>
-					<td class="action-data">
-						<a href="/admin/user_invite/edit/{{.ID}}" title="Invite">Resend invite link</a>
-						<a href="/admin/user_invite/delete/{{.ID}}" title="Remove">Remove</a>
-					</td>
+				<th>Created at</th>
+				<th>Username</th>
+				<th>E-mail</th>
+				<th>Display name</th>
+				<th>Admin</th>
+				<th>Invited by</th>
+				<th>Actions</th>
 				</tr>
-			{{end}}
-		</tbody>
-	</table>
+			</thead>
+			<tbody>
+				{{range .}}
+					<tr>
+						<td>{{.CreatedAt | FormatDateTime}}</td>
+						<td>{{.Username}}</td>
+						<td>{{.Email}}</td>
+						<td>{{.DisplayName}}</td>
+						<td>{{.IsAdmin | BoolToIcon}}</td>
+						<td>{{.CreatedBy.DisplayName}}</td>
+						<td class="action-data">
+							<a href="/admin/user-invite/resend/{{.ID}}" title="Invite">Resend invite link</a>
+							<a href="/admin/user-invite/delete/{{.ID}}" title="Remove">Remove</a>
+						</td>
+					</tr>
+				{{end}}
+			</tbody>
+		</table>
+		<br>
 	{{end}}
 	
-	<br>
 	<h3>Users</h3>
 	
 	<table>

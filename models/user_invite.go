@@ -19,6 +19,15 @@ type UserInvite struct {
 	CreatedBy *User
 }
 
+func (ui UserInvite) Copy() *User {
+	return &User{
+		Username:    ui.Username,
+		Email:       ui.Email,
+		DisplayName: ui.DisplayName,
+		IsAdmin:     ui.IsAdmin,
+	}
+}
+
 //UserInviteDatasourceService defines an interface for CRUD operations for users
 type UserInviteDatasourceService interface {
 	List() ([]UserInvite, error)
@@ -49,4 +58,8 @@ func (uis UserInviteService) CreateUserInvite(ui *UserInvite) (int, error) {
 	}
 
 	return uis.Datasource.Create(ui)
+}
+
+func (uis UserInviteService) GetByHash(hash string) (*UserInvite, error) {
+	return uis.Datasource.GetByHash(hash)
 }

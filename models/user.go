@@ -47,6 +47,13 @@ const (
 	bcryptRounds = 12
 )
 
+//UserService containing the service to access users
+type UserService struct {
+	Datasource      UserDatasourceService
+	Config          settings.User
+	UserInterceptor UserInterceptor
+}
+
 //UserInterceptor will be executed before and after updating/creating users
 //build your own interceptor as plugin
 type UserInterceptor interface {
@@ -56,7 +63,7 @@ type UserInterceptor interface {
 	PostUpdate(user *User) error
 }
 
-func (u *User) validate(ds UserDatasourceService, minPasswordLength int, changeMail, changeUserName, changePassword bool) error {
+func (u *User) validate(us UserService, minPasswordLength int, changeMail, changeUserName, changePassword bool) error {
 	u.DisplayName = strings.TrimSpace(u.DisplayName)
 	u.Email = strings.TrimSpace(u.Email)
 	u.Username = strings.TrimSpace(u.Username)
@@ -92,44 +99,58 @@ func (u *User) validate(ds UserDatasourceService, minPasswordLength int, changeM
 				fmt.Errorf("the password is too short, it must be at least %d characters long", minPasswordLength),
 			)
 		}
-
 	}
 
 	if changeMail {
-		user, err := ds.GetByMail(u.Email)
+		err := us.DuplicateMail(u.Email)
+
 		if err != nil {
-			if err != sql.ErrNoRows {
-				return err
-			}
-		}
-		if user != nil {
-			return httperror.New(http.StatusUnprocessableEntity,
-				fmt.Sprintf("The mail %s already exists.", u.Email),
-				fmt.Errorf("the mail %s already exits", u.Email))
+			return err
 		}
 	}
 
 	if changeUserName {
-		user, err := ds.GetByUsername(u.Username)
+		err := us.DuplicateUsername(u.Email)
+
 		if err != nil {
-			if err != sql.ErrNoRows {
-				return err
-			}
-		}
-		if user != nil {
-			return httperror.New(http.StatusUnprocessableEntity,
-				fmt.Sprintf("The username %s already exists.", u.Username),
-				fmt.Errorf("the username %s already exists", u.Username))
+			return err
 		}
 	}
+
 	return nil
 }
 
-//UserService containing the service to access users
-type UserService struct {
-	Datasource      UserDatasourceService
-	Config          settings.User
-	UserInterceptor UserInterceptor
+func (us UserService) DuplicateMail(mail string) error {
+	user, err := us.Datasource.GetByMail(mail)
+	if err != nil {
+		if err != sql.ErrNoRows {
+			return err
+		}
+	}
+
+	if user != nil {
+		return httperror.New(http.StatusUnprocessableEntity,
+			fmt.Sprintf("The mail %s already exists.", mail),
+			fmt.Errorf("the mail %s already exits", mail))
+	}
+
+	return nil
+}
+
+func (us UserService) DuplicateUsername(username string) error {
+	user, err := us.Datasource.GetByUsername(username)
+	if err != nil {
+		if err != sql.ErrNoRows {
+			return err
+		}
+	}
+	if user != nil {
+		return httperror.New(http.StatusUnprocessableEntity,
+			fmt.Sprintf("The username %s already exists.", username),
+			fmt.Errorf("the username %s already exists", username))
+	}
+
+	return nil
 }
 
 //CountUsers returns the amount of users
@@ -188,7 +209,7 @@ func (us UserService) CreateUser(u *User) (int, error) {
 		return -1, httperror.InternalServerError(fmt.Errorf("error while executing user interceptor 'PreCreate' error %v", errUserInterceptor))
 	}
 
-	if err := u.validate(us.Datasource, us.Config.MinPasswordLength, true, true, true); err != nil {
+	if err := u.validate(us, us.Config.MinPasswordLength, true, true, true); err != nil {
 		return -1, err
 	}
 
@@ -243,7 +264,7 @@ func (us UserService) UpdateUser(u *User, changePassword bool) error {
 	var changedMail = !(u.Email == oldUser.Email)
 	var changedUserName = !(u.Username == oldUser.Username)
 
-	if err = u.validate(us.Datasource, us.Config.MinPasswordLength, changedMail, changedUserName, changePassword); err != nil {
+	if err = u.validate(us, us.Config.MinPasswordLength, changedMail, changedUserName, changePassword); err != nil {
 		return err
 	}
 

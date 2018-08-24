@@ -97,8 +97,8 @@ func restrictedRoutes(ctx *m.AppContext, router *mux.Router, chain alice.Chain) 
 	router.Handle("/user/delete/{userID}", chain.Append(ctx.RequireAdmin).Then(useTemplateHandler(ctx, c.AdminUserDeletePostHandler))).Methods("POST")
 
 	//user invites
-	router.Handle("/user_invite/new", chain.Append(ctx.RequireAdmin).Then(useTemplateHandler(ctx, c.AdminUserInviteNewHandler))).Methods("GET")
-	router.Handle("/user_invite/new", chain.Append(ctx.RequireAdmin).Then(useTemplateHandler(ctx, c.AdminUserInviteNewPostHandler))).Methods("POST")
+	router.Handle("/user-invite/new", chain.Append(ctx.RequireAdmin).Then(useTemplateHandler(ctx, c.AdminUserInviteNewHandler))).Methods("GET")
+	router.Handle("/user-invite/new", chain.Append(ctx.RequireAdmin).Then(useTemplateHandler(ctx, c.AdminUserInviteNewPostHandler))).Methods("POST")
 
 	//site
 	router.Handle("/sites", chain.Append(ctx.RequireAdmin).Then(useTemplateHandler(ctx, c.AdminSitesHandler))).Methods("GET")
@@ -147,6 +147,9 @@ func publicRoutes(ctx *m.AppContext, router *mux.Router, chain alice.Chain) {
 
 	router.Handle("/admin/reset-password/{hash}", chain.Then(useTemplateHandler(ctx, c.ResetPasswordHandler))).Methods("GET")
 	router.Handle("/admin/reset-password/{hash}", chain.Then(useTemplateHandler(ctx, c.ResetPasswordPostHandler))).Methods("POST")
+
+	router.Handle("/admin/activate-account/{hash}", chain.Then(useTemplateHandler(ctx, c.ActivateAccountHandler))).Methods("GET")
+	router.Handle("/admin/activate-account/{hash}", chain.Then(useTemplateHandler(ctx, c.ActivateAccountPostHandler))).Methods("POST")
 
 }
 

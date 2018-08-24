@@ -231,6 +231,7 @@ func AdminUserEditHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *
 //AdminUserEditPostHandler handles the updating of an user (admin only action)
 func AdminUserEditPostHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
 	userID, err := parseInt(getVar(r, "userID"))
+
 	if err != nil {
 		return &middleware.Template{
 			RedirectPath: "admin/users",
@@ -250,9 +251,11 @@ func AdminUserEditPostHandler(ctx *middleware.AppContext, w http.ResponseWriter,
 	}
 
 	changePassword := false
+
 	if len(u.Password) > 0 {
 		changePassword = true
 	}
+
 	if err := ctx.UserService.UpdateUser(u, changePassword); err != nil {
 		return &middleware.Template{
 			Name:   tplAdminUserEdit,
@@ -364,6 +367,7 @@ func AdminUserInviteNewPostHandler(ctx *middleware.AppContext, w http.ResponseWr
 	}
 
 	inviteID, err := ctx.UserInviteService.CreateUserInvite(ui)
+
 	if err != nil {
 		return &middleware.Template{
 			Name:   tplAdminUserInviteNew,
