@@ -66,12 +66,12 @@ type UserInterceptor interface {
 type Validations int
 
 const (
-	VMail = iota
+	VMail = 1 << iota
 	VUsername
 	VPassword
 )
 
-func (u *User) validate(us UserService, v Validations, minPasswordLength int) error {
+func (u *User) validate(us UserService, minPasswordLength int, v Validations) error {
 	u.DisplayName = strings.TrimSpace(u.DisplayName)
 	u.Email = strings.TrimSpace(u.Email)
 	u.Username = strings.TrimSpace(u.Username)
@@ -100,7 +100,7 @@ func (u *User) validate(us UserService, v Validations, minPasswordLength int) er
 		return httperror.ValueTooLong("username", 60)
 	}
 
-	if v == VPassword {
+	if (v & VPassword) != 0 {
 		if len(u.Password) < minPasswordLength && len(u.Password) >= 0 {
 			return httperror.New(http.StatusUnprocessableEntity,
 				fmt.Sprintf("The password is too short. It must be at least %d characters long.", minPasswordLength),
@@ -109,7 +109,7 @@ func (u *User) validate(us UserService, v Validations, minPasswordLength int) er
 		}
 	}
 
-	if v == VMail {
+	if (v & VMail) != 0 {
 		err := us.DuplicateMail(u.Email)
 
 		if err != nil {
@@ -117,7 +117,7 @@ func (u *User) validate(us UserService, v Validations, minPasswordLength int) er
 		}
 	}
 
-	if v == VUsername {
+	if (v & VUsername) != 0 {
 		err := us.DuplicateUsername(u.Username)
 
 		if err != nil {
@@ -217,7 +217,7 @@ func (us UserService) CreateUser(u *User) (int, error) {
 		return -1, httperror.InternalServerError(fmt.Errorf("error while executing user interceptor 'PreCreate' error %v", errUserInterceptor))
 	}
 
-	if err := u.validate(us, us.Config.MinPasswordLength, true, true, true); err != nil {
+	if err := u.validate(us, us.Config.MinPasswordLength, VUsername|VPassword|VMail); err != nil {
 		return -1, err
 	}
 
@@ -269,10 +269,21 @@ func (us UserService) UpdateUser(u *User, changePassword bool) error {
 		return httperror.InternalServerError(fmt.Errorf("error while executing user interceptor 'PreUpdate' error %v", errUserInterceptor))
 	}
 
-	var changedMail = !(u.Email == oldUser.Email)
-	var changedUserName = !(u.Username == oldUser.Username)
+	var v Validations
 
-	if err = u.validate(us, us.Config.MinPasswordLength, changedMail, changedUserName, changePassword); err != nil {
+	if u.Email != oldUser.Email {
+		v |= VMail
+	}
+
+	if u.Username != oldUser.Username {
+		v |= VUsername
+	}
+
+	if changePassword {
+		v |= VPassword
+	}
+
+	if err = u.validate(us, us.Config.MinPasswordLength, v); err != nil {
 		return err
 	}
 
