@@ -98,6 +98,8 @@ func restrictedRoutes(ctx *m.AppContext, router *mux.Router, chain alice.Chain) 
 	//user invites
 	router.Handle("/user-invite/new", chain.Append(ctx.RequireAdmin).Then(useTemplateHandler(ctx, c.AdminUserInviteNewHandler))).Methods("GET")
 	router.Handle("/user-invite/new", chain.Append(ctx.RequireAdmin).Then(useTemplateHandler(ctx, c.AdminUserInviteNewPostHandler))).Methods("POST")
+	router.Handle("/user-invite/delete/{inviteID}", chain.Append(ctx.RequireAdmin).Then(useTemplateHandler(ctx, c.AdminUserInviteDeleteHandler))).Methods("GET")
+	router.Handle("/user-invite/delete/{inviteID}", chain.Append(ctx.RequireAdmin).Then(useTemplateHandler(ctx, c.AdminUserInviteDeletePostHandler))).Methods("POST")
 
 	//site
 	router.Handle("/sites", chain.Append(ctx.RequireAdmin).Then(useTemplateHandler(ctx, c.AdminSitesHandler))).Methods("GET")

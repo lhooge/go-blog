@@ -66,8 +66,8 @@ type UserInterceptor interface {
 type Validations int
 
 const (
-	VMail = 1 << iota
-	VUsername
+	VDupEmail = 1 << iota
+	VDupUsername
 	VPassword
 )
 
@@ -101,7 +101,7 @@ func (u *User) validate(us UserService, minPasswordLength int, v Validations) er
 	}
 
 	if (v & VPassword) != 0 {
-		if len(u.Password) < minPasswordLength && len(u.Password) >= 0 {
+		if len(u.Password) < minPasswordLength && len(u.Password) > 0 {
 			return httperror.New(http.StatusUnprocessableEntity,
 				fmt.Sprintf("The password is too short. It must be at least %d characters long.", minPasswordLength),
 				fmt.Errorf("the password is too short, it must be at least %d characters long", minPasswordLength),
@@ -109,7 +109,7 @@ func (u *User) validate(us UserService, minPasswordLength int, v Validations) er
 		}
 	}
 
-	if (v & VMail) != 0 {
+	if (v & VDupEmail) != 0 {
 		err := us.DuplicateMail(u.Email)
 
 		if err != nil {
@@ -117,7 +117,7 @@ func (u *User) validate(us UserService, minPasswordLength int, v Validations) er
 		}
 	}
 
-	if (v & VUsername) != 0 {
+	if (v & VDupUsername) != 0 {
 		err := us.DuplicateUsername(u.Username)
 
 		if err != nil {
@@ -217,7 +217,7 @@ func (us UserService) CreateUser(u *User) (int, error) {
 		return -1, httperror.InternalServerError(fmt.Errorf("error while executing user interceptor 'PreCreate' error %v", errUserInterceptor))
 	}
 
-	if err := u.validate(us, us.Config.MinPasswordLength, VUsername|VPassword|VMail); err != nil {
+	if err := u.validate(us, us.Config.MinPasswordLength, VDupUsername|VDupEmail|VPassword); err != nil {
 		return -1, err
 	}
 
@@ -272,11 +272,11 @@ func (us UserService) UpdateUser(u *User, changePassword bool) error {
 	var v Validations
 
 	if u.Email != oldUser.Email {
-		v |= VMail
+		v |= VDupEmail
 	}
 
 	if u.Username != oldUser.Username {
-		v |= VUsername
+		v |= VDupUsername
 	}
 
 	if changePassword {

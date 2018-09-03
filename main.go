@@ -161,6 +161,7 @@ func context(db *sql.DB, cfg *settings.Settings) (*m.AppContext, error) {
 		Datasource: models.SQLiteUserInviteDatasource{
 			SQLConn: db,
 		},
+		UserService: userService,
 	}
 
 	articleService := models.ArticleService{
