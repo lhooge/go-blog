@@ -44,7 +44,7 @@ func AdminUsersHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *htt
 	}
 
 	userInvites, err := ctx.UserInviteService.ListUserInvites()
-	fmt.Println("user_invites", userInvites)
+
 	if err != nil {
 		return &middleware.Template{
 			Name:   tplAdminUsers,
@@ -227,7 +227,7 @@ func AdminUserDeleteHandler(ctx *middleware.AppContext, w http.ResponseWriter, r
 
 	return &middleware.Template{
 		Name:   tplAdminAction,
-		Active: "sites",
+		Active: "users",
 		Data: map[string]interface{}{
 			"action": remove,
 		},
@@ -237,6 +237,14 @@ func AdminUserDeleteHandler(ctx *middleware.AppContext, w http.ResponseWriter, r
 //AdminUserDeletePostHandler handles removing of a user (admin only action)
 func AdminUserDeletePostHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
 	userID, err := parseInt(getVar(r, "userID"))
+
+	if err != nil {
+		return &middleware.Template{
+			Name:   tplAdminUserDelete,
+			Active: "users",
+			Err:    err,
+		}
+	}
 
 	user, err := ctx.UserService.GetUserByID(userID)
 
@@ -259,48 +267,5 @@ func AdminUserDeletePostHandler(ctx *middleware.AppContext, w http.ResponseWrite
 	return &middleware.Template{
 		RedirectPath: "admin/users",
 		Active:       "users",
-	}
-}
-
-//AdminUserNewHandler returns the form for adding new user (admin only action)
-func AdminUserInviteNewHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
-	return &middleware.Template{
-		Name:   tplAdminUserInviteNew,
-		Active: "users",
-	}
-}
-
-//AdminUserNewPostHandler handles the creation of new users (admin only action)
-func AdminUserInviteNewPostHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
-	user, _ := middleware.User(r)
-
-	ui := &models.UserInvite{
-		DisplayName: r.FormValue("displayname"),
-		Username:    r.FormValue("username"),
-		Email:       r.FormValue("email"),
-		IsAdmin:     convertCheckbox(r, "admin"),
-		CreatedBy:   user,
-	}
-
-	inviteID, err := ctx.UserInviteService.CreateUserInvite(ui)
-
-	if err != nil {
-		return &middleware.Template{
-			Name:   tplAdminUserInviteNew,
-			Err:    err,
-			Active: "users",
-			Data: map[string]interface{}{
-				"user_invite": ui,
-			},
-		}
-	}
-
-	return &middleware.Template{
-		RedirectPath: "admin/users",
-		Active:       "users",
-		SuccessMsg:   "Successfully invited user " + ui.Email,
-		Data: map[string]interface{}{
-			"userID": inviteID,
-		},
 	}
 }

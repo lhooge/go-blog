@@ -39,10 +39,20 @@ type UserInviteDatasourceService interface {
 
 //UserInviteService
 type UserInviteService struct {
-	Datasource UserInviteDatasourceService
+	Datasource  UserInviteDatasourceService
+	UserService UserService
 }
 
-func (ui UserInvite) validate() error {
+// validate A user invitation must conform the user validations except the password checks
+func (ui UserInvite) validate(uis UserInviteService) error {
+	user := ui.Copy()
+
+	err := user.validate(uis.UserService, -1, VDupEmail|VDupUsername)
+
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -53,13 +63,21 @@ func (uis UserInviteService) ListUserInvites() ([]UserInvite, error) {
 func (uis UserInviteService) CreateUserInvite(ui *UserInvite) (int, error) {
 	ui.Hash = utils.RandomHash(32)
 
-	if err := ui.validate(); err != nil {
+	if err := ui.validate(uis); err != nil {
 		return -1, err
 	}
 
 	return uis.Datasource.Create(ui)
 }
 
+func (uis UserInviteService) GetInvite(inviteID int) (*UserInvite, error) {
+	return uis.Datasource.Get(inviteID)
+}
+
 func (uis UserInviteService) GetByHash(hash string) (*UserInvite, error) {
 	return uis.Datasource.GetByHash(hash)
+}
+
+func (uis UserInviteService) RemoveInvite(inviteID int) error {
+	return uis.Datasource.Remove(inviteID)
 }

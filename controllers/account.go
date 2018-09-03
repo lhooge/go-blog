@@ -246,6 +246,7 @@ func ResetPasswordPostHandler(ctx *middleware.AppContext, w http.ResponseWriter,
 
 	go func(hash string) {
 		err = ctx.TokenService.RemoveToken(hash, models.PasswordReset)
+
 		logger.Log.Errorf("could not remove token %s error %v", hash, err)
 
 		m := mail.Mail{
