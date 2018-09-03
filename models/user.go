@@ -110,7 +110,7 @@ func (u *User) validate(us UserService, minPasswordLength int, v Validations) er
 	}
 
 	if (v & VMail) != 0 {
-		err := us.DuplicateMail(u.Email)
+		err := us.duplicateMail(u.Email)
 
 		if err != nil {
 			return err
@@ -118,7 +118,7 @@ func (u *User) validate(us UserService, minPasswordLength int, v Validations) er
 	}
 
 	if (v & VUsername) != 0 {
-		err := us.DuplicateUsername(u.Username)
+		err := us.duplicateUsername(u.Username)
 
 		if err != nil {
 			return err
@@ -128,7 +128,7 @@ func (u *User) validate(us UserService, minPasswordLength int, v Validations) er
 	return nil
 }
 
-func (us UserService) DuplicateMail(mail string) error {
+func (us UserService) duplicateMail(mail string) error {
 	user, err := us.Datasource.GetByMail(mail)
 	if err != nil {
 		if err != sql.ErrNoRows {
@@ -145,7 +145,7 @@ func (us UserService) DuplicateMail(mail string) error {
 	return nil
 }
 
-func (us UserService) DuplicateUsername(username string) error {
+func (us UserService) duplicateUsername(username string) error {
 	user, err := us.Datasource.GetByUsername(username)
 	if err != nil {
 		if err != sql.ErrNoRows {
@@ -326,8 +326,8 @@ func (us UserService) UpdateUser(u *User, changePassword bool) error {
 	return err
 }
 
-//Authenticate tries to authenticates the user
-// if the user was found;; but the password is wrong the found user and an error will be returned
+// Authenticate authenticates the user by the given login method (email or username)
+// if the user was found but the password is wrong the found user and an error will be returned
 func (us UserService) Authenticate(u *User, loginMethod settings.LoginMethod, password []byte) (*User, error) {
 	var err error
 
@@ -347,7 +347,7 @@ func (us UserService) Authenticate(u *User, loginMethod settings.LoginMethod, pa
 	return u, nil
 }
 
-//RemoveUser removes the user; returns an error if no dministrator would remain
+// RemoveUser removes the user returns an error if no administrator would remain
 func (us UserService) RemoveUser(u *User) error {
 	oneAdmin, err := us.OneAdmin()
 

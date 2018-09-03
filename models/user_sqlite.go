@@ -137,7 +137,7 @@ func (rdb SQLiteUserDatasource) Count(ac AdminCriteria) (int, error) {
 	if ac == OnlyAdmins {
 		stmt.WriteString("WHERE is_admin = '1'")
 	} else if ac == NoAdmins {
-		stmt.WriteString("WHERE is_admin = false")
+		stmt.WriteString("WHERE is_admin = '0'")
 	}
 
 	var total int
