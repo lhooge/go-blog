@@ -70,12 +70,11 @@ func AdminUserInviteDeleteHandler(ctx *middleware.AppContext, w http.ResponseWri
 	}
 
 	remove := models.Action{
-		ID:          "removeUser",
+		ID:          "removeUserInvite",
 		ActionURL:   fmt.Sprintf("/admin/user-invite/delete/%d", invite.ID),
 		BackLinkURL: "/admin/users",
-		Description: fmt.Sprintf("Please confirm removing of user %s?", invite.Username),
-		WarnMsg:     "All articles, sites and files belonging to this user will be deleted!",
-		Title:       "Confirm removing of user",
+		Description: fmt.Sprintf("Please confirm removing of user invitation %s?", invite.Username),
+		Title:       "Confirm removing of user invitation",
 	}
 
 	return &middleware.Template{
