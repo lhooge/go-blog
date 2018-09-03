@@ -227,7 +227,7 @@ func AdminUserDeleteHandler(ctx *middleware.AppContext, w http.ResponseWriter, r
 
 	return &middleware.Template{
 		Name:   tplAdminAction,
-		Active: "sites",
+		Active: "users",
 		Data: map[string]interface{}{
 			"action": remove,
 		},
