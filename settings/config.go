@@ -61,6 +61,7 @@ type Settings struct {
 	BuildVersion string `cfg:"-"`
 	BuildDate    string `cfg:"-"`
 
+	Application
 	Blog
 	User
 	File
@@ -81,6 +82,13 @@ type Server struct {
 	Key    string `cfg:"ssl_certificate_key_file"`
 }
 
+type Application struct {
+	Title       string `cfg:"application_title"`
+	Language    string `cfg:"application_language"`
+	Description string `cfg:"application_description"`
+	Domain      string `cfg:"application_domain"`
+}
+
 type Database struct {
 	File string `cfg:"sqlite_file" default:"data/goblog.sqlite"`
 }
@@ -91,11 +99,6 @@ type File struct {
 }
 
 type Blog struct {
-	Title       string `cfg:"blog_title"`
-	Language    string `cfg:"blog_language"`
-	Description string `cfg:"blog_description"`
-	Domain      string `cfg:"blog_domain"`
-
 	ArticlesPerPage int `cfg:"blog_articles_per_page" default:"20"`
 	RSSFeedItems    int `cfg:"blog_rss_feed_items" default:"10"`
 }
@@ -180,13 +183,13 @@ func (cfg *Settings) CheckConfig() error {
 		}
 	}
 
-	if len(cfg.Blog.Domain) == 0 {
+	if len(cfg.Application.Domain) == 0 {
 		return errors.New("config: please specify a domain name 'blog_domain'")
 	}
 
-	_, err := url.ParseRequestURI(cfg.Blog.Domain)
+	_, err := url.ParseRequestURI(cfg.Application.Domain)
 	if err != nil {
-		return fmt.Errorf("config: invalid url setting for key 'blog_domain' value '%s'", cfg.Blog.Domain)
+		return fmt.Errorf("config: invalid url setting for key 'blog_domain' value '%s'", cfg.Application.Domain)
 	}
 
 	//server settings

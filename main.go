@@ -165,7 +165,7 @@ func context(db *sql.DB, cfg *settings.Settings) (*m.AppContext, error) {
 	}
 
 	articleService := models.ArticleService{
-		BlogConfig: cfg.Blog,
+		AppConfig: cfg.Application,
 		Datasource: models.SQLiteArticleDatasource{
 			SQLConn: db,
 		},
@@ -202,6 +202,11 @@ func context(db *sql.DB, cfg *settings.Settings) (*m.AppContext, error) {
 		SubjectPrefix: cfg.Mail.SubjectPrefix,
 	}
 
+	mailer := models.Mailer{
+		MailService: &mailService,
+		AppConfig:   &cfg.Application,
+	}
+
 	templates := m.Templates{
 		Directory: "./templates",
 		FuncMap:   m.FuncMap(siteService, cfg),
@@ -233,7 +238,7 @@ func context(db *sql.DB, cfg *settings.Settings) (*m.AppContext, error) {
 		SiteService:       siteService,
 		FileService:       fileService,
 		TokenService:      tokenService,
-		MailService:       mailService,
+		Mailer:            mailer,
 		SessionService:    &sessionService,
 		ConfigService:     cfg,
 	}, nil

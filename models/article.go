@@ -83,7 +83,7 @@ func (a *Article) validate() error {
 //ArticleService containing the service to access articles
 type ArticleService struct {
 	Datasource ArticleDatasourceService
-	BlogConfig settings.Blog
+	AppConfig  settings.Application
 }
 
 // CreateArticle creates an article
@@ -231,10 +231,10 @@ func (as ArticleService) ListArticles(u *User, p *Pagination, pc PublishedCriter
 // RSSFeed receives a specified number of articles in RSS
 func (as ArticleService) RSSFeed(p *Pagination, pc PublishedCriteria) (RSS, error) {
 	c := RSSChannel{
-		Title:       as.BlogConfig.Title,
-		Link:        as.BlogConfig.Domain,
-		Description: as.BlogConfig.Description,
-		Language:    as.BlogConfig.Language,
+		Title:       as.AppConfig.Title,
+		Link:        as.AppConfig.Domain,
+		Description: as.AppConfig.Description,
+		Language:    as.AppConfig.Language,
 	}
 
 	articles, err := as.Datasource.List(nil, p, pc)
@@ -246,7 +246,7 @@ func (as ArticleService) RSSFeed(p *Pagination, pc PublishedCriteria) (RSS, erro
 	items := []RSSItem{}
 	for _, a := range articles {
 		fmt.Println(sanitize(a.Teaser))
-		link := fmt.Sprint(as.BlogConfig.Domain, "/article/by-id/", a.ID)
+		link := fmt.Sprint(as.AppConfig.Domain, "/article/by-id/", a.ID)
 		item := RSSItem{
 			GUID:        link,
 			Link:        link,

@@ -3,6 +3,7 @@ package models
 import (
 	"time"
 
+	"git.hoogi.eu/go-blog/components/mail"
 	"git.hoogi.eu/go-blog/utils"
 )
 
@@ -41,6 +42,7 @@ type UserInviteDatasourceService interface {
 type UserInviteService struct {
 	Datasource  UserInviteDatasourceService
 	UserService UserService
+	MailService mail.Service
 }
 
 // validate A user invitation must conform the user validations except the password checks
@@ -66,6 +68,18 @@ func (uis UserInviteService) CreateUserInvite(ui *UserInvite) (int, error) {
 	if err := ui.validate(uis); err != nil {
 		return -1, err
 	}
+
+	//	go func(ui UserInvite) {
+	//		m := mail.Mail{
+	//			To:      ui.Email,
+	//			Subject: "User invitation",
+	//			Body:    fmt.Sprintf("Hi %s, \n\n you received an invitation to join %s.", ui.DisplayName),
+	//		}
+
+	//		err = ctx.MailService.Send(m)
+
+	//		logger.Log.Errorf("could not send invitation %v", err)
+	//	}(ui, appCfg)
 
 	return uis.Datasource.Create(ui)
 }

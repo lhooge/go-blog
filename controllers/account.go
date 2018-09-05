@@ -4,16 +4,13 @@ import (
 	"bytes"
 	"database/sql"
 	"errors"
-	"fmt"
 	"net/http"
 	"time"
 
 	"git.hoogi.eu/go-blog/components/httperror"
 	"git.hoogi.eu/go-blog/components/logger"
-	"git.hoogi.eu/go-blog/components/mail"
 	"git.hoogi.eu/go-blog/middleware"
 	"git.hoogi.eu/go-blog/models"
-	"git.hoogi.eu/go-blog/utils"
 )
 
 //AdminProfileHandler returns page for updating the profile of the currently logged-in user
@@ -249,13 +246,8 @@ func ResetPasswordPostHandler(ctx *middleware.AppContext, w http.ResponseWriter,
 
 		logger.Log.Errorf("could not remove token %s error %v", hash, err)
 
-		m := mail.Mail{
-			To:      u.Email,
-			Subject: "Password change",
-			Body:    fmt.Sprintf("Hi %s, \n\n your password change was sucessfully.", u.DisplayName),
-		}
+		err = ctx.Mailer.SendPasswordChangeConfirmation(u)
 
-		err = ctx.MailService.Send(m)
 		logger.Log.Errorf("could not send password changed mail %v", err)
 	}(hash)
 
@@ -316,15 +308,7 @@ func ForgotPasswordPostHandler(ctx *middleware.AppContext, w http.ResponseWriter
 		}
 	}
 
-	resetLink := utils.AppendString(ctx.ConfigService.Blog.Domain, "/admin/reset-password/", t.Hash)
-
-	m := mail.Mail{
-		To:      u.Email,
-		Subject: "Changing password instructions",
-		Body:    fmt.Sprintf("Hi %s, \n\n use the following link to reset your password: \n\n. %s", u.DisplayName, resetLink),
-	}
-
-	err = ctx.MailService.Send(m)
+	ctx.Mailer.SendPasswordResetLink(u, t)
 
 	if err != nil {
 		return &middleware.Template{

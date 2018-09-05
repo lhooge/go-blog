@@ -1,7 +1,6 @@
 package models
 
 import (
-	"database/sql"
 	"database/sql/driver"
 	"errors"
 	"fmt"
@@ -78,10 +77,8 @@ func (ts TokenService) CreateToken(t *Token) error {
 //Expired tokens will be removed
 func (ts TokenService) GetToken(hash string, tt TokenType, expireAfter time.Duration) (*Token, error) {
 	token, err := ts.Datasource.Get(hash, tt)
+
 	if err != nil {
-		if err == sql.ErrNoRows {
-			return nil, httperror.New(http.StatusNotFound, "The token was not found. Fill out the form to receive a new token", errors.New("the token was not found"))
-		}
 		return nil, err
 	}
 

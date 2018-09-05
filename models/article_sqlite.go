@@ -6,12 +6,12 @@ import (
 	"time"
 )
 
-//SQLiteArticleDatasource providing an implementation of ArticleDatasourceService for SQLite
+// SQLiteArticleDatasource providing an implementation of ArticleDatasourceService for SQLite
 type SQLiteArticleDatasource struct {
 	SQLConn *sql.DB
 }
 
-//Create creates a article
+// Create creates an article
 func (rdb SQLiteArticleDatasource) Create(a *Article) (int, error) {
 	res, err := rdb.SQLConn.Exec("INSERT INTO article (headline, teaser, content, slug, published_on, published, last_modified, user_id) "+
 		"VALUES (?, ?, ?, ?, ?, ?, ?, ?)",

@@ -7,7 +7,6 @@ package middleware
 import (
 	"html/template"
 
-	"git.hoogi.eu/go-blog/components/mail"
 	"git.hoogi.eu/go-blog/models"
 	"git.hoogi.eu/go-blog/settings"
 	"git.hoogi.eu/session"
@@ -22,7 +21,7 @@ type AppContext struct {
 	SiteService       models.SiteService
 	FileService       models.FileService
 	TokenService      models.TokenService
-	MailService       mail.Service
+	Mailer            models.Mailer
 	ConfigService     *settings.Settings
 	Templates         *template.Template
 }

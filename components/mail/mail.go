@@ -56,11 +56,5 @@ func (m Mail) validate() error {
 func (s Service) Send(m Mail) error {
 	auth := smtp.PlainAuth("", s.SMTPConfig.User, string(s.SMTPConfig.Password), s.SMTPConfig.Address)
 
-	err := smtp.SendMail(fmt.Sprintf("%s:%d", s.SMTPConfig.Address, s.SMTPConfig.Port), auth, s.From, []string{m.To}, m.buildMessage(s))
-
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return smtp.SendMail(fmt.Sprintf("%s:%d", s.SMTPConfig.Address, s.SMTPConfig.Port), auth, s.From, []string{m.To}, m.buildMessage(s))
 }
