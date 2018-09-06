@@ -53,20 +53,27 @@ func setHeader(r *http.Request, key, value string) {
 	r.Header.Set("X-Unit-Testing-Value-"+key, value)
 }
 
-func setValues(m url.Values, key, value string) {
+func addValue(m url.Values, key, value string) {
 	m.Add(key, value)
 }
 
+func addCheckboxValue(m url.Values, key string, value bool) {
+	if value {
+		m.Add(key, "on")
+	}
+	m.Add(key, "off")
+}
+
 func dummyAdminUser() *models.User {
-	return &models.User{ID: 1, Email: "test@example.com", DisplayName: "Homer Simpson", Active: true, IsAdmin: true}
+	return &models.User{ID: 1, Email: "test@example.com", Username: "homer", DisplayName: "Homer Simpson", Active: true, IsAdmin: true}
 }
 
 func dummyUser() *models.User {
-	return &models.User{ID: 1, Email: "test@example.com", DisplayName: "Marge Simpson", Active: true, IsAdmin: false}
+	return &models.User{ID: 1, Email: "test-marge@example.com", Username: "marge", DisplayName: "Marge Simpson", Active: true, IsAdmin: false}
 }
 
 func dummyInactiveUser() models.User {
-	return models.User{ID: 1, Email: "test@example.com", DisplayName: "Bart Simpson", Active: false, IsAdmin: false}
+	return models.User{ID: 1, Email: "test-bart@example.com", Username: "bart", DisplayName: "Bart Simpson", Active: false, IsAdmin: false}
 }
 
 func postRequest(path string, values url.Values) (*http.Request, error) {

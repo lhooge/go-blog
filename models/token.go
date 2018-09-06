@@ -86,7 +86,8 @@ func (ts TokenService) GetToken(hash string, tt TokenType, expireAfter time.Dura
 
 	if now.After(token.RequestedAt.Add(expireAfter)) {
 		err = ts.Datasource.Remove(token.Hash, tt)
-		logger.Log.Errorf("could not remove expired token", err)
+		logger.Log.Errorf("could not remove expired token, err %v", err)
+
 		return nil, httperror.New(http.StatusNotFound, "The token is already expired. Fill out the form to receive a new token", errors.New("the token was expired"))
 	}
 

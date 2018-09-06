@@ -97,9 +97,9 @@ func getSampleArticle() *models.Article {
 
 func doEditArticleRequest(articleID int, article *models.Article) error {
 	values := url.Values{}
-	setValues(values, "headline", article.Headline)
-	setValues(values, "teaser", article.Teaser)
-	setValues(values, "content", article.Content)
+	addValue(values, "headline", article.Headline)
+	addValue(values, "teaser", article.Teaser)
+	addValue(values, "content", article.Content)
 
 	req, err := postRequest("/admin/article/edit", values)
 	if err != nil {
@@ -127,9 +127,9 @@ func doEditArticleRequest(articleID int, article *models.Article) error {
 
 func doCreateArticleRequest(article *models.Article) (int, error) {
 	values := url.Values{}
-	setValues(values, "headline", article.Headline)
-	setValues(values, "teaser", article.Teaser)
-	setValues(values, "content", article.Content)
+	addValue(values, "headline", article.Headline)
+	addValue(values, "teaser", article.Teaser)
+	addValue(values, "content", article.Content)
 
 	req, err := postRequest("/admin/article/new", values)
 	if err != nil {

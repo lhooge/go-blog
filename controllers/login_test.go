@@ -94,8 +94,8 @@ func TestFailLogin(t *testing.T) {
 
 func doLoginRequest() (responseWrapper, error) {
 	values := url.Values{}
-	setValues(values, "username", "homer")
-	setValues(values, "password", "1234567890")
+	addValue(values, "username", "homer")
+	addValue(values, "password", "1234567890")
 
 	req, err := postRequest("/admin/login", values)
 	if err != nil {

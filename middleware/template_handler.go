@@ -120,7 +120,7 @@ func (ctx AppContext) AuthHandler(handler http.Handler) http.Handler {
 
 		userid, ok := session.GetValue("userid").(int)
 		if !ok {
-			logger.Log.Error("userid is not an integer %v", userid)
+			logger.Log.Errorf("userid is not an integer %v", userid)
 
 			rw.WriteHeader(http.StatusUnauthorized)
 			ctx.Templates.ExecuteTemplate(rw, "admin/login", map[string]interface{}{
