@@ -13,6 +13,18 @@ type Mailer struct {
 	MailService *mail.Service
 }
 
+func (m Mailer) SendActivationLink(ui *UserInvite) error {
+	activation := utils.AppendString(m.AppConfig.Domain, "/admin/activate-account/", ui.Hash)
+
+	mail := mail.Mail{
+		To:      ui.Email,
+		Subject: "Password change",
+		Body:    fmt.Sprintf("Hi %s, \n\n you are invited join %s. Please click the following link to enter a password and activate your account: %s", ui.DisplayName, activation),
+	}
+
+	return m.MailService.Send(mail)
+}
+
 func (m Mailer) SendPasswordChangeConfirmation(u *User) error {
 	mail := mail.Mail{
 		To:      u.Email,

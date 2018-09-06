@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"git.hoogi.eu/go-blog/components/logger"
 	"git.hoogi.eu/go-blog/middleware"
 	"git.hoogi.eu/go-blog/models"
 )
@@ -39,6 +40,12 @@ func AdminUserInviteNewPostHandler(ctx *middleware.AppContext, w http.ResponseWr
 		}
 	}
 
+	err = ctx.Mailer.SendActivationLink(ui)
+
+	if err != nil {
+		logger.Log.Error(err)
+	}
+
 	return &middleware.Template{
 		RedirectPath: "admin/users",
 		Active:       "users",
@@ -51,6 +58,7 @@ func AdminUserInviteNewPostHandler(ctx *middleware.AppContext, w http.ResponseWr
 
 func AdminUserInviteDeleteHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
 	inviteID, err := parseInt(getVar(r, "inviteID"))
+
 	if err != nil {
 		return &middleware.Template{
 			RedirectPath: "admin/user-invite",

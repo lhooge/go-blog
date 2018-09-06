@@ -271,14 +271,21 @@ func ForgotPasswordPostHandler(ctx *middleware.AppContext, w http.ResponseWriter
 	u, err := ctx.UserService.GetUserByMail(email)
 
 	if err != nil {
-		return &middleware.Template{
-			Name: tplAdminForgotPassword,
-			Err:  err,
-			Data: map[string]interface{}{
-				"user": models.User{
-					Email: email,
+		if httperror.Equals(err, sql.ErrNoRows) {
+			return &middleware.Template{
+				RedirectPath: "admin",
+				SuccessMsg:   "An email with password reset instructions is on the way.",
+			}
+		} else {
+			return &middleware.Template{
+				Name: tplAdminForgotPassword,
+				Err:  err,
+				Data: map[string]interface{}{
+					"user": models.User{
+						Email: email,
+					},
 				},
-			},
+			}
 		}
 	}
 

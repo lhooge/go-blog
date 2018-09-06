@@ -84,6 +84,23 @@ func ValueRequired(param string) *Error {
 	}
 }
 
+func Equals(a error, b error) bool {
+	v, ok := a.(*Error)
+	v2, ok2 := b.(*Error)
+
+	if ok && ok2 {
+		return v.Err == v2.Err
+	} else if !ok && !ok2 {
+		return v == v2
+	} else if ok && !ok2 {
+		return v.Err == b
+	} else if !ok && ok2 {
+		return a == v2.Err
+	}
+
+	return false
+}
+
 func (e Error) Error() string {
 	return fmt.Sprintf("code=[%d], error=[%s], displayMsg=[%s]", e.HTTPStatus, e.Err.Error(), e.DisplayMsg)
 }

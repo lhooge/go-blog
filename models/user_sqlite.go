@@ -68,7 +68,7 @@ func (rdb SQLiteUserDatasource) Get(userID int) (*User, error) {
 func (rdb SQLiteUserDatasource) GetByMail(mail string) (*User, error) {
 	var u User
 
-	if err := rdb.SQLConn.QueryRow("SELECT rowid, is_admin, active, display_name, username, email, salt, password FROM user WHERE email=? AND active='1' ", mail).
+	if err := rdb.SQLConn.QueryRow("SELECT rowid, is_admin, active, display_name, username, email, salt, password FROM user WHERE email=? ", mail).
 		Scan(&u.ID, &u.IsAdmin, &u.Active, &u.DisplayName, &u.Username, &u.Email, &u.Salt, &u.Password); err != nil {
 		return nil, err
 	}
@@ -79,7 +79,7 @@ func (rdb SQLiteUserDatasource) GetByMail(mail string) (*User, error) {
 func (rdb SQLiteUserDatasource) GetByUsername(username string) (*User, error) {
 	var u User
 
-	if err := rdb.SQLConn.QueryRow("SELECT rowid, is_admin, active, display_name, username, email, salt, password FROM user WHERE username=? AND active='1' ", username).
+	if err := rdb.SQLConn.QueryRow("SELECT rowid, is_admin, active, display_name, username, email, salt, password FROM user WHERE username=? ", username).
 		Scan(&u.ID, &u.IsAdmin, &u.Active, &u.DisplayName, &u.Username, &u.Email, &u.Salt, &u.Password); err != nil {
 		return nil, err
 	}

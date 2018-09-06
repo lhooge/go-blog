@@ -69,18 +69,6 @@ func (uis UserInviteService) CreateUserInvite(ui *UserInvite) (int, error) {
 		return -1, err
 	}
 
-	//	go func(ui UserInvite) {
-	//		m := mail.Mail{
-	//			To:      ui.Email,
-	//			Subject: "User invitation",
-	//			Body:    fmt.Sprintf("Hi %s, \n\n you received an invitation to join %s.", ui.DisplayName),
-	//		}
-
-	//		err = ctx.MailService.Send(m)
-
-	//		logger.Log.Errorf("could not send invitation %v", err)
-	//	}(ui, appCfg)
-
 	return uis.Datasource.Create(ui)
 }
 

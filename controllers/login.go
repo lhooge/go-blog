@@ -7,9 +7,6 @@ package controllers
 import (
 	"net/http"
 
-	"golang.org/x/crypto/bcrypt"
-
-	"git.hoogi.eu/go-blog/components/httperror"
 	"git.hoogi.eu/go-blog/middleware"
 	"git.hoogi.eu/go-blog/models"
 )
@@ -49,39 +46,20 @@ func LoginPostHandler(ctx *middleware.AppContext, rw http.ResponseWriter, r *htt
 		redirectTo = "admin/articles"
 	}
 
-	user := &models.User{
+	u := &models.User{
 		Username: username,
 		Email:    username,
 	}
 
-	user, err := ctx.UserService.Authenticate(user, ctx.ConfigService.LoginMethod, password)
+	user, err := ctx.UserService.Authenticate(u, ctx.ConfigService.LoginMethod, password)
 
 	if err != nil {
-		//Do some extra work
-		if user == nil {
-			bcrypt.CompareHashAndPassword([]byte("$2a$12$bQlRnXTNZMp6kCyoAlnf3uZW5vtmSj9CHP7pYplRUVK2n0C5xBHBa"), password)
-		}
-
-		hErr, ok := err.(*httperror.Error)
-
-		if ok {
-			return &middleware.Template{
-				Name: tplAdminLogin,
-				Err:  httperror.New(http.StatusUnauthorized, "Your username or password is invalid.", hErr.Err),
-				Data: map[string]interface{}{
-					"user": models.User{
-						Username: username,
-					},
-				},
-			}
-		}
 		return &middleware.Template{
-			Name: tplAdminLogin,
-			Err:  httperror.New(http.StatusUnauthorized, "Your username or password is invalid.", err),
+			Name:   tplAdminLogin,
+			Active: "users",
+			Err:    err,
 			Data: map[string]interface{}{
-				"user": models.User{
-					Username: username,
-				},
+				"user": u,
 			},
 		}
 	}

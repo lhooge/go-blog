@@ -58,3 +58,7 @@ func (s Service) Send(m Mail) error {
 
 	return smtp.SendMail(fmt.Sprintf("%s:%d", s.SMTPConfig.Address, s.SMTPConfig.Port), auth, s.From, []string{m.To}, m.buildMessage(s))
 }
+
+func (s Service) SendAsync(m Mail) chan error {
+	return nil
+}

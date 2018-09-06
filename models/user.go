@@ -189,7 +189,7 @@ func (us UserService) GetUserByUsername(username string) (*User, error) {
 	u, err := us.Datasource.GetByUsername(username)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return nil, httperror.NotFound("user", fmt.Errorf("the user with username %s was not found", username))
+			return nil, httperror.NotFound("user", err)
 		}
 		return nil, err
 	}
@@ -203,8 +203,10 @@ func (us UserService) GetUserByMail(mail string) (*User, error) {
 
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return nil, httperror.NotFound("user", fmt.Errorf("the user with mail %s was not found", mail))
+			return nil, httperror.NotFound("user", err)
 		}
+
+		return nil, err
 	}
 	return u, nil
 }
@@ -332,18 +334,30 @@ func (us UserService) Authenticate(u *User, loginMethod settings.LoginMethod, pa
 	var err error
 
 	if loginMethod == settings.EMail {
-		u, err = us.GetUserByMail(u.Email)
+		u, err = us.Datasource.GetByMail(u.Email)
 	} else {
-		u, err = us.GetUserByUsername(u.Username)
+		u, err = us.Datasource.GetByUsername(u.Username)
 	}
 
 	if err != nil {
+		if err == sql.ErrNoRows {
+			//Do some extra work
+			bcrypt.CompareHashAndPassword([]byte("$2a$12$bQlRnXTNZMp6kCyoAlnf3uZW5vtmSj9CHP7pYplRUVK2n0C5xBHBa"), password)
+			return nil, httperror.New(http.StatusUnauthorized, "Your username or password is invalid.", err)
+		}
 		return nil, err
 	}
 
 	if err := u.comparePassword(password); err != nil {
-		return u, err
+		return u, httperror.New(http.StatusUnauthorized, "Your username or password is invalid.", err)
 	}
+
+	if !u.Active {
+		return nil, httperror.New(http.StatusUnprocessableEntity,
+			"Your account is deactivated.",
+			fmt.Errorf("the user with id %d tried to logged in but the account is deactivated", u.ID))
+	}
+
 	return u, nil
 }
 
