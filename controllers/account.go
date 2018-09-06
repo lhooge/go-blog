@@ -319,7 +319,8 @@ func ForgotPasswordPostHandler(ctx *middleware.AppContext, w http.ResponseWriter
 		}
 	}
 
-	ctx.Mailer.SendPasswordResetLink(u, t)
+	//TODO async
+	err = ctx.Mailer.SendPasswordResetLink(u, t)
 
 	if err != nil {
 		return &middleware.Template{
