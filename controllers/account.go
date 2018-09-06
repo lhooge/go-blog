@@ -244,11 +244,15 @@ func ResetPasswordPostHandler(ctx *middleware.AppContext, w http.ResponseWriter,
 	go func(hash string) {
 		err = ctx.TokenService.RemoveToken(hash, models.PasswordReset)
 
-		logger.Log.Errorf("could not remove token %s error %v", hash, err)
+		if err != nil {
+			logger.Log.Errorf("could not remove token %s error %v", hash, err)
+		}
 
 		err = ctx.Mailer.SendPasswordChangeConfirmation(u)
 
-		logger.Log.Errorf("could not send password changed mail %v", err)
+		if err != nil {
+			logger.Log.Errorf("could not send password changed mail %v", err)
+		}
 	}(hash)
 
 	return &middleware.Template{
