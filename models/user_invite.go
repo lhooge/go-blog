@@ -62,6 +62,10 @@ func (uis UserInviteService) ListUserInvites() ([]UserInvite, error) {
 	return uis.Datasource.List()
 }
 
+func (uis UserInviteService) ResendUserInvites() ([]UserInvite, error) {
+	return uis.Datasource.List()
+}
+
 func (uis UserInviteService) CreateUserInvite(ui *UserInvite) (int, error) {
 	ui.Hash = utils.RandomHash(32)
 

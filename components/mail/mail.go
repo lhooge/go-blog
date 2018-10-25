@@ -15,6 +15,19 @@ type Service struct {
 	From          string
 }
 
+func NewMailService(subjectPrefix, from string, smtpConfig SMTPConfig) Service {
+	s := Service{
+		SubjectPrefix: subjectPrefix,
+		From:          from,
+		SMTPConfig:    smtpConfig,
+	}
+
+	go s.readBuffer()
+
+	return s
+
+}
+
 //SMTPConfig holds the configuration for the SMTP server
 type SMTPConfig struct {
 	Address  string
@@ -59,6 +72,26 @@ func (s Service) Send(m Mail) error {
 	return smtp.SendMail(fmt.Sprintf("%s:%d", s.SMTPConfig.Address, s.SMTPConfig.Port), auth, s.From, []string{m.To}, m.buildMessage(s))
 }
 
-func (s Service) SendAsync(m Mail) chan error {
-	return nil
+var buffer = make(chan Mail, 10)
+var errc = make(chan error, 1)
+
+func (s Service) readBuffer() <-chan error {
+	for {
+		mail := <-buffer
+		if err := s.Send(mail); err != nil {
+			errc <- err
+		}
+
+		close(errc)
+	}
+
+	return errc
+}
+
+func (s Service) SendAsync(m Mail) error {
+	go func() {
+		buffer <- m
+	}()
+
+	return <-errc
 }

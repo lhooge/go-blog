@@ -22,7 +22,7 @@ func (m Mailer) SendActivationLink(ui *UserInvite) error {
 		Body:    fmt.Sprintf("Hi %s, \n\n you are invited join %s. Please click the following link to enter a password and activate your account: %s", ui.DisplayName, m.AppConfig.Title, activation),
 	}
 
-	return m.MailService.Send(mail)
+	return m.MailService.SendAsync(mail)
 }
 
 func (m Mailer) SendPasswordChangeConfirmation(u *User) error {
@@ -32,7 +32,7 @@ func (m Mailer) SendPasswordChangeConfirmation(u *User) error {
 		Body:    fmt.Sprintf("Hi %s, \n\n your password change was sucessfully.", u.DisplayName),
 	}
 
-	return m.MailService.Send(mail)
+	return m.MailService.SendAsync(mail)
 }
 
 func (m Mailer) SendPasswordResetLink(u *User, t *Token) error {
@@ -44,5 +44,5 @@ func (m Mailer) SendPasswordResetLink(u *User, t *Token) error {
 		Body:    fmt.Sprintf("Hi %s, \n\n use the following link to reset your password: \n\n. %s", u.DisplayName, resetLink),
 	}
 
-	return m.MailService.Send(mail)
+	return m.MailService.SendAsync(mail)
 }

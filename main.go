@@ -196,11 +196,7 @@ func context(db *sql.DB, cfg *settings.Settings) (*m.AppContext, error) {
 		Password: []byte(cfg.Mail.Password),
 	}
 
-	mailService := mail.Service{
-		SMTPConfig:    smtpConfig,
-		From:          cfg.Mail.SenderAddress,
-		SubjectPrefix: cfg.Mail.SubjectPrefix,
-	}
+	mailService := mail.NewMailService(cfg.Mail.SubjectPrefix, cfg.Mail.SenderAddress, smtpConfig)
 
 	mailer := models.Mailer{
 		MailService: &mailService,
