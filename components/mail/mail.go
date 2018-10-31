@@ -86,6 +86,7 @@ var errc = make(chan error, 1)
 func (s Service) readBuffer() <-chan error {
 	for {
 		mail := <-buffer
+
 		if err := s.Send(mail); err != nil {
 			errc <- err
 		}
