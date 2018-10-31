@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -9,6 +10,7 @@ import (
 	"strings"
 	"syscall"
 
+	"git.hoogi.eu/go-blog/components/httperror"
 	"git.hoogi.eu/go-blog/components/logger"
 	"git.hoogi.eu/go-blog/middleware"
 	"git.hoogi.eu/go-blog/models"
@@ -105,9 +107,17 @@ func AdminUploadFileHandler(ctx *middleware.AppContext, w http.ResponseWriter, r
 
 //AdminUploadFilePostHandler handles the upload
 func AdminUploadFilePostHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
+	if r.ContentLength > int64(ctx.ConfigService.MaxUploadSize) {
+		return &middleware.Template{
+			Name:   tplAdminFileUpload,
+			Active: "files",
+			Err:    httperror.New(http.StatusUnprocessableEntity, "Filesize too large", errors.New("filesize too large")),
+		}
+	}
+
 	r.Body = http.MaxBytesReader(w, r.Body, int64(ctx.ConfigService.MaxUploadSize))
 
-	err := r.ParseMultipartForm(20 * 1024)
+	err := r.ParseMultipartForm(1024)
 	if err != nil {
 		return &middleware.Template{
 			Name:   tplAdminFileUpload,
