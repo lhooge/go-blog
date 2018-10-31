@@ -310,6 +310,10 @@ main p {
 	background-color: #87CEEB;
 }
 
+.alert-warning {
+	background-color: #FFCC00;
+}
+
 .alert-danger {
 	background-color: #FF6666;
 }

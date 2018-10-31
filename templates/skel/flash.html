@@ -2,6 +2,9 @@
 	{{if .ErrorMsg}}
 		<div style="margin-top: 10px" class="alert alert-danger" role="status">{{.ErrorMsg}}</div>
 	{{end}}
+	{{if .WarnMsg}}
+		<div style="margin-top: 10px" class="alert alert-warning" role="status">{{.WarnMsg}}</div>
+	{{end}}
 	{{if .SuccessMsg}}
 		<div style="margin-top: 10px" class="alert alert-success" role="status">{{.SuccessMsg}}</div>
 	{{end}}

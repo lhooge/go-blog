@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"syscall"
 
 	"git.hoogi.eu/go-blog/components/logger"
 	"git.hoogi.eu/go-blog/middleware"
@@ -242,11 +243,16 @@ func AdminUploadDeletePostHandler(ctx *middleware.AppContext, w http.ResponseWri
 
 	err = ctx.FileService.DeleteFile(id, ctx.ConfigService.File.Location, u)
 
+	warnMsg := ""
 	if err != nil {
-		return &middleware.Template{
-			RedirectPath: "/admin/files",
-			Err:          err,
-			Active:       "files",
+		if e, ok := err.(*os.PathError); ok && e.Err == syscall.ENOENT {
+			warnMsg = "File removed from database, but was not found in file system anymore"
+		} else {
+			return &middleware.Template{
+				RedirectPath: "/admin/files",
+				Err:          err,
+				Active:       "files",
+			}
 		}
 	}
 
@@ -254,5 +260,6 @@ func AdminUploadDeletePostHandler(ctx *middleware.AppContext, w http.ResponseWri
 		Active:       "files",
 		RedirectPath: "admin/files",
 		SuccessMsg:   "File successfully deleted",
+		WarnMsg:      warnMsg,
 	}
 }

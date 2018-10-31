@@ -30,6 +30,7 @@ type Template struct {
 	Active       string
 	Data         map[string]interface{}
 	SuccessMsg   string
+	WarnMsg      string
 	RedirectPath string
 	Err          error
 }

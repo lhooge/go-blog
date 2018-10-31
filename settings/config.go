@@ -184,12 +184,12 @@ func (cfg *Settings) CheckConfig() error {
 	}
 
 	if len(cfg.Application.Domain) == 0 {
-		return errors.New("config: please specify a domain name 'blog_domain'")
+		return errors.New("config: please specify a domain name 'application_domain'")
 	}
 
 	_, err := url.ParseRequestURI(cfg.Application.Domain)
 	if err != nil {
-		return fmt.Errorf("config: invalid url setting for key 'blog_domain' value '%s'", cfg.Application.Domain)
+		return fmt.Errorf("config: invalid url setting for key 'application_domain' value '%s'", cfg.Application.Domain)
 	}
 
 	//server settings

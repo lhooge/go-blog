@@ -32,7 +32,7 @@ type TemplateHandler struct {
 type Handler func(*AppContext, http.ResponseWriter, *http.Request) *Template
 
 func (fn TemplateHandler) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
-	var errorMsg, successMsg string
+	var errorMsg, warnMsg, successMsg string
 	statusCode := 200
 
 	t := fn.Handler(fn.AppCtx, rw, r)
@@ -48,6 +48,7 @@ func (fn TemplateHandler) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	successMsg = t.SuccessMsg
+	warnMsg = t.WarnMsg
 
 	if t.Err != nil {
 		switch e := t.Err.(type) {
@@ -82,6 +83,14 @@ func (fn TemplateHandler) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 			t.Data["ErrorMsg"] = fl
 		}
 
+		fl, err = getFlash(rw, r, "WarnMsg")
+
+		if err != nil {
+			logger.Log.Error(err)
+		} else if len(fl) > 0 {
+			t.Data["WarnMsg"] = fl
+		}
+
 		t.Data[csrf.TemplateTag] = csrf.TemplateField(r)
 		t.Data["active"] = t.Active
 
@@ -95,6 +104,8 @@ func (fn TemplateHandler) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 		statusCode = http.StatusFound
 		if len(errorMsg) > 0 {
 			setCookie(rw, "ErrorMsg", "/", errorMsg)
+		} else if len(warnMsg) > 0 {
+			setCookie(rw, "WarnMsg", "/", warnMsg)
 		} else if len(successMsg) > 0 {
 			setCookie(rw, "SuccessMsg", "/", successMsg)
 		}

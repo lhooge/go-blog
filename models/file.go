@@ -98,13 +98,13 @@ func (fs FileService) DeleteFile(fileID int, location string, u *User) error {
 		}
 	}
 
-	err = os.Remove(filepath.Join(location, file.Filename))
+	err = fs.Datasource.Delete(fileID)
 
 	if err != nil {
 		return err
 	}
 
-	return fs.Datasource.Delete(fileID)
+	return os.Remove(filepath.Join(location, file.Filename))
 }
 
 //UploadFile uploaded files will be saved at the configured file location, filename is saved in the database

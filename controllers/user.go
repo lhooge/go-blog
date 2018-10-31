@@ -43,17 +43,21 @@ func AdminUsersHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *htt
 		}
 	}
 
-	userInvites, err := ctx.UserInviteService.ListUserInvites()
+	var userInvites []models.UserInvite
 
-	if err != nil {
-		return &middleware.Template{
-			Name:   tplAdminUsers,
-			Err:    err,
-			Active: "users",
-			Data: map[string]interface{}{
-				"users":      users,
-				"pagination": p,
-			},
+	if cu, _ := middleware.User(r); cu.IsAdmin {
+		userInvites, err = ctx.UserInviteService.ListUserInvites()
+
+		if err != nil {
+			return &middleware.Template{
+				Name:   tplAdminUsers,
+				Err:    err,
+				Active: "users",
+				Data: map[string]interface{}{
+					"users":      users,
+					"pagination": p,
+				},
+			}
 		}
 	}
 
