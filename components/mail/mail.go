@@ -46,6 +46,9 @@ type Mail struct {
 func (m Mail) buildMessage(s Service) []byte {
 	var buf bytes.Buffer
 
+	buf.WriteString("From: ")
+	buf.WriteString(s.From)
+	buf.WriteString("\r\n")
 	buf.WriteString("To: ")
 	buf.WriteString(m.To)
 	buf.WriteString("\r\n")
