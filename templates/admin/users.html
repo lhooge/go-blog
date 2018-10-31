@@ -34,7 +34,12 @@
 						<td>{{.IsAdmin | BoolToIcon}}</td>
 						<td>{{.CreatedBy.DisplayName}}</td>
 						<td class="action-data">
-							<a href="/admin/user-invite/resend/{{.ID}}" title="Invite">Resend invite link</a>
+							<form method="post" action="/admin/user-invite/resend/{{.ID}}">
+								<button type="submit" name="direction" value="resendinvite">
+									Resend invite link
+								</button>	
+								{{$.csrfField}}
+							</form>
 							<a href="/admin/user-invite/delete/{{.ID}}" title="Remove">Remove</a>
 						</td>
 					</tr>

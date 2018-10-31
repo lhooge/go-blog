@@ -19,7 +19,7 @@ func (m Mailer) SendActivationLink(ui *UserInvite) error {
 	mail := mail.Mail{
 		To:      ui.Email,
 		Subject: "Password change",
-		Body:    fmt.Sprintf("Hi %s, \n\n you are invited join %s. Please click the following link to enter a password and activate your account: %s", ui.DisplayName, m.AppConfig.Title, activation),
+		Body:    fmt.Sprintf("Hi %s, \n\n you are invited join %s. To activate your account click the following link and enter a password %s", ui.DisplayName, m.AppConfig.Title, activation),
 	}
 
 	return m.MailService.SendAsync(mail)

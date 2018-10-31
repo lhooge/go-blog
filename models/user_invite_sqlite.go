@@ -54,13 +54,13 @@ func (rdb SQLiteUserInviteDatasource) Get(inviteID int) (*UserInvite, error) {
 	var u User
 	var ui UserInvite
 
-	if err := rdb.SQLConn.QueryRow("SELECT ui.rowid, ui.username, ui.email, ui.display_name, ui.created_at, ui.is_admin, "+
+	if err := rdb.SQLConn.QueryRow("SELECT ui.rowid, ui.hash, ui.username, ui.email, ui.display_name, ui.created_at, ui.is_admin, "+
 		"u.rowid, u.username, u.email, u.display_name "+
 		"FROM user_invite as ui "+
 		"INNER JOIN user as u "+
 		"ON u.rowid = ui.created_by "+
 		"WHERE ui.rowid=? ", inviteID).
-		Scan(&ui.ID, &ui.Username, &ui.Email, &ui.DisplayName, &ui.CreatedAt, &ui.IsAdmin, &u.ID, &u.Username, &u.Email, &u.DisplayName); err != nil {
+		Scan(&ui.ID, &ui.Hash, &ui.Username, &ui.Email, &ui.DisplayName, &ui.CreatedAt, &ui.IsAdmin, &u.ID, &u.Username, &u.Email, &u.DisplayName); err != nil {
 		return nil, err
 	}
 
@@ -73,13 +73,13 @@ func (rdb SQLiteUserInviteDatasource) GetByHash(hash string) (*UserInvite, error
 	var ui UserInvite
 	var u User
 
-	if err := rdb.SQLConn.QueryRow("SELECT ui.rowid, ui.username, ui.email, ui.display_name, ui.created_at, ui.is_admin, "+
+	if err := rdb.SQLConn.QueryRow("SELECT ui.rowid, ui.hash, ui.username, ui.email, ui.display_name, ui.created_at, ui.is_admin, "+
 		"u.rowid, u.username, u.email, u.display_name "+
 		"FROM user_invite as ui "+
 		"INNER JOIN user as u "+
 		"ON u.rowid = ui.created_by "+
 		"WHERE ui.hash=? ", hash).
-		Scan(&ui.ID, &ui.Username, &ui.Email, &ui.DisplayName, &ui.CreatedAt, &ui.IsAdmin, &u.ID, &u.Username, &u.Email, &u.DisplayName); err != nil {
+		Scan(&ui.ID, &ui.Hash, &ui.Username, &ui.Email, &ui.DisplayName, &ui.CreatedAt, &ui.IsAdmin, &u.ID, &u.Username, &u.Email, &u.DisplayName); err != nil {
 		return nil, err
 	}
 
@@ -88,7 +88,16 @@ func (rdb SQLiteUserInviteDatasource) GetByHash(hash string) (*UserInvite, error
 	return &ui, nil
 }
 
-//Create creates an new user
+func (rdb SQLiteUserInviteDatasource) Update(ui *UserInvite) error {
+	if _, err := rdb.SQLConn.Exec("UPDATE user_invite SET hash=?, username=?, email=?, display_name=?, is_admin=?, created_at=?, created_by=? "+
+		"WHERE rowid=? ", ui.Hash, ui.Username, ui.Email, ui.DisplayName, ui.IsAdmin, ui.CreatedBy.ID, ui.ID); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+//Create creates an new user invitation
 func (rdb SQLiteUserInviteDatasource) Create(ui *UserInvite) (int, error) {
 	res, err := rdb.SQLConn.Exec("INSERT INTO user_invite (hash, username, email, display_name, is_admin, created_at, created_by) VALUES(?, ?, ?, ?, ?, ?, ?);",
 		ui.Hash, ui.Username, ui.Email, ui.DisplayName, ui.IsAdmin, time.Now(), ui.CreatedBy.ID)
@@ -105,7 +114,7 @@ func (rdb SQLiteUserInviteDatasource) Create(ui *UserInvite) (int, error) {
 	return int(i), nil
 }
 
-//Count retuns the amount of users
+//Count retuns the amount of users invitations
 func (rdb SQLiteUserInviteDatasource) Count() (int, error) {
 	var total int
 

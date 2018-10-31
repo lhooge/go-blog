@@ -56,6 +56,43 @@ func AdminUserInviteNewPostHandler(ctx *middleware.AppContext, w http.ResponseWr
 	}
 }
 
+func AdminUserInviteResendPostHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
+	inviteID, err := parseInt(getVar(r, "inviteID"))
+
+	if err != nil {
+		return &middleware.Template{
+			RedirectPath: "admin/user-invite",
+			Active:       "users",
+			Err:          err,
+		}
+	}
+
+	ui, err := ctx.UserInviteService.GetInvite(inviteID)
+
+	if err != nil {
+		return &middleware.Template{
+			Name:   tplAdminUsers,
+			Err:    err,
+			Active: "users",
+		}
+	}
+
+	err = ctx.Mailer.SendActivationLink(ui)
+
+	if err != nil {
+		logger.Log.Error(err)
+	}
+
+	return &middleware.Template{
+		RedirectPath: "admin/users",
+		Active:       "users",
+		SuccessMsg:   "Successfully invited user " + ui.Email,
+		Data: map[string]interface{}{
+			"userID": inviteID,
+		},
+	}
+}
+
 func AdminUserInviteDeleteHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
 	inviteID, err := parseInt(getVar(r, "inviteID"))
 

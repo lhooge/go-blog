@@ -35,6 +35,7 @@ type UserInviteDatasourceService interface {
 	Get(inviteID int) (*UserInvite, error)
 	GetByHash(hash string) (*UserInvite, error)
 	Create(ui *UserInvite) (int, error)
+	Update(ui *UserInvite) error
 	Remove(inviteID int) error
 }
 
@@ -62,8 +63,14 @@ func (uis UserInviteService) ListUserInvites() ([]UserInvite, error) {
 	return uis.Datasource.List()
 }
 
-func (uis UserInviteService) ResendUserInvites() ([]UserInvite, error) {
-	return uis.Datasource.List()
+func (uis UserInviteService) UpdateUserInvites(ui *UserInvite) error {
+	ui.Hash = utils.RandomHash(32)
+
+	if err := ui.validate(uis); err != nil {
+		return err
+	}
+
+	return uis.Datasource.Update(ui)
 }
 
 func (uis UserInviteService) CreateUserInvite(ui *UserInvite) (int, error) {

@@ -157,12 +157,18 @@ func ActivateAccountPostHandler(ctx *middleware.AppContext, w http.ResponseWrite
 	user.Password = []byte(password)
 	user.Active = true
 
-	_, err = ctx.UserService.CreateUser(user)
-
-	if err != nil {
+	if _, err := ctx.UserService.CreateUser(user); err != nil {
 		return &middleware.Template{
 			Name: tplAdminActivateAccount,
 			Err:  err,
+		}
+	}
+
+	if err := ctx.UserInviteService.RemoveInvite(ui.ID); err != nil {
+		return &middleware.Template{
+			Name:   tplAdminUserDelete,
+			Active: "users",
+			Err:    err,
 		}
 	}
 
