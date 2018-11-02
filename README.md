@@ -49,15 +49,14 @@ Make sure -admin is set.
 
 TODOs
 -----
- * Activation link when registering new users
  * Add and fix test
- * Refactoring (redirect urls)
  * Comment user interceptor
  * Revisit Makefile
  * Database update tasks / simple query builder
  * Order possibilities in admin panel
  * Review preview of articles and sites / error handling
  * Support some environmental variables / flags
+ * Roles?! maybe
 
 Licence
 -------

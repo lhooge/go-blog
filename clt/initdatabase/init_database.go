@@ -38,11 +38,6 @@ func main() {
 
 	fmt.Printf("init_database version %s\n", BuildVersion)
 
-	databaseName := flag.String("database", "", "The name of the database")
-	host := flag.String("host", "127.0.0.1", "The address of the database")
-	port := flag.Int("port", 3306, "The port of the database")
-	user := flag.String("user", "root", "The name of the database user")
-	password := flag.String("password", "", "The password of the database user")
 	file := flag.String("file", "", "The database file to use needed if sqlite is used")
 	config := flag.String("config", "", "Config to the blog configuration file. This will get the mysql connection parameters from the config")
 
@@ -50,12 +45,7 @@ func main() {
 
 	if flag.Parsed() {
 		initDB := initDatabaseFlags{
-			databaseName: *databaseName,
-			host:         *host,
-			port:         *port,
-			user:         *user,
-			password:     *password,
-			file:         *file,
+			file: *file,
 		}
 
 		if err := initDB.initSQLite(*config); err != nil {

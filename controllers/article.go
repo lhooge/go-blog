@@ -227,7 +227,8 @@ func AdminArticleNewPostHandler(ctx *middleware.AppContext, w http.ResponseWrite
 		SuccessMsg:   "Article successfully saved",
 		Data: map[string]interface{}{
 			"articleID": id,
-		}}
+		},
+	}
 }
 
 //AdminArticleEditHandler shows the form for changing an article
@@ -257,7 +258,8 @@ func AdminArticleEditHandler(ctx *middleware.AppContext, w http.ResponseWriter, 
 		Active: "articles",
 		Data: map[string]interface{}{
 			"article": a,
-		}}
+		},
+	}
 }
 
 //AdminArticleEditPostHandler handles the update of an article
@@ -295,7 +297,8 @@ func AdminArticleEditPostHandler(ctx *middleware.AppContext, w http.ResponseWrit
 			Active: "articles",
 			Data: map[string]interface{}{
 				"article": a,
-			}}
+			},
+		}
 	}
 
 	return &middleware.Template{

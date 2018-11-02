@@ -61,9 +61,7 @@ func AdminProfilePostHandler(ctx *middleware.AppContext, w http.ResponseWriter, 
 			return &middleware.Template{
 				Name:   tplAdminProfile,
 				Active: "profile",
-				Err: httperror.New(http.StatusUnprocessableEntity,
-					"Please check your retyped password",
-					errors.New("the password did not match the retyped one")),
+				Err:    httperror.New(http.StatusUnprocessableEntity, "Please check your retyped password", errors.New("the password did not match the retyped one")),
 				Data: map[string]interface{}{
 					"user": u,
 				},
@@ -131,9 +129,7 @@ func ActivateAccountPostHandler(ctx *middleware.AppContext, w http.ResponseWrite
 	if !bytes.Equal([]byte(password), []byte(repassword)) {
 		return &middleware.Template{
 			Name: tplAdminActivateAccount,
-			Err: httperror.New(http.StatusUnprocessableEntity,
-				"Please check your retyped password",
-				errors.New("the password did not match the retyped one")),
+			Err:  httperror.New(http.StatusUnprocessableEntity, "Please check your retyped password", errors.New("the password did not match the retyped one")),
 			Data: map[string]interface{}{
 				"hash": hash,
 			},
