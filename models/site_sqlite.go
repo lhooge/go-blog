@@ -75,14 +75,14 @@ func (rdb SQLiteSiteDatasource) Get(siteID int, pc PublishedCriteria) (*Site, er
 
 	stmt.WriteString("SELECT s.rowid, s.title, s.link, s.content, s.published, s.published_on, s.last_modified, s.order_no, u.rowid, u.display_name, u.email, u.username FROM site as s ")
 	stmt.WriteString("INNER JOIN user u ON (s.user_id = u.rowid) ")
-	stmt.WriteString("WHERE rowid=? ")
+	stmt.WriteString("WHERE s.rowid=? ")
 
 	args = append(args, siteID)
 
 	if pc == NotPublished {
-		stmt.WriteString("AND published = '0' ")
+		stmt.WriteString("AND s.published = '0' ")
 	} else if pc == OnlyPublished {
-		stmt.WriteString("AND published = '1' ")
+		stmt.WriteString("AND s.published = '1' ")
 	}
 
 	var s Site
@@ -104,14 +104,14 @@ func (rdb SQLiteSiteDatasource) GetByLink(link string, pc PublishedCriteria) (*S
 
 	stmt.WriteString("SELECT s.rowid, s.title, s.link, s.content, s.published, s.published_on, s.order_no, s.last_modified, u.rowid, u.display_name, u.email, u.username FROM site as s ")
 	stmt.WriteString("INNER JOIN user u ON (s.user_id = u.rowid) ")
-	stmt.WriteString("WHERE link=? ")
+	stmt.WriteString("WHERE s.link=? ")
 
 	args = append(args, link)
 
 	if pc == NotPublished {
-		stmt.WriteString("AND published = '0' ")
+		stmt.WriteString("AND s.published = '0' ")
 	} else if pc == OnlyPublished {
-		stmt.WriteString("AND published = '1' ")
+		stmt.WriteString("AND s.published = '1' ")
 	}
 
 	var s Site
