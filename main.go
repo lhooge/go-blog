@@ -147,7 +147,7 @@ func main() {
 }
 
 func context(db *sql.DB, cfg *settings.Settings) (*m.AppContext, error) {
-	ic := loadUserInterceptor(cfg.InterceptorPlugin)
+	ic := loadUserInterceptor(cfg.User.InterceptorPlugin)
 
 	userService := models.UserService{
 		Datasource: models.SQLiteUserDatasource{
@@ -241,6 +241,7 @@ func context(db *sql.DB, cfg *settings.Settings) (*m.AppContext, error) {
 }
 
 func loadUserInterceptor(pluginFile string) models.UserInterceptor {
+
 	if len(pluginFile) == 0 {
 		return nil
 	}
@@ -258,5 +259,13 @@ func loadUserInterceptor(pluginFile string) models.UserInterceptor {
 		return nil
 	}
 
-	return symbol.(func() models.UserInterceptor)()
+	ui, err := symbol.(func() (models.UserInterceptor, error))()
+
+	if err != nil {
+		logger.Log.Error("unexpected type from module symbol", err)
+		return nil
+
+	}
+
+	return ui
 }

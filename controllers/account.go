@@ -93,6 +93,7 @@ func AdminProfilePostHandler(ctx *middleware.AppContext, w http.ResponseWriter, 
 }
 
 func ActivateAccountHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
+
 	hash := getVar(r, "hash")
 
 	_, err := ctx.UserInviteService.GetByHash(hash)
@@ -120,6 +121,9 @@ func ActivateAccountHandler(ctx *middleware.AppContext, w http.ResponseWriter, r
 }
 
 func ActivateAccountPostHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
+	// Delete any cookies if user is logged in
+	ctx.SessionService.Remove(w, r)
+
 	password := r.FormValue("password")
 	repassword := r.FormValue("password_repeat")
 	hash := getVar(r, "hash")
@@ -166,7 +170,7 @@ func ActivateAccountPostHandler(ctx *middleware.AppContext, w http.ResponseWrite
 
 	if err := ctx.UserInviteService.RemoveInvite(ui.ID); err != nil {
 		return &middleware.Template{
-			Name:   tplAdminUserDelete,
+			Name:   tplAdminLogin,
 			Active: "users",
 			Err:    err,
 		}

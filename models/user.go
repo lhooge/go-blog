@@ -32,15 +32,16 @@ type UserDatasourceService interface {
 
 //User represents a user
 type User struct {
-	ID           int
-	Username     string
-	Email        string
-	DisplayName  string
-	Password     []byte
-	Salt         []byte
-	LastModified time.Time
-	Active       bool
-	IsAdmin      bool
+	ID            int
+	Username      string
+	Email         string
+	DisplayName   string
+	Password      []byte
+	PlainPassword []byte
+	Salt          []byte
+	LastModified  time.Time
+	Active        bool
+	IsAdmin       bool
 }
 
 const (
@@ -55,12 +56,13 @@ type UserService struct {
 }
 
 //UserInterceptor will be executed before and after updating/creating users
-//build your own interceptor as plugin
 type UserInterceptor interface {
 	PreCreate(user *User) error
 	PostCreate(user *User) error
-	PreUpdate(user *User) error
-	PostUpdate(user *User) error
+	PreUpdate(oldUser *User, user *User) error
+	PostUpdate(oldUser *User, user *User) error
+	PreRemove(user *User) error
+	PostRemove(user *User) error
 }
 
 type Validations int
@@ -101,7 +103,7 @@ func (u *User) validate(us UserService, minPasswordLength int, v Validations) er
 	}
 
 	if (v & VPassword) != 0 {
-		if len(u.Password) < minPasswordLength && len(u.Password) > 0 {
+		if len(u.PlainPassword) < minPasswordLength && len(u.PlainPassword) > 0 {
 			return httperror.New(http.StatusUnprocessableEntity,
 				fmt.Sprintf("The password is too short. It must be at least %d characters long.", minPasswordLength),
 				fmt.Errorf("the password is too short, it must be at least %d characters long", minPasswordLength),
@@ -215,8 +217,9 @@ func (us UserService) GetUserByMail(mail string) (*User, error) {
 //If an UserInterceptor is available the action PreCreate is executed before creating and PostCreate after creating the user
 func (us UserService) CreateUser(u *User) (int, error) {
 	if us.UserInterceptor != nil {
-		errUserInterceptor := us.UserInterceptor.PreCreate(u)
-		return -1, httperror.InternalServerError(fmt.Errorf("error while executing user interceptor 'PreCreate' error %v", errUserInterceptor))
+		if err := us.UserInterceptor.PreCreate(u); err != nil {
+			return -1, httperror.InternalServerError(fmt.Errorf("error while executing user interceptor 'PreCreate' error %v", err))
+		}
 	}
 
 	if err := u.validate(us, us.Config.MinPasswordLength, VDupUsername|VDupEmail|VPassword); err != nil {
@@ -224,7 +227,7 @@ func (us UserService) CreateUser(u *User) (int, error) {
 	}
 
 	salt := utils.GenerateSalt()
-	saltedPassword := utils.AppendBytes(u.Password, salt)
+	saltedPassword := utils.AppendBytes(u.PlainPassword, salt)
 	password, err := utils.CryptPassword([]byte(saltedPassword), bcryptRounds)
 
 	if err != nil {
@@ -242,11 +245,12 @@ func (us UserService) CreateUser(u *User) (int, error) {
 
 	if us.UserInterceptor != nil {
 		errUserInterceptor := us.UserInterceptor.PostCreate(u)
-		logger.Log.Errorf("error while executing PostUpdate user interceptor method %v", errUserInterceptor)
+		logger.Log.Errorf("error while executing PostCreate user interceptor method %v", errUserInterceptor)
 	}
 
 	salt = nil
 	saltedPassword = nil
+	u.PlainPassword = nil
 
 	return userID, nil
 }
@@ -267,8 +271,10 @@ func (us UserService) UpdateUser(u *User, changePassword bool) error {
 	}
 
 	if us.UserInterceptor != nil {
-		errUserInterceptor := us.UserInterceptor.PreUpdate(u)
-		return httperror.InternalServerError(fmt.Errorf("error while executing user interceptor 'PreUpdate' error %v", errUserInterceptor))
+
+		if err := us.UserInterceptor.PreUpdate(oldUser, u); err != nil {
+			return httperror.InternalServerError(fmt.Errorf("error while executing user interceptor 'PreUpdate' error %v", err))
+		}
 	}
 
 	var v Validations
@@ -305,7 +311,7 @@ func (us UserService) UpdateUser(u *User, changePassword bool) error {
 
 	if changePassword {
 		salt := utils.GenerateSalt()
-		saltedPassword := utils.AppendBytes(u.Password, salt)
+		saltedPassword := utils.AppendBytes(u.PlainPassword, salt)
 		password, err := utils.CryptPassword([]byte(saltedPassword), bcryptRounds)
 
 		if err != nil {
@@ -321,9 +327,11 @@ func (us UserService) UpdateUser(u *User, changePassword bool) error {
 	u.Password = nil
 
 	if us.UserInterceptor != nil {
-		errUserInterceptor := us.UserInterceptor.PostUpdate(u)
-		logger.Log.Errorf("error while executing PostUpdate user interceptor method %v", errUserInterceptor)
+		if err := us.UserInterceptor.PostUpdate(oldUser, u); err != nil {
+			logger.Log.Errorf("error while executing PostUpdate user interceptor method %v", err)
+		}
 	}
+	u.PlainPassword = nil
 
 	return err
 }
@@ -363,6 +371,12 @@ func (us UserService) Authenticate(u *User, loginMethod settings.LoginMethod, pa
 
 // RemoveUser removes the user returns an error if no administrator would remain
 func (us UserService) RemoveUser(u *User) error {
+	if us.UserInterceptor != nil {
+		if err := us.UserInterceptor.PreRemove(u); err != nil {
+			return httperror.InternalServerError(fmt.Errorf("error while executing user interceptor 'PreRemove' error %v", err))
+		}
+	}
+
 	oneAdmin, err := us.OneAdmin()
 
 	if err != nil {
@@ -376,7 +390,16 @@ func (us UserService) RemoveUser(u *User) error {
 				fmt.Errorf("could not remove administrator %s no administrator would remain", u.Username))
 		}
 	}
-	return us.Datasource.Remove(u.ID)
+
+	err = us.Datasource.Remove(u.ID)
+
+	if us.UserInterceptor != nil {
+		if err := us.UserInterceptor.PostRemove(u); err != nil {
+			logger.Log.Errorf("error while executing PostRemove user interceptor method %v", err)
+		}
+	}
+
+	return err
 }
 
 //OneAdmin returns true if there is only one admin

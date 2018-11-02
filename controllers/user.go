@@ -83,12 +83,12 @@ func AdminUserNewHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *h
 //AdminUserNewPostHandler handles the creation of new users (admin only action)
 func AdminUserNewPostHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
 	u := &models.User{
-		DisplayName: r.FormValue("displayname"),
-		Username:    r.FormValue("username"),
-		Email:       r.FormValue("email"),
-		Password:    []byte(r.FormValue("password")),
-		Active:      convertCheckbox(r, "active"),
-		IsAdmin:     convertCheckbox(r, "admin"),
+		DisplayName:   r.FormValue("displayname"),
+		Username:      r.FormValue("username"),
+		Email:         r.FormValue("email"),
+		PlainPassword: []byte(r.FormValue("password")),
+		Active:        convertCheckbox(r, "active"),
+		IsAdmin:       convertCheckbox(r, "admin"),
 	}
 
 	userID, err := ctx.UserService.CreateUser(u)
@@ -155,13 +155,13 @@ func AdminUserEditPostHandler(ctx *middleware.AppContext, w http.ResponseWriter,
 	}
 
 	u := &models.User{
-		ID:          userID,
-		Email:       r.FormValue("email"),
-		DisplayName: r.FormValue("displayname"),
-		Username:    r.FormValue("username"),
-		Password:    []byte(r.FormValue("password")),
-		Active:      convertCheckbox(r, "active"),
-		IsAdmin:     convertCheckbox(r, "admin"),
+		ID:            userID,
+		Email:         r.FormValue("email"),
+		DisplayName:   r.FormValue("displayname"),
+		Username:      r.FormValue("username"),
+		PlainPassword: []byte(r.FormValue("password")),
+		Active:        convertCheckbox(r, "active"),
+		IsAdmin:       convertCheckbox(r, "admin"),
 	}
 
 	changePassword := false
@@ -238,7 +238,7 @@ func AdminUserDeletePostHandler(ctx *middleware.AppContext, w http.ResponseWrite
 
 	if err != nil {
 		return &middleware.Template{
-			Name:   tplAdminUserDelete,
+			Name:   tplAdminUsers,
 			Active: "users",
 			Err:    err,
 		}
@@ -248,7 +248,7 @@ func AdminUserDeletePostHandler(ctx *middleware.AppContext, w http.ResponseWrite
 
 	if err != nil {
 		return &middleware.Template{
-			Name:   tplAdminUserDelete,
+			Name:   tplAdminUsers,
 			Active: "users",
 			Err:    err,
 		}
@@ -256,7 +256,7 @@ func AdminUserDeletePostHandler(ctx *middleware.AppContext, w http.ResponseWrite
 
 	if err := ctx.UserService.RemoveUser(user); err != nil {
 		return &middleware.Template{
-			Name:   tplAdminUserDelete,
+			Name:   tplAdminUsers,
 			Active: "users",
 			Err:    err,
 		}

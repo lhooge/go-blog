@@ -54,7 +54,7 @@ func (rdb SQLiteUserDatasource) List(p *Pagination) ([]User, error) {
 func (rdb SQLiteUserDatasource) Get(userID int) (*User, error) {
 	var u User
 
-	if err := rdb.SQLConn.QueryRow("SELECT u.rowid, u.username, u.email, u.display_name, u.last_modified, u.active, u.is_admin, u.salt "+
+	if err := rdb.SQLConn.QueryRow("SELECT u.rowid, u.username, u.email, u.display_name, u.last_modified, u.active, u.is_admin,  u.salt "+
 		"FROM user as u "+
 		"WHERE u.rowid=? ", userID).
 		Scan(&u.ID, &u.Username, &u.Email, &u.DisplayName, &u.LastModified, &u.Active, &u.IsAdmin, &u.Salt); err != nil {

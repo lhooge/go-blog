@@ -136,7 +136,7 @@ func AdminUserInviteDeletePostHandler(ctx *middleware.AppContext, w http.Respons
 
 	if err != nil {
 		return &middleware.Template{
-			Name:   tplAdminUserDelete,
+			Name:   tplAdminUsers,
 			Active: "users",
 			Err:    err,
 		}
@@ -144,7 +144,7 @@ func AdminUserInviteDeletePostHandler(ctx *middleware.AppContext, w http.Respons
 
 	if err := ctx.UserInviteService.RemoveInvite(inviteID); err != nil {
 		return &middleware.Template{
-			Name:   tplAdminUserDelete,
+			Name:   tplAdminUsers,
 			Active: "users",
 			Err:    err,
 		}
