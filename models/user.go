@@ -139,9 +139,7 @@ func (us UserService) duplicateMail(mail string) error {
 	}
 
 	if user != nil {
-		return httperror.New(http.StatusUnprocessableEntity,
-			fmt.Sprintf("The mail %s already exists.", mail),
-			fmt.Errorf("the mail %s already exits", mail))
+		return httperror.New(http.StatusUnprocessableEntity, fmt.Sprintf("The mail %s already exists.", mail), fmt.Errorf("the mail %s already exits", mail))
 	}
 
 	return nil

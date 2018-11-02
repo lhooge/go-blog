@@ -104,12 +104,12 @@ func (userFlags createUserFlag) CreateUser(config string) error {
 	}
 
 	user := &models.User{
-		Username:    userFlags.username,
-		DisplayName: userFlags.displayName,
-		Email:       userFlags.email,
-		Password:    []byte(userFlags.password),
-		IsAdmin:     userFlags.admin,
-		Active:      true,
+		Username:      userFlags.username,
+		DisplayName:   userFlags.displayName,
+		Email:         userFlags.email,
+		PlainPassword: []byte(userFlags.password),
+		IsAdmin:       userFlags.admin,
+		Active:        true,
 	}
 
 	if _, err := userService.CreateUser(user); err != nil {
