@@ -50,12 +50,11 @@ Make sure -admin is set.
 TODOs
 -----
  * Add and fix test
- * Comment user interceptor
- * Revisit Makefile
- * Database update tasks / simple query builder
- * Order possibilities in admin panel
+ * Database update tasks / simple query builder (v0.3)
+ * Order possibilities in admin panel (v0.3)
+ * Revisit Makefile (v0.3)
  * Review preview of articles and sites / error handling
- * Support some environmental variables / flags
+ * Categories?
  * Roles?! maybe
 
 Licence
