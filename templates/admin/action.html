@@ -19,8 +19,8 @@
 			{{ $.csrfField }}
 			
 			<div class="button-group">
-				<button type="submit" name="action" value="yes">Yes</button>
-				<a href="{{.BackLinkURL}}" class="button" role="button" aria-disabled="true">No</a>
+				<button class="button button-yes" type="submit" name="action" value="yes">Yes</button>
+				<a href="{{.BackLinkURL}}" role="button" aria-disabled="true"><button class="button button-no" type="submit" name="action" value="yes">No</button></a>
 			</div>
 		</form>
 	{{end}}

@@ -102,9 +102,7 @@ func (s *Site) validate(ds SiteDatasourceService, changeLink bool) error {
 		}
 
 		if l != nil {
-			return httperror.New(http.StatusUnprocessableEntity,
-				fmt.Sprintf("The link %s already exists.", s.Link),
-				fmt.Errorf("the link %s already exits", s.Link))
+			return httperror.New(http.StatusUnprocessableEntity, fmt.Sprintf("The link %s already exists.", s.Link), fmt.Errorf("the link %s already exits", s.Link))
 		}
 	}
 

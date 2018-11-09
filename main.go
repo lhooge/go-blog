@@ -89,11 +89,11 @@ func main() {
 	logger.Log.Infof("Go-Blog version: %s, commit: %s", BuildVersion, GitHash)
 	logger.Log.Infof("running in %s mode", cfg.Environment)
 
-	sqliteConf := database.SQLiteConfig{
+	dbConf := database.SQLiteConfig{
 		File: cfg.Database.File,
 	}
 
-	db, err := sqliteConf.Open()
+	db, err := dbConf.Open()
 
 	if err != nil {
 		logger.Log.Error(err)
