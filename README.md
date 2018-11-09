@@ -13,8 +13,6 @@ Small sample open-source blog written in Go using markdown for formatting articl
 
 * Additional sites can be created (by administrator)
 
-Not really for production use; started for learning Go for web development.
-
 
 Prerequisites
 --------
