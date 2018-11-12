@@ -1,26 +1,27 @@
 {{define "admin/footer"}}
 
-<footer>
-	<p>Version: {{BuildVersion}}</p>
-</footer>
+	<footer>
+		<p>Version: {{BuildVersion}}</p>
+	</footer>
 
-<script type="text/javascript">
-
-	var ajax_call = function() {
-		var request = new XMLHttpRequest();
-		request.open("GET", "/admin/json/session/keep-alive", true);
-		request.send();
-	};
-
-	var interval={{KeepAliveInterval}}*1000;
-	var curPath = window.location.pathname;
-
-	if (curPath === "/admin/article/new" || curPath.includes("/admin/article/edit")
-		|| curPath === "/admin/site/new" || curPath.includes("/admin/site/edit")) {
-
-		setInterval(ajax_call, interval);
-	}
-</script>
+	<script type="text/javascript">
+	
+		var ajax_call = function() {
+			var request = new XMLHttpRequest();
+			request.open("GET", "/admin/json/session/keep-alive", true);
+			request.send();
+		};
+	
+		var interval={{KeepAliveInterval}}*1000;
+		var curPath = window.location.pathname;
+	
+		if (curPath === "/admin/article/new" || curPath.includes("/admin/article/edit")
+			|| curPath === "/admin/site/new" || curPath.includes("/admin/site/edit")) {
+	
+			setInterval(ajax_call, interval);
+		}
+	</script>
+</div>
 </body>
 </html>
 {{end}}
