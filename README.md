@@ -51,9 +51,10 @@ TODOs
  * Database update tasks / simple query builder (v0.3)
  * Order possibilities in admin panel (v0.3)
  * Revisit Makefile (v0.3)
+ * Review async mails 
  * Review preview of articles and sites / error handling
  * Categories?
- * Roles?! maybe
+ * Roles?
 
 Licence
 -------

@@ -69,9 +69,10 @@ func main() {
 			fmt.Println(err)
 			exitCode = 1
 		}
+
 		logger.InitLogger(logFile, cfg.Log.Level)
 	} else {
-		logger.InitLogger(os.Stderr, cfg.Log.Level)
+		logger.InitLogger(os.Stdout, cfg.Log.Level)
 	}
 
 	csrf, err := cfg.GenerateCSRF()
@@ -129,20 +130,16 @@ func main() {
 	logger.Log.Infof("server will start at %s on port %d", cfg.Server.Address, cfg.Server.Port)
 
 	if cfg.Server.UseTLS {
-		err := s.ListenAndServeTLS(cfg.Server.Cert, cfg.Server.Key)
-		if err != nil {
-			exitCode = 1
-			logger.Log.Error("failed to serve TLS server: ", err)
-			return
-		}
-	} else {
-		err := s.ListenAndServe()
+		err = s.ListenAndServeTLS(cfg.Server.Cert, cfg.Server.Key)
 
-		if err != nil {
-			exitCode = 1
-			logger.Log.Error("failed to start server ", err)
-			return
-		}
+	} else {
+		err = s.ListenAndServe()
+	}
+
+	if err != nil {
+		exitCode = 1
+		logger.Log.Errorf("failed to start TLS server: %v", err)
+		return
 	}
 }
 
