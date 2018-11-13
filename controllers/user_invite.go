@@ -27,7 +27,7 @@ func AdminUserInviteNewPostHandler(ctx *middleware.AppContext, w http.ResponseWr
 		CreatedBy:   user,
 	}
 
-	inviteID, err := ctx.UserInviteService.CreateUserInvite(ui)
+	inviteID, err := ctx.UserInviteService.Create(ui)
 
 	if err != nil {
 		return &middleware.Template{
@@ -67,7 +67,7 @@ func AdminUserInviteResendPostHandler(ctx *middleware.AppContext, w http.Respons
 		}
 	}
 
-	ui, err := ctx.UserInviteService.GetInvite(inviteID)
+	ui, err := ctx.UserInviteService.Get(inviteID)
 
 	if err != nil {
 		return &middleware.Template{
@@ -104,7 +104,7 @@ func AdminUserInviteDeleteHandler(ctx *middleware.AppContext, w http.ResponseWri
 		}
 	}
 
-	invite, err := ctx.UserInviteService.GetInvite(inviteID)
+	invite, err := ctx.UserInviteService.Get(inviteID)
 
 	if err != nil {
 		return &middleware.Template{
@@ -142,7 +142,7 @@ func AdminUserInviteDeletePostHandler(ctx *middleware.AppContext, w http.Respons
 		}
 	}
 
-	if err := ctx.UserInviteService.RemoveInvite(inviteID); err != nil {
+	if err := ctx.UserInviteService.Remove(inviteID); err != nil {
 		return &middleware.Template{
 			Name:   tplAdminUsers,
 			Active: "users",

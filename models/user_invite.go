@@ -59,11 +59,11 @@ func (ui UserInvite) validate(uis UserInviteService) error {
 	return nil
 }
 
-func (uis UserInviteService) ListUserInvites() ([]UserInvite, error) {
+func (uis UserInviteService) List() ([]UserInvite, error) {
 	return uis.Datasource.List()
 }
 
-func (uis UserInviteService) UpdateUserInvites(ui *UserInvite) error {
+func (uis UserInviteService) Update(ui *UserInvite) error {
 	ui.Hash = utils.RandomHash(32)
 
 	if err := ui.validate(uis); err != nil {
@@ -73,7 +73,7 @@ func (uis UserInviteService) UpdateUserInvites(ui *UserInvite) error {
 	return uis.Datasource.Update(ui)
 }
 
-func (uis UserInviteService) CreateUserInvite(ui *UserInvite) (int, error) {
+func (uis UserInviteService) Create(ui *UserInvite) (int, error) {
 	ui.Hash = utils.RandomHash(32)
 
 	if err := ui.validate(uis); err != nil {
@@ -83,7 +83,7 @@ func (uis UserInviteService) CreateUserInvite(ui *UserInvite) (int, error) {
 	return uis.Datasource.Create(ui)
 }
 
-func (uis UserInviteService) GetInvite(inviteID int) (*UserInvite, error) {
+func (uis UserInviteService) Get(inviteID int) (*UserInvite, error) {
 	return uis.Datasource.Get(inviteID)
 }
 
@@ -91,6 +91,6 @@ func (uis UserInviteService) GetByHash(hash string) (*UserInvite, error) {
 	return uis.Datasource.GetByHash(hash)
 }
 
-func (uis UserInviteService) RemoveInvite(inviteID int) error {
+func (uis UserInviteService) Remove(inviteID int) error {
 	return uis.Datasource.Remove(inviteID)
 }

@@ -142,7 +142,7 @@ func (ctx AppContext) AuthHandler(handler http.Handler) http.Handler {
 			return
 		}
 
-		u, err := ctx.UserService.GetUserByID(userid)
+		u, err := ctx.UserService.GetByID(userid)
 		if err != nil {
 			logger.Log.Error(err)
 			rw.WriteHeader(http.StatusUnauthorized)

@@ -65,8 +65,8 @@ type TokenService struct {
 	Datasource TokenDatasourceService
 }
 
-//CreateToken creates a new token
-func (ts TokenService) CreateToken(t *Token) error {
+//Create creates a new token
+func (ts TokenService) Create(t *Token) error {
 	t.Hash = utils.RandomHash(32)
 
 	_, err := ts.Datasource.Create(t)
@@ -74,9 +74,9 @@ func (ts TokenService) CreateToken(t *Token) error {
 	return err
 }
 
-//GetToken gets all token for a defined token type expires after a defined time
+//Get gets all token for a defined token type expires after a defined time
 //Expired tokens will be removed
-func (ts TokenService) GetToken(hash string, tt TokenType, expireAfter time.Duration) (*Token, error) {
+func (ts TokenService) Get(hash string, tt TokenType, expireAfter time.Duration) (*Token, error) {
 	token, err := ts.Datasource.Get(hash, tt)
 
 	if err != nil {
@@ -95,7 +95,7 @@ func (ts TokenService) GetToken(hash string, tt TokenType, expireAfter time.Dura
 	return token, nil
 }
 
-//RemoveToken removes a token
-func (ts TokenService) RemoveToken(hash string, tt TokenType) error {
+//Remove removes a token
+func (ts TokenService) Remove(hash string, tt TokenType) error {
 	return ts.Datasource.Remove(hash, tt)
 }

@@ -140,7 +140,7 @@ func FuncMap(ss models.SiteService, cfg *settings.Settings) template.FuncMap {
 			return template.HTML(out)
 		},
 		"GetSites": func() []models.Site {
-			sites, err := ss.ListSites(models.OnlyPublished, nil)
+			sites, err := ss.List(models.OnlyPublished, nil)
 
 			if err != nil {
 				logger.Log.Error(err)

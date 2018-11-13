@@ -69,7 +69,7 @@ func AdminProfilePostHandler(ctx *middleware.AppContext, w http.ResponseWriter, 
 		}
 	}
 
-	if err := ctx.UserService.UpdateUser(u, changePassword); err != nil {
+	if err := ctx.UserService.Update(u, changePassword); err != nil {
 		return &middleware.Template{
 			Name:   tplAdminProfile,
 			Active: "profile",
@@ -157,14 +157,14 @@ func ActivateAccountPostHandler(ctx *middleware.AppContext, w http.ResponseWrite
 	user.Password = []byte(password)
 	user.Active = true
 
-	if _, err := ctx.UserService.CreateUser(user); err != nil {
+	if _, err := ctx.UserService.Create(user); err != nil {
 		return &middleware.Template{
 			Name: tplAdminActivateAccount,
 			Err:  err,
 		}
 	}
 
-	if err := ctx.UserInviteService.RemoveInvite(ui.ID); err != nil {
+	if err := ctx.UserInviteService.Remove(ui.ID); err != nil {
 		return &middleware.Template{
 			Name:   tplAdminLogin,
 			Active: "users",
@@ -182,7 +182,7 @@ func ActivateAccountPostHandler(ctx *middleware.AppContext, w http.ResponseWrite
 func ResetPasswordHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
 	hash := getVar(r, "hash")
 
-	t, err := ctx.TokenService.GetToken(hash, models.PasswordReset, time.Duration(1)*time.Hour)
+	t, err := ctx.TokenService.Get(hash, models.PasswordReset, time.Duration(1)*time.Hour)
 
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -211,7 +211,7 @@ func ResetPasswordPostHandler(ctx *middleware.AppContext, w http.ResponseWriter,
 	repassword := r.FormValue("password_repeat")
 	hash := getVar(r, "hash")
 
-	t, err := ctx.TokenService.GetToken(hash, models.PasswordReset, time.Duration(1)*time.Hour)
+	t, err := ctx.TokenService.Get(hash, models.PasswordReset, time.Duration(1)*time.Hour)
 
 	if err != nil {
 		return &middleware.Template{
@@ -220,7 +220,7 @@ func ResetPasswordPostHandler(ctx *middleware.AppContext, w http.ResponseWriter,
 		}
 	}
 
-	u, err := ctx.UserService.GetUserByID(t.Author.ID)
+	u, err := ctx.UserService.GetByID(t.Author.ID)
 
 	if err != nil {
 		return &middleware.Template{
@@ -238,7 +238,7 @@ func ResetPasswordPostHandler(ctx *middleware.AppContext, w http.ResponseWriter,
 
 	u.Password = []byte(password)
 
-	err = ctx.UserService.UpdateUser(u, true)
+	err = ctx.UserService.Update(u, true)
 
 	if err != nil {
 		return &middleware.Template{
@@ -248,7 +248,7 @@ func ResetPasswordPostHandler(ctx *middleware.AppContext, w http.ResponseWriter,
 	}
 
 	go func(hash string) {
-		err = ctx.TokenService.RemoveToken(hash, models.PasswordReset)
+		err = ctx.TokenService.Remove(hash, models.PasswordReset)
 
 		if err != nil {
 			logger.Log.Errorf("could not remove token %s error %v", hash, err)
@@ -278,7 +278,7 @@ func ForgotPasswordHandler(ctx *middleware.AppContext, w http.ResponseWriter, r 
 func ForgotPasswordPostHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
 	email := r.FormValue("email")
 
-	u, err := ctx.UserService.GetUserByMail(email)
+	u, err := ctx.UserService.GetByMail(email)
 
 	if err != nil {
 		if httperror.Equals(err, sql.ErrNoRows) {
@@ -316,7 +316,7 @@ func ForgotPasswordPostHandler(ctx *middleware.AppContext, w http.ResponseWriter
 		Type:   models.PasswordReset,
 	}
 
-	err = ctx.TokenService.CreateToken(t)
+	err = ctx.TokenService.Create(t)
 
 	if err != nil {
 		return &middleware.Template{

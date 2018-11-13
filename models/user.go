@@ -161,18 +161,18 @@ func (us UserService) duplicateUsername(username string) error {
 	return nil
 }
 
-//CountUsers returns the amount of users
-func (us UserService) CountUsers(a AdminCriteria) (int, error) {
+//Count returns the amount of users
+func (us UserService) Count(a AdminCriteria) (int, error) {
 	return us.Datasource.Count(a)
 }
 
-//ListUsers returns a list of users. Limits the amount based on the defined pagination
-func (us UserService) ListUsers(p *Pagination) ([]User, error) {
+//List returns a list of users. Limits the amount based on the defined pagination
+func (us UserService) List(p *Pagination) ([]User, error) {
 	return us.Datasource.List(p)
 }
 
-//GetUserByID gets the user based on the given id; will not contain the user password
-func (us UserService) GetUserByID(userID int) (*User, error) {
+//GetByID gets the user based on the given id; will not contain the user password
+func (us UserService) GetByID(userID int) (*User, error) {
 	u, err := us.Datasource.Get(userID)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -184,8 +184,8 @@ func (us UserService) GetUserByID(userID int) (*User, error) {
 	return u, nil
 }
 
-//GetUserByUsername gets the user based on the given username; will contain the user password
-func (us UserService) GetUserByUsername(username string) (*User, error) {
+//GetByUsername gets the user based on the given username; will contain the user password
+func (us UserService) GetByUsername(username string) (*User, error) {
 	u, err := us.Datasource.GetByUsername(username)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -197,8 +197,8 @@ func (us UserService) GetUserByUsername(username string) (*User, error) {
 	return u, nil
 }
 
-//GetUserByMail gets the user based on the given mail; will contain the user password
-func (us UserService) GetUserByMail(mail string) (*User, error) {
+//GetByMail gets the user based on the given mail; will contain the user password
+func (us UserService) GetByMail(mail string) (*User, error) {
 	u, err := us.Datasource.GetByMail(mail)
 
 	if err != nil {
@@ -211,9 +211,9 @@ func (us UserService) GetUserByMail(mail string) (*User, error) {
 	return u, nil
 }
 
-//CreateUser creates the user
+//Create creates the user
 //If an UserInterceptor is available the action PreCreate is executed before creating and PostCreate after creating the user
-func (us UserService) CreateUser(u *User) (int, error) {
+func (us UserService) Create(u *User) (int, error) {
 	if us.UserInterceptor != nil {
 		if err := us.UserInterceptor.PreCreate(u); err != nil {
 			return -1, httperror.InternalServerError(fmt.Errorf("error while executing user interceptor 'PreCreate' error %v", err))
@@ -253,9 +253,9 @@ func (us UserService) CreateUser(u *User) (int, error) {
 	return userID, nil
 }
 
-//UpdateUser updates the user
+//Update updates the user
 //If an UserInterceptor is available the action PreUpdate is executed before updating and PostUpdate after updating the user
-func (us UserService) UpdateUser(u *User, changePassword bool) error {
+func (us UserService) Update(u *User, changePassword bool) error {
 	oldUser, err := us.Datasource.Get(u.ID)
 
 	if err != nil {
@@ -367,8 +367,8 @@ func (us UserService) Authenticate(u *User, loginMethod settings.LoginMethod, pa
 	return u, nil
 }
 
-// RemoveUser removes the user returns an error if no administrator would remain
-func (us UserService) RemoveUser(u *User) error {
+// Remove removes the user returns an error if no administrator would remain
+func (us UserService) Remove(u *User) error {
 	if us.UserInterceptor != nil {
 		if err := us.UserInterceptor.PreRemove(u); err != nil {
 			return httperror.InternalServerError(fmt.Errorf("error while executing user interceptor 'PreRemove' error %v", err))

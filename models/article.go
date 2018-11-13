@@ -91,8 +91,8 @@ type ArticleService struct {
 	AppConfig  settings.Application
 }
 
-// CreateArticle creates an article
-func (as ArticleService) CreateArticle(a *Article) (int, error) {
+// Create creates an article
+func (as ArticleService) Create(a *Article) (int, error) {
 	curTime := time.Now()
 
 	for i := 0; i < 10; i++ {
@@ -122,8 +122,8 @@ func (as ArticleService) CreateArticle(a *Article) (int, error) {
 	return artID, nil
 }
 
-//UpdateArticle updates an article
-func (as ArticleService) UpdateArticle(a *Article, u *User) error {
+//Update updates an article
+func (as ArticleService) Update(a *Article, u *User) error {
 	if err := a.validate(); err != nil {
 		return err
 	}
@@ -142,8 +142,8 @@ func (as ArticleService) UpdateArticle(a *Article, u *User) error {
 	return as.Datasource.Update(a)
 }
 
-//PublishArticle publishes or 'unpublishes' an article
-func (as ArticleService) PublishArticle(id int, u *User) error {
+//Publish publishes or 'unpublishes' an article
+func (as ArticleService) Publish(id int, u *User) error {
 	a, err := as.Datasource.Get(id, nil, All)
 
 	if err != nil {
@@ -159,8 +159,8 @@ func (as ArticleService) PublishArticle(id int, u *User) error {
 	return as.Datasource.Publish(a)
 }
 
-//DeleteArticle deletes an article
-func (as ArticleService) DeleteArticle(id int, u *User) error {
+//Delete deletes an article
+func (as ArticleService) Delete(id int, u *User) error {
 	a, err := as.Datasource.Get(id, nil, All)
 
 	if err != nil {
@@ -176,9 +176,9 @@ func (as ArticleService) DeleteArticle(id int, u *User) error {
 	return as.Datasource.Delete(a.ID)
 }
 
-// GetArticleBySlug gets a article by the slug.
+// GetBySlug gets a article by the slug.
 // The publishedCriteria defines whether the published and/or unpublished articles should be considered
-func (as ArticleService) GetArticleBySlug(s string, u *User, pc PublishedCriteria) (*Article, error) {
+func (as ArticleService) GetBySlug(s string, u *User, pc PublishedCriteria) (*Article, error) {
 	a, err := as.Datasource.GetBySlug(s, u, pc)
 
 	if err != nil {
@@ -199,9 +199,9 @@ func (as ArticleService) GetArticleBySlug(s string, u *User, pc PublishedCriteri
 	return a, nil
 }
 
-// GetArticleByID get a article by the id.
+// GetByID get a article by the id.
 // The publishedCriteria defines whether the published and/or unpublished articles should be considered
-func (as ArticleService) GetArticleByID(id int, u *User, pc PublishedCriteria) (*Article, error) {
+func (as ArticleService) GetByID(id int, u *User, pc PublishedCriteria) (*Article, error) {
 	a, err := as.Datasource.Get(id, u, pc)
 
 	if err != nil {
@@ -222,15 +222,15 @@ func (as ArticleService) GetArticleByID(id int, u *User, pc PublishedCriteria) (
 	return a, nil
 }
 
-// CountArticles returns the number of articles.
+// Count returns the number of articles.
 // The publishedCriteria defines whether the published and/or unpublished articles should be considered
-func (as ArticleService) CountArticles(u *User, c *Category, pc PublishedCriteria) (int, error) {
+func (as ArticleService) Count(u *User, c *Category, pc PublishedCriteria) (int, error) {
 	return as.Datasource.Count(u, c, pc)
 }
 
-// ListArticles returns all article by the slug.
+// List returns all article by the slug.
 // The publishedCriteria defines whether the published and/or unpublished articles should be considered
-func (as ArticleService) ListArticles(u *User, c *Category, p *Pagination, pc PublishedCriteria) ([]Article, error) {
+func (as ArticleService) List(u *User, c *Category, p *Pagination, pc PublishedCriteria) ([]Article, error) {
 	return as.Datasource.List(u, c, p, pc)
 }
 
@@ -279,7 +279,7 @@ type IndexArticle struct {
 	Articles []Article
 }
 
-func (as ArticleService) IndexArticles(u *User, c *Category, p *Pagination, pc PublishedCriteria) ([]IndexArticle, error) {
+func (as ArticleService) Index(u *User, c *Category, p *Pagination, pc PublishedCriteria) ([]IndexArticle, error) {
 	arts, err := as.Datasource.List(u, c, p, pc)
 
 	if err != nil {

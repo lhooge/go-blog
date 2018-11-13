@@ -62,7 +62,7 @@ func (c Category) SlugEscape() string {
 	return url.PathEscape(c.Slug)
 }
 
-func (cs CategoryService) GetCategoryBySlug(s string) (*Category, error) {
+func (cs CategoryService) GetBySlug(s string) (*Category, error) {
 	c, err := cs.Datasource.GetBySlug(s)
 
 	if err != nil {
@@ -75,7 +75,7 @@ func (cs CategoryService) GetCategoryBySlug(s string) (*Category, error) {
 	return c, nil
 }
 
-func (cs CategoryService) GetCategoryByID(id int) (*Category, error) {
+func (cs CategoryService) GetByID(id int) (*Category, error) {
 	c, err := cs.Datasource.Get(id)
 
 	if err != nil {
@@ -88,16 +88,16 @@ func (cs CategoryService) GetCategoryByID(id int) (*Category, error) {
 	return c, nil
 }
 
-func (cs CategoryService) CountCategories(fc FilterCriteria) (int, error) {
+func (cs CategoryService) Count(fc FilterCriteria) (int, error) {
 	return cs.Datasource.Count(fc)
 }
 
-func (cs CategoryService) ListCategories(fc FilterCriteria) ([]Category, error) {
+func (cs CategoryService) List(fc FilterCriteria) ([]Category, error) {
 	return cs.Datasource.List(fc)
 }
 
-// CreateCategory creates a category
-func (cs CategoryService) CreateCategory(c *Category) (int, error) {
+//Create creates a category
+func (cs CategoryService) Create(c *Category) (int, error) {
 	for i := 0; i < 10; i++ {
 		c.Slug = utils.CreateURLSafeSlug(c.Name, i)
 		_, err := cs.Datasource.GetBySlug(c.Slug)
@@ -122,8 +122,8 @@ func (cs CategoryService) CreateCategory(c *Category) (int, error) {
 	return cid, nil
 }
 
-//UpdateCategory updates a category
-func (cs CategoryService) UpdateCategory(c *Category) error {
+//Update updates a category
+func (cs CategoryService) Update(c *Category) error {
 	if err := c.validate(); err != nil {
 		return err
 	}
@@ -131,8 +131,8 @@ func (cs CategoryService) UpdateCategory(c *Category) error {
 	return cs.Datasource.Update(c)
 }
 
-//DeleteCategory removes a category
-func (cs CategoryService) DeleteCategory(id int) error {
+//Delete removes a category
+func (cs CategoryService) Delete(id int) error {
 	c, err := cs.Datasource.Get(id)
 
 	if err != nil {

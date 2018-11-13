@@ -21,7 +21,7 @@ func FileGetHandler(ctx *middleware.AppContext) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		rv := getVar(r, "filename")
 
-		f, err := ctx.FileService.GetFileByName(rv, nil)
+		f, err := ctx.FileService.GetByName(rv, nil)
 
 		if err != nil {
 			http.Error(w, "the file was not found", http.StatusNotFound)
@@ -61,7 +61,7 @@ func AdminListFilesHandler(ctx *middleware.AppContext, w http.ResponseWriter, r 
 
 	page := getPageParam(r)
 
-	t, err := ctx.FileService.CountFiles(u)
+	t, err := ctx.FileService.Count(u)
 
 	if err != nil {
 		return &middleware.Template{
@@ -78,7 +78,7 @@ func AdminListFilesHandler(ctx *middleware.AppContext, w http.ResponseWriter, r 
 		RelURL:      "admin/files/page",
 	}
 
-	fs, err := ctx.FileService.ListFiles(u, p)
+	fs, err := ctx.FileService.List(u, p)
 
 	if err != nil {
 		return &middleware.Template{
@@ -176,7 +176,7 @@ func AdminUploadFilePostHandler(ctx *middleware.AppContext, w http.ResponseWrite
 		file.Filename = h.Filename
 	}
 
-	_, err = ctx.FileService.UploadFile(file, data)
+	_, err = ctx.FileService.Upload(file, data)
 
 	if err != nil {
 		return &middleware.Template{
@@ -209,7 +209,7 @@ func AdminUploadDeleteHandler(ctx *middleware.AppContext, w http.ResponseWriter,
 		}
 	}
 
-	f, err := ctx.FileService.GetFileByID(id, u)
+	f, err := ctx.FileService.GetByID(id, u)
 
 	if err != nil {
 		return &middleware.Template{
@@ -251,7 +251,7 @@ func AdminUploadDeletePostHandler(ctx *middleware.AppContext, w http.ResponseWri
 		}
 	}
 
-	err = ctx.FileService.DeleteFile(id, ctx.ConfigService.File.Location, u)
+	err = ctx.FileService.Delete(id, ctx.ConfigService.File.Location, u)
 
 	warnMsg := ""
 	if err != nil {

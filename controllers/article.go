@@ -22,7 +22,7 @@ func GetArticleHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *htt
 	month := getVar(r, "month")
 	slug := getVar(r, "slug")
 
-	a, err := ctx.ArticleService.GetArticleBySlug(utils.AppendString(year, "/", month, "/", slug), nil, models.OnlyPublished)
+	a, err := ctx.ArticleService.GetBySlug(utils.AppendString(year, "/", month, "/", slug), nil, models.OnlyPublished)
 
 	if err != nil {
 		return &middleware.Template{
@@ -31,7 +31,7 @@ func GetArticleHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *htt
 		}
 	}
 
-	c, err := ctx.CategoryService.ListCategories(models.CategoriesWithPublishedArticles)
+	c, err := ctx.CategoryService.List(models.CategoriesWithPublishedArticles)
 
 	if err != nil {
 		return &middleware.Template{
@@ -61,7 +61,7 @@ func GetArticleByIDHandler(ctx *middleware.AppContext, w http.ResponseWriter, r 
 		}
 	}
 
-	a, err := ctx.ArticleService.GetArticleByID(id, nil, models.OnlyPublished)
+	a, err := ctx.ArticleService.GetByID(id, nil, models.OnlyPublished)
 
 	if err != nil {
 		return &middleware.Template{
@@ -70,7 +70,7 @@ func GetArticleByIDHandler(ctx *middleware.AppContext, w http.ResponseWriter, r 
 		}
 	}
 
-	c, err := ctx.CategoryService.ListCategories(models.CategoriesWithPublishedArticles)
+	c, err := ctx.CategoryService.List(models.CategoriesWithPublishedArticles)
 
 	if err != nil {
 		return &middleware.Template{
@@ -92,7 +92,7 @@ func GetArticleByIDHandler(ctx *middleware.AppContext, w http.ResponseWriter, r 
 func ListArticlesHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
 	page := getPageParam(r)
 
-	t, err := ctx.ArticleService.CountArticles(nil, nil, models.OnlyPublished)
+	t, err := ctx.ArticleService.Count(nil, nil, models.OnlyPublished)
 
 	p := &models.Pagination{
 		Total:       t,
@@ -109,7 +109,7 @@ func ListArticlesHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *h
 		}
 	}
 
-	a, err := ctx.ArticleService.ListArticles(nil, nil, p, models.OnlyPublished)
+	a, err := ctx.ArticleService.List(nil, nil, p, models.OnlyPublished)
 
 	if err != nil {
 		return &middleware.Template{
@@ -119,7 +119,7 @@ func ListArticlesHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *h
 		}
 	}
 
-	c, err := ctx.CategoryService.ListCategories(models.CategoriesWithPublishedArticles)
+	c, err := ctx.CategoryService.List(models.CategoriesWithPublishedArticles)
 
 	if err != nil {
 		return &middleware.Template{
@@ -146,7 +146,7 @@ func ListArticlesCategoryHandler(ctx *middleware.AppContext, w http.ResponseWrit
 
 	category := getVar(r, "categorySlug")
 
-	c, err := ctx.CategoryService.GetCategoryBySlug(category)
+	c, err := ctx.CategoryService.GetBySlug(category)
 
 	if err != nil {
 		return &middleware.Template{
@@ -156,7 +156,7 @@ func ListArticlesCategoryHandler(ctx *middleware.AppContext, w http.ResponseWrit
 		}
 	}
 
-	t, err := ctx.ArticleService.CountArticles(nil, c, models.OnlyPublished)
+	t, err := ctx.ArticleService.Count(nil, c, models.OnlyPublished)
 
 	p := &models.Pagination{
 		Total:       t,
@@ -173,7 +173,7 @@ func ListArticlesCategoryHandler(ctx *middleware.AppContext, w http.ResponseWrit
 		}
 	}
 
-	a, err := ctx.ArticleService.ListArticles(nil, c, p, models.OnlyPublished)
+	a, err := ctx.ArticleService.List(nil, c, p, models.OnlyPublished)
 
 	if err != nil {
 		return &middleware.Template{
@@ -183,7 +183,7 @@ func ListArticlesCategoryHandler(ctx *middleware.AppContext, w http.ResponseWrit
 		}
 	}
 
-	cs, err := ctx.CategoryService.ListCategories(models.CategoriesWithPublishedArticles)
+	cs, err := ctx.CategoryService.List(models.CategoriesWithPublishedArticles)
 
 	if err != nil {
 		return &middleware.Template{
@@ -206,7 +206,7 @@ func ListArticlesCategoryHandler(ctx *middleware.AppContext, w http.ResponseWrit
 
 //IndexArticlesHandler returns the template information for the index page
 func IndexArticlesHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
-	a, err := ctx.ArticleService.IndexArticles(nil, nil, nil, models.OnlyPublished)
+	a, err := ctx.ArticleService.Index(nil, nil, nil, models.OnlyPublished)
 
 	if err != nil {
 		return &middleware.Template{
@@ -248,7 +248,7 @@ func RSSFeed(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request)
 func AdminListArticlesHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
 	u, _ := middleware.User(r)
 
-	t, err := ctx.ArticleService.CountArticles(u, nil, models.All)
+	t, err := ctx.ArticleService.Count(u, nil, models.All)
 
 	if err != nil {
 		return &middleware.Template{
@@ -265,7 +265,7 @@ func AdminListArticlesHandler(ctx *middleware.AppContext, w http.ResponseWriter,
 		RelURL:      "admin/articles/page",
 	}
 
-	a, err := ctx.ArticleService.ListArticles(u, nil, p, models.All)
+	a, err := ctx.ArticleService.List(u, nil, p, models.All)
 
 	if err != nil {
 		return &middleware.Template{
@@ -285,7 +285,7 @@ func AdminListArticlesHandler(ctx *middleware.AppContext, w http.ResponseWriter,
 
 // AdminArticleNewHandler returns the template which shows the form to create a new article
 func AdminArticleNewHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
-	c, err := ctx.CategoryService.ListCategories(models.AllCategories)
+	c, err := ctx.CategoryService.List(models.AllCategories)
 
 	if err != nil {
 		return &middleware.Template{
@@ -306,12 +306,14 @@ func AdminArticleNewHandler(ctx *middleware.AppContext, w http.ResponseWriter, r
 // AdminArticleNewPostHandler handles the creation of a new article
 func AdminArticleNewPostHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
 	u, _ := middleware.User(r)
+
 	a := &models.Article{
 		Headline: r.FormValue("headline"),
 		Teaser:   r.FormValue("teaser"),
 		Content:  r.FormValue("content"),
 		Author:   u,
 	}
+
 	cid, err := parseInt(r.FormValue("categoryID"))
 
 	if err != nil {
@@ -324,7 +326,7 @@ func AdminArticleNewPostHandler(ctx *middleware.AppContext, w http.ResponseWrite
 		return previewArticle(a)
 	}
 
-	id, err := ctx.ArticleService.CreateArticle(a)
+	id, err := ctx.ArticleService.Create(a)
 
 	if err != nil {
 		return &middleware.Template{
@@ -360,7 +362,7 @@ func AdminArticleEditHandler(ctx *middleware.AppContext, w http.ResponseWriter, 
 		}
 	}
 
-	a, err := ctx.ArticleService.GetArticleByID(id, u, models.All)
+	a, err := ctx.ArticleService.GetByID(id, u, models.All)
 
 	if err != nil {
 		return &middleware.Template{
@@ -406,7 +408,7 @@ func AdminArticleEditPostHandler(ctx *middleware.AppContext, w http.ResponseWrit
 		return previewArticle(a)
 	}
 
-	if err = ctx.ArticleService.UpdateArticle(a, u); err != nil {
+	if err = ctx.ArticleService.Update(a, u); err != nil {
 		return &middleware.Template{
 			Name:   tplAdminArticleEdit,
 			Err:    err,
@@ -440,7 +442,7 @@ func AdminArticlePublishHandler(ctx *middleware.AppContext, w http.ResponseWrite
 		}
 	}
 
-	a, err := ctx.ArticleService.GetArticleByID(id, u, models.All)
+	a, err := ctx.ArticleService.GetByID(id, u, models.All)
 
 	var action models.Action
 
@@ -486,7 +488,7 @@ func AdminArticlePublishPostHandler(ctx *middleware.AppContext, w http.ResponseW
 		}
 	}
 
-	if err := ctx.ArticleService.PublishArticle(id, u); err != nil {
+	if err := ctx.ArticleService.Publish(id, u); err != nil {
 		return &middleware.Template{
 			RedirectPath: "admin/articles",
 			Err:          err,
@@ -516,7 +518,7 @@ func AdminArticleDeleteHandler(ctx *middleware.AppContext, w http.ResponseWriter
 		}
 	}
 
-	a, err := ctx.ArticleService.GetArticleByID(id, u, models.All)
+	a, err := ctx.ArticleService.GetByID(id, u, models.All)
 
 	if err != nil {
 		return &middleware.Template{
@@ -558,7 +560,7 @@ func AdminArticleDeletePostHandler(ctx *middleware.AppContext, w http.ResponseWr
 		}
 	}
 
-	err = ctx.ArticleService.DeleteArticle(id, u)
+	err = ctx.ArticleService.Delete(id, u)
 	if err != nil {
 		return &middleware.Template{
 			RedirectPath: "admin/articles",

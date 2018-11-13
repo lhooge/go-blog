@@ -14,7 +14,7 @@ import (
 )
 
 func AdminListCategoriesHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
-	c, err := ctx.CategoryService.ListCategories(models.AllCategories)
+	c, err := ctx.CategoryService.List(models.AllCategories)
 
 	if err != nil {
 		return &middleware.Template{
@@ -48,7 +48,7 @@ func AdminCategoryNewPostHandler(ctx *middleware.AppContext, w http.ResponseWrit
 		Author: u,
 	}
 
-	id, err := ctx.CategoryService.CreateCategory(c)
+	id, err := ctx.CategoryService.Create(c)
 
 	if err != nil {
 		return &middleware.Template{
@@ -82,7 +82,7 @@ func AdminCategoryEditHandler(ctx *middleware.AppContext, w http.ResponseWriter,
 		}
 	}
 
-	c, err := ctx.CategoryService.GetCategoryByID(id)
+	c, err := ctx.CategoryService.GetByID(id)
 
 	if err != nil {
 		return &middleware.Template{
@@ -122,7 +122,7 @@ func AdminCategoryEditPostHandler(ctx *middleware.AppContext, w http.ResponseWri
 		Author: u,
 	}
 
-	if err = ctx.CategoryService.UpdateCategory(c); err != nil {
+	if err = ctx.CategoryService.Update(c); err != nil {
 		return &middleware.Template{
 			Name:   tplAdminCategoryEdit,
 			Err:    err,
@@ -154,7 +154,7 @@ func AdminCategoryDeleteHandler(ctx *middleware.AppContext, w http.ResponseWrite
 		}
 	}
 
-	c, err := ctx.CategoryService.GetCategoryByID(id)
+	c, err := ctx.CategoryService.GetByID(id)
 
 	if err != nil {
 		return &middleware.Template{
@@ -194,7 +194,7 @@ func AdminCategoryDeletePostHandler(ctx *middleware.AppContext, w http.ResponseW
 		}
 	}
 
-	err = ctx.CategoryService.DeleteCategory(id)
+	err = ctx.CategoryService.Delete(id)
 
 	if err != nil {
 		return &middleware.Template{

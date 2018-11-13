@@ -17,7 +17,7 @@ import (
 func AdminUsersHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
 	page := getPageParam(r)
 
-	total, err := ctx.UserService.CountUsers(models.All)
+	total, err := ctx.UserService.Count(models.All)
 	if err != nil {
 		return &middleware.Template{
 			Name:   tplAdminUsers,
@@ -33,7 +33,7 @@ func AdminUsersHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *htt
 		RelURL:      "admin/users/page",
 	}
 
-	users, err := ctx.UserService.ListUsers(p)
+	users, err := ctx.UserService.List(p)
 
 	if err != nil {
 		return &middleware.Template{
@@ -46,7 +46,7 @@ func AdminUsersHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *htt
 	var userInvites []models.UserInvite
 
 	if cu, _ := middleware.User(r); cu.IsAdmin {
-		userInvites, err = ctx.UserInviteService.ListUserInvites()
+		userInvites, err = ctx.UserInviteService.List()
 
 		if err != nil {
 			return &middleware.Template{
@@ -91,7 +91,7 @@ func AdminUserNewPostHandler(ctx *middleware.AppContext, w http.ResponseWriter, 
 		IsAdmin:       convertCheckbox(r, "admin"),
 	}
 
-	userID, err := ctx.UserService.CreateUser(u)
+	userID, err := ctx.UserService.Create(u)
 	if err != nil {
 		return &middleware.Template{
 			Name:   tplAdminUserNew,
@@ -124,7 +124,7 @@ func AdminUserEditHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *
 		}
 	}
 
-	u, err := ctx.UserService.GetUserByID(userID)
+	u, err := ctx.UserService.GetByID(userID)
 
 	if err != nil {
 		return &middleware.Template{
@@ -170,7 +170,7 @@ func AdminUserEditPostHandler(ctx *middleware.AppContext, w http.ResponseWriter,
 		changePassword = true
 	}
 
-	if err := ctx.UserService.UpdateUser(u, changePassword); err != nil {
+	if err := ctx.UserService.Update(u, changePassword); err != nil {
 		return &middleware.Template{
 			Name:   tplAdminUserEdit,
 			Err:    err,
@@ -192,7 +192,7 @@ func AdminUserEditPostHandler(ctx *middleware.AppContext, w http.ResponseWriter,
 func AdminUserDeleteHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
 	userID, err := parseInt(getVar(r, "userID"))
 
-	user, err := ctx.UserService.GetUserByID(userID)
+	user, err := ctx.UserService.GetByID(userID)
 
 	if err != nil {
 		return &middleware.Template{
@@ -244,7 +244,7 @@ func AdminUserDeletePostHandler(ctx *middleware.AppContext, w http.ResponseWrite
 		}
 	}
 
-	user, err := ctx.UserService.GetUserByID(userID)
+	user, err := ctx.UserService.GetByID(userID)
 
 	if err != nil {
 		return &middleware.Template{
@@ -254,7 +254,7 @@ func AdminUserDeletePostHandler(ctx *middleware.AppContext, w http.ResponseWrite
 		}
 	}
 
-	if err := ctx.UserService.RemoveUser(user); err != nil {
+	if err := ctx.UserService.Remove(user); err != nil {
 		return &middleware.Template{
 			Name:   tplAdminUsers,
 			Active: "users",

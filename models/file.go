@@ -60,32 +60,32 @@ type FileService struct {
 	Datasource FileDatasourceService
 }
 
-//GetFileByID returns the file based on the fileID; it the user is given and it is a non admin
+//GetByID returns the file based on the fileID; it the user is given and it is a non admin
 //only file specific to this user is returned
-func (fs FileService) GetFileByID(fileID int, u *User) (*File, error) {
+func (fs FileService) GetByID(fileID int, u *User) (*File, error) {
 	return fs.Datasource.Get(fileID, u)
 }
 
-//GetFileByName returns the file based on the filename; it the user is given and it is a non admin
+//GetByName returns the file based on the filename; it the user is given and it is a non admin
 //only file specific to this user is returned
-func (fs FileService) GetFileByName(filename string, u *User) (*File, error) {
+func (fs FileService) GetByName(filename string, u *User) (*File, error) {
 	return fs.Datasource.GetByFilename(filename, u)
 }
 
-//ListFiles returns a list of files based on the filename; it the user is given and it is a non admin
+//List returns a list of files based on the filename; it the user is given and it is a non admin
 //only files specific to this user are returned
-func (fs FileService) ListFiles(u *User, p *Pagination) ([]File, error) {
+func (fs FileService) List(u *User, p *Pagination) ([]File, error) {
 	return fs.Datasource.List(u, p)
 }
 
-//CountFiles returns a number of files based on the filename; it the user is given and it is a non admin
+//Count returns a number of files based on the filename; it the user is given and it is a non admin
 //only files specific to this user are counted
-func (fs FileService) CountFiles(u *User) (int, error) {
+func (fs FileService) Count(u *User) (int, error) {
 	return fs.Datasource.Count(u)
 }
 
-//DeleteFile deletes a file based on fileID; users which are not the owner are not allowed to remove files; except admins
-func (fs FileService) DeleteFile(fileID int, location string, u *User) error {
+//Delete deletes a file based on fileID; users which are not the owner are not allowed to remove files; except admins
+func (fs FileService) Delete(fileID int, location string, u *User) error {
 	file, err := fs.Datasource.Get(fileID, u)
 
 	if err != nil {
@@ -107,8 +107,8 @@ func (fs FileService) DeleteFile(fileID int, location string, u *User) error {
 	return os.Remove(filepath.Join(location, file.Filename))
 }
 
-//UploadFile uploaded files will be saved at the configured file location, filename is saved in the database
-func (fs FileService) UploadFile(f *File, data []byte) (int, error) {
+//Upload uploaded files will be saved at the configured file location, filename is saved in the database
+func (fs FileService) Upload(f *File, data []byte) (int, error) {
 	if err := f.validate(); err != nil {
 		return -1, err
 	}
