@@ -14,7 +14,6 @@ import (
 	"git.hoogi.eu/go-blog/components/database"
 	"git.hoogi.eu/go-blog/components/logger"
 	"git.hoogi.eu/go-blog/models"
-	"git.hoogi.eu/go-blog/settings"
 	"git.hoogi.eu/go-blog/utils"
 )
 
@@ -24,6 +23,7 @@ type createUserFlag struct {
 	email       string
 	displayName string
 	admin       bool
+	sqlite      string
 }
 
 var (
@@ -41,7 +41,7 @@ func main() {
 	email := flag.String("email", "", "Email for the created user ")
 	displayName := flag.String("displayname", "", "Display name for the admin user ")
 	isAdmin := flag.Bool("admin", false, "If set a new administrator will be created; otherwise a non-admin is created")
-	config := flag.String("config", "", "Config location to the configuration file. This will get the mysql connection parameters from the config")
+	file := flag.String("sqlite", "", "Location to the sqlite3 database file")
 
 	flag.Parse()
 
@@ -52,9 +52,10 @@ func main() {
 			email:       *email,
 			displayName: *displayName,
 			admin:       *isAdmin,
+			sqlite:      *file,
 		}
 
-		err := initUser.CreateUser(*config)
+		err := initUser.CreateUser()
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
@@ -62,7 +63,7 @@ func main() {
 		fmt.Printf("The user '%s' was successfully created\n", *username)
 	}
 }
-func (userFlags createUserFlag) CreateUser(config string) error {
+func (userFlags createUserFlag) CreateUser() error {
 	if utils.TrimmedStringIsEmpty(userFlags.username) {
 		return fmt.Errorf("the username (-username) must be specified")
 	}
@@ -75,20 +76,14 @@ func (userFlags createUserFlag) CreateUser(config string) error {
 	if utils.TrimmedStringIsEmpty(userFlags.displayName) {
 		return fmt.Errorf("the display name (-displayname) must be specified")
 	}
-	if len(config) == 0 {
-		return fmt.Errorf("please specify the location of the configuration file")
-	}
-
-	c, err := settings.LoadConfig(config)
-
-	if err != nil {
-		return err
+	if utils.TrimmedStringIsEmpty(userFlags.sqlite) {
+		return fmt.Errorf("please specify the location of the sqlite3 database file")
 	}
 
 	var userService models.UserService
 
 	dbConfig := database.SQLiteConfig{
-		File: c.Database.File,
+		File: userFlags.sqlite,
 	}
 
 	db, err := dbConfig.Open()
