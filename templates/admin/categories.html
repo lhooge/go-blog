@@ -1,0 +1,38 @@
+{{define "admin/categories"}}
+
+{{template "admin/head" .}}
+{{template "admin/navigation" .}}
+
+<main>
+	{{template "skel/flash" .}}
+
+	<h2>Category management</h2>
+
+	<p><a href="/admin/category/new">Add a category</a></p>
+
+	<table>
+		<thead>
+			<tr>
+				<th>Name</th>
+				<th>Last User</th>
+				<th>Last modified</th>
+				<th>Actions</th>
+			</tr>
+		</thead>
+		<tbody>
+		{{range .categories}}
+			<tr>
+				<td>{{.Name}}</td>
+				<td>{{.Author.Username}}</td>
+				<td>{{.LastModified | FormatDateTime}}</td>
+				<td class="action-data">
+					<a href="/admin/category/edit/{{.ID}}" title="Edit">Edit</a>
+					<a href="/admin/category/delete/{{.ID}}" title="Remove">Delete</a>
+				</td>
+			</tr>
+		{{end}}
+		</tbody>
+	</table>
+</main>
+{{template "front/footer"}}
+{{end}}

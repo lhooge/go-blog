@@ -9,6 +9,14 @@
     <h2>Write an article</h2>
 
     <form action="/admin/article/new" method="post">
+		<label for="category">Category</label>
+		<select name="category">
+			<option></option>
+			{{range .categories}} 
+			<option value="{{.ID}}">{{.Name}}</option>
+			{{end}}
+		</select>
+	
 		<label for="headline">Headline</label>
 		<input type="text" id="headline" name="headline" placeholder="Headline..." {{if .article.Headline}}value="{{.article.Headline}}"{{end}} required>
 

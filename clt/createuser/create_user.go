@@ -63,6 +63,7 @@ func main() {
 		fmt.Printf("The user '%s' was successfully created\n", *username)
 	}
 }
+
 func (userFlags createUserFlag) CreateUser() error {
 	if utils.TrimmedStringIsEmpty(userFlags.username) {
 		return fmt.Errorf("the username (-username) must be specified")

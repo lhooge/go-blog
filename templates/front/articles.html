@@ -40,12 +40,11 @@
 
 	<aside>
 		<ul>
+			{{range .categories}}
 			<li>
-				<a href="#" href="/">Sonstiges</a>
+				<a href="#" href="/">{{.Name}}</a>
 			</li>
-			<li>
-				<a href="#" class="active" href="/">Golang</a>
-			</li>
+			{{end}}
 		</ul>
 	</aside>
 	{{template "front/footer"}}

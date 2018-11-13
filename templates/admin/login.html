@@ -1,32 +1,32 @@
 {{define "admin/login"}}
 
 {{template "admin/head" .}}
-<body>
-	<main>
-		<form action="/admin" method="POST">
-			{{template "skel/flash" .}}
-			
-			<h2>Login</h2>
-
-			<label for="username">Username</label>
-			<input type="text" required="required" name="username" id="username" value="{{.user.Username}}" placeholder="Username...">
-
-			<label for="password">Password</label>
-			<input type="password" required="required" autocomplete="off" name="password" id="password" placeholder="Password...">
-
-			{{if .state}}
-				<input type="hidden" required="required" name="state" value="{{.state}}">
-			{{end}}
-
-			{{ .csrfField }}
-
-			<div class="button-group">
-				<input type="submit" value="Login">
-			</div>
-		</form>
-
-		<a style="float:right; margin: 5px" href="/admin/forgot-password" title="forgottenPassword">Forgot password?</a>
-	</main>
+		<main>
+			<form action="/admin" method="POST">
+				{{template "skel/flash" .}}
+				
+				<h2>Login</h2>
+	
+				<label for="username">Username</label>
+				<input type="text" required="required" name="username" id="username" value="{{.user.Username}}" placeholder="Username...">
+	
+				<label for="password">Password</label>
+				<input type="password" required="required" autocomplete="off" name="password" id="password" placeholder="Password...">
+	
+				{{if .state}}
+					<input type="hidden" required="required" name="state" value="{{.state}}">
+				{{end}}
+	
+				{{ .csrfField }}
+	
+				<div class="button-group">
+					<input type="submit" value="Login">
+				</div>
+			</form>
+	
+			<a style="float:right; margin: 5px" href="/admin/forgot-password" title="forgottenPassword">Forgot password?</a>
+		</main>
+	</div>
 </body>
 </html>
 {{end}}

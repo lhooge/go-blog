@@ -180,6 +180,12 @@ func context(db *sql.DB, cfg *settings.Settings) (*m.AppContext, error) {
 		},
 	}
 
+	categoryService := models.CategoryService{
+		Datasource: models.SQLiteCategoryDatasource{
+			SQLConn: db,
+		},
+	}
+
 	tokenService := models.TokenService{
 		Datasource: models.SQLiteTokenDatasource{
 			SQLConn: db,
@@ -228,6 +234,7 @@ func context(db *sql.DB, cfg *settings.Settings) (*m.AppContext, error) {
 		UserService:       userService,
 		UserInviteService: userInviteService,
 		ArticleService:    articleService,
+		CategoryService:   categoryService,
 		SiteService:       siteService,
 		FileService:       fileService,
 		TokenService:      tokenService,

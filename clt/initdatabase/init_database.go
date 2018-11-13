@@ -126,12 +126,12 @@ func (dbFlags initDatabaseFlags) initSQLite() error {
 		"published_on datetime, " +
 		"last_modified datetime NOT NULL, " +
 		"user_id INT NOT NULL, " +
-		"category_id INT NOT NULL, " +
+		"category_id INT, " +
 		"CONSTRAINT blog_slug_key UNIQUE (slug), " +
 		"CONSTRAINT `fk_article_user` " +
 		"FOREIGN KEY (user_id) REFERENCES user(id) " +
 		"ON DELETE CASCADE, " +
-		"FOREIGN KEY(category_id) REFERENCES catgory(id)" +
+		"FOREIGN KEY (category_id) REFERENCES category(id)" +
 		");"); err != nil {
 		return err
 	}
@@ -174,6 +174,9 @@ func (dbFlags initDatabaseFlags) initSQLite() error {
 		"(" +
 		"id INTEGER PRIMARY KEY, " +
 		"name VARCHAR(191) NOT NULL, " +
+		"slug VARCHAR(191) NOT NULL, " +
+		"last_modified datetime NOT NULL, " +
+		"user_id INT NOT NULL, " +
 		"CONSTRAINT category_name_key UNIQUE (name) " +
 		");"); err != nil {
 		return err

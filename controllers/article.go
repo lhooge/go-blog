@@ -30,10 +30,21 @@ func GetArticleHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *htt
 		}
 	}
 
+	c, err := ctx.CategoryService.ListCategories(models.CategoriesWithArticles)
+
+	if err != nil {
+		return &middleware.Template{
+			Name:   tplArticles,
+			Active: "articles",
+			Err:    err,
+		}
+	}
+
 	return &middleware.Template{
 		Name: tplArticle,
 		Data: map[string]interface{}{
-			"article": a,
+			"article":    a,
+			"categories": c,
 		}}
 }
 
@@ -58,10 +69,21 @@ func GetArticleByIDHandler(ctx *middleware.AppContext, w http.ResponseWriter, r 
 		}
 	}
 
+	c, err := ctx.CategoryService.ListCategories(models.CategoriesWithArticles)
+
+	if err != nil {
+		return &middleware.Template{
+			Name:   tplArticles,
+			Active: "articles",
+			Err:    err,
+		}
+	}
+
 	return &middleware.Template{
 		Name: tplArticle,
 		Data: map[string]interface{}{
-			"article": a,
+			"article":    a,
+			"categories": c,
 		}}
 }
 
@@ -96,11 +118,22 @@ func ListArticlesHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *h
 		}
 	}
 
+	c, err := ctx.CategoryService.ListCategories(models.CategoriesWithArticles)
+
+	if err != nil {
+		return &middleware.Template{
+			Name:   tplArticles,
+			Active: "articles",
+			Err:    err,
+		}
+	}
+
 	return &middleware.Template{
 		Name:   tplArticles,
 		Active: "articles",
 		Data: map[string]interface{}{
 			"articles":   a,
+			"categories": c,
 			"pagination": p,
 		},
 	}
@@ -187,9 +220,21 @@ func AdminListArticlesHandler(ctx *middleware.AppContext, w http.ResponseWriter,
 
 // AdminArticleNewHandler returns the template which shows the form to create a new article
 func AdminArticleNewHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
+	c, err := ctx.CategoryService.ListCategories(models.AllCategories)
+
+	if err != nil {
+		return &middleware.Template{
+			Name: tplAdminCategories,
+			Err:  err,
+		}
+	}
+
 	return &middleware.Template{
 		Active: "articles",
 		Name:   tplAdminArticleNew,
+		Data: map[string]interface{}{
+			"categories": c,
+		},
 	}
 }
 
@@ -197,11 +242,26 @@ func AdminArticleNewHandler(ctx *middleware.AppContext, w http.ResponseWriter, r
 func AdminArticleNewPostHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
 	u, _ := middleware.User(r)
 
+	cid, err := parseInt(r.FormValue("category"))
+
+	if err != nil {
+		return &middleware.Template{
+			Name:   tplAdminArticleNew,
+			Active: "articles",
+			Err:    err,
+		}
+	}
+
+	c := &models.Category{
+		ID: cid,
+	}
+
 	a := &models.Article{
 		Headline: r.FormValue("headline"),
 		Teaser:   r.FormValue("teaser"),
 		Content:  r.FormValue("content"),
 		Author:   u,
+		Category: c,
 	}
 
 	if r.FormValue("action") == "preview" {

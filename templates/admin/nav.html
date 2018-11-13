@@ -1,8 +1,12 @@
 {{define "admin/navigation"}}
 <nav>
 	<ul>
-		<li >
+		<li>
 			<a{{if .active}}{{if eq .active "articles"}} class="active" {{end}}{{end}} href="/admin/articles">Articles</a>
+		</li>
+		
+		<li>
+			<a{{if .active}}{{if eq .active "categories"}} class="active" {{end}}{{end}} href="/admin/categories">Categories</a>
 		</li>
 
 	{{if .currentUser.IsAdmin}}

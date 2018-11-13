@@ -115,6 +115,15 @@ func restrictedRoutes(ctx *m.AppContext, router *mux.Router, chain alice.Chain) 
 	router.Handle("/site/delete/{siteID}", chain.Append(ctx.RequireAdmin).Then(useTemplateHandler(ctx, c.AdminSiteDeletePostHandler))).Methods("POST")
 	router.Handle("/site/order/{siteID}", chain.Append(ctx.RequireAdmin).Then(useTemplateHandler(ctx, c.AdminSiteOrderHandler))).Methods("POST")
 
+	//article
+	router.Handle("/categories", chain.Then(useTemplateHandler(ctx, c.AdminListCategoriesHandler))).Methods("GET")
+	router.Handle("/category/new", chain.Then(useTemplateHandler(ctx, c.AdminCategoryNewHandler))).Methods("GET")
+	router.Handle("/category/new", chain.Then(useTemplateHandler(ctx, c.AdminCategoryNewPostHandler))).Methods("POST")
+	router.Handle("/category/edit/{categoryID}", chain.Then(useTemplateHandler(ctx, c.AdminCategoryEditHandler))).Methods("GET")
+	router.Handle("/category/edit/{categoryID}", chain.Then(useTemplateHandler(ctx, c.AdminCategoryEditPostHandler))).Methods("POST")
+	router.Handle("/category/delete/{categoryID}", chain.Then(useTemplateHandler(ctx, c.AdminCategoryDeleteHandler))).Methods("GET")
+	router.Handle("/category/delete/{categoryID}", chain.Then(useTemplateHandler(ctx, c.AdminCategoryDeletePostHandler))).Methods("POST")
+
 	//file
 	router.Handle("/files", chain.Then(useTemplateHandler(ctx, c.AdminListFilesHandler))).Methods("GET")
 	router.Handle("/files/page/{page}", chain.Then(useTemplateHandler(ctx, c.AdminListFilesHandler))).Methods("GET")

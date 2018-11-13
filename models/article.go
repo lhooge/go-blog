@@ -28,6 +28,7 @@ type Article struct {
 	Content      string
 	Slug         string
 	LastModified time.Time
+	Category     *Category
 	Author       *User
 }
 
@@ -89,6 +90,7 @@ type ArticleService struct {
 // CreateArticle creates an article
 func (as ArticleService) CreateArticle(a *Article) (int, error) {
 	curTime := time.Now()
+
 	for i := 0; i < 10; i++ {
 		a.Slug = a.buildSafeSlug(curTime, i)
 		_, err := as.Datasource.GetBySlug(a.Slug, nil, All)

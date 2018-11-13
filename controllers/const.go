@@ -11,6 +11,10 @@ const (
 	tplAdminArticleNew  = "admin/article_add"
 	tplAdminArticleEdit = "admin/article_edit"
 
+	tplAdminCategories   = "admin/categories"
+	tplAdminCategoryNew  = "admin/category_add"
+	tplAdminCategoryEdit = "admin/category_edit"
+
 	tplAdminForgotPassword  = "admin/forgot_password"
 	tplAdminResetPassword   = "admin/reset_password"
 	tplAdminActivateAccount = "admin/activate_account"

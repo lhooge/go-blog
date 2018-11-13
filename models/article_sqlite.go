@@ -13,8 +13,8 @@ type SQLiteArticleDatasource struct {
 
 // Create creates an article
 func (rdb SQLiteArticleDatasource) Create(a *Article) (int, error) {
-	res, err := rdb.SQLConn.Exec("INSERT INTO article (headline, teaser, content, slug, published_on, published, last_modified, user_id) "+
-		"VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+	res, err := rdb.SQLConn.Exec("INSERT INTO article (headline, teaser, content, slug, published_on, published, last_modified, category_id, user_id) "+
+		"VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
 		a.Headline,
 		a.Teaser,
 		a.Content,
@@ -22,6 +22,7 @@ func (rdb SQLiteArticleDatasource) Create(a *Article) (int, error) {
 		nil,
 		false,
 		time.Now(),
+		a.Category.ID,
 		a.Author.ID)
 
 	if err != nil {

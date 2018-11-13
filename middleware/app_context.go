@@ -16,6 +16,7 @@ import (
 type AppContext struct {
 	SessionService    *session.SessionService
 	ArticleService    models.ArticleService
+	CategoryService   models.CategoryService
 	UserService       models.UserService
 	UserInviteService models.UserInviteService
 	SiteService       models.SiteService
