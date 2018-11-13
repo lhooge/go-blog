@@ -87,7 +87,6 @@ func (dbFlags initDatabaseFlags) initSQLite() error {
 		"display_name VARCHAR(191) NOT NULL, " +
 		"password CHAR(60) NOT NULL, " +
 		"salt CHAR(32) NOT NULL, " +
-		"is_admin boolean NOT NULL DEFAULT false, " +
 		"active boolean NOT NULL DEFAULT true, " +
 		"last_modified datetime NOT NULL," +
 		"CONSTRAINT user_email_key UNIQUE (username), " +

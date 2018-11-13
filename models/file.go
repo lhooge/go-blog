@@ -1,7 +1,6 @@
 package models
 
 import (
-	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -90,12 +89,6 @@ func (fs FileService) Delete(fileID int, location string, u *User) error {
 
 	if err != nil {
 		return err
-	}
-
-	if !u.IsAdmin {
-		if file.Author.ID != u.ID {
-			return httperror.PermissionDenied("delete", "file", fmt.Errorf("could not remove file %d user %d has no permission", fileID, u.ID))
-		}
 	}
 
 	err = fs.Datasource.Delete(fileID)

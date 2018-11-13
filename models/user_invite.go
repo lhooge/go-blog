@@ -25,7 +25,6 @@ func (ui UserInvite) Copy() *User {
 		Username:    ui.Username,
 		Email:       ui.Email,
 		DisplayName: ui.DisplayName,
-		IsAdmin:     ui.IsAdmin,
 	}
 }
 

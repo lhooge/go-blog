@@ -163,20 +163,10 @@ func (ctx AppContext) AuthHandler(handler http.Handler) http.Handler {
 //RequireAdmin ensures that the user is an admin; if not next handler in chain is not called
 func (ctx AppContext) RequireAdmin(handler http.Handler) http.Handler {
 	fn := func(rw http.ResponseWriter, r *http.Request) {
-		u, err := User(r)
-
-		if err != nil {
+		if _, err := User(r); err != nil {
 			logger.Log.Error(err)
 			ctx.Templates.ExecuteTemplate(rw, "admin/error", map[string]interface{}{
 				"ErrorMsg": "An internal server error occured",
-			})
-			return
-		}
-
-		if u.IsAdmin == false {
-			ctx.Templates.ExecuteTemplate(rw, "admin/error", map[string]interface{}{
-				"ErrorMsg":    "You have not the permissions to execute this action",
-				"currentUser": u,
 			})
 			return
 		}

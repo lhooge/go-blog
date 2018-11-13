@@ -24,7 +24,7 @@ type UserDatasourceService interface {
 	List(p *Pagination) ([]User, error)
 	Get(userID int) (*User, error)
 	Update(u *User, changePassword bool) error
-	Count(ac AdminCriteria) (int, error)
+	Count() (int, error)
 	GetByMail(mail string) (*User, error)
 	GetByUsername(username string) (*User, error)
 	Remove(userID int) error
@@ -41,7 +41,6 @@ type User struct {
 	Salt          []byte
 	LastModified  time.Time
 	Active        bool
-	IsAdmin       bool
 }
 
 const (
@@ -162,8 +161,8 @@ func (us UserService) duplicateUsername(username string) error {
 }
 
 //Count returns the amount of users
-func (us UserService) Count(a AdminCriteria) (int, error) {
-	return us.Datasource.Count(a)
+func (us UserService) Count() (int, error) {
+	return us.Datasource.Count()
 }
 
 //List returns a list of users. Limits the amount based on the defined pagination
@@ -262,14 +261,7 @@ func (us UserService) Update(u *User, changePassword bool) error {
 		return err
 	}
 
-	if !oldUser.IsAdmin {
-		if oldUser.ID != u.ID {
-			return httperror.PermissionDenied("update", "user", fmt.Errorf("permission denied user %d is not granted to update user %d", oldUser.ID, u.ID))
-		}
-	}
-
 	if us.UserInterceptor != nil {
-
 		if err := us.UserInterceptor.PreUpdate(oldUser, u); err != nil {
 			return httperror.InternalServerError(fmt.Errorf("error while executing user interceptor 'PreUpdate' error %v", err))
 		}
@@ -293,18 +285,17 @@ func (us UserService) Update(u *User, changePassword bool) error {
 		return err
 	}
 
-	oneAdmin, err := us.OneAdmin()
+	oneAdmin, err := us.OneUser()
 
 	if err != nil {
 		return err
 	}
 
 	if oneAdmin {
-		if (oldUser.IsAdmin && !u.IsAdmin) || (oldUser.IsAdmin && !u.Active) {
-			return httperror.New(http.StatusUnprocessableEntity,
-				"Could not update user, because no administrator would remain",
-				fmt.Errorf("could not update user %s action, because no administrator would remain", oldUser.Username))
-		}
+		return httperror.New(http.StatusUnprocessableEntity,
+			"Could not update user, because no user would remain",
+			fmt.Errorf("could not update user %s action, because no administrator would remain", oldUser.Username))
+
 	}
 
 	if changePassword {
@@ -375,18 +366,16 @@ func (us UserService) Remove(u *User) error {
 		}
 	}
 
-	oneAdmin, err := us.OneAdmin()
+	oneAdmin, err := us.OneUser()
 
 	if err != nil {
 		return err
 	}
 
 	if oneAdmin {
-		if u.IsAdmin {
-			return httperror.New(http.StatusUnprocessableEntity,
-				"Could not remove administrator. No Administrator would remain.",
-				fmt.Errorf("could not remove administrator %s no administrator would remain", u.Username))
-		}
+		return httperror.New(http.StatusUnprocessableEntity,
+			"Could not remove administrator. No Administrator would remain.",
+			fmt.Errorf("could not remove administrator %s no administrator would remain", u.Username))
 	}
 
 	err = us.Datasource.Remove(u.ID)
@@ -401,8 +390,8 @@ func (us UserService) Remove(u *User) error {
 }
 
 //OneAdmin returns true if there is only one admin
-func (us UserService) OneAdmin() (bool, error) {
-	c, err := us.Datasource.Count(OnlyAdmins)
+func (us UserService) OneUser() (bool, error) {
+	c, err := us.Datasource.Count()
 
 	if err != nil {
 		return true, err

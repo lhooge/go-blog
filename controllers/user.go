@@ -17,7 +17,8 @@ import (
 func AdminUsersHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
 	page := getPageParam(r)
 
-	total, err := ctx.UserService.Count(models.All)
+	total, err := ctx.UserService.Count()
+
 	if err != nil {
 		return &middleware.Template{
 			Name:   tplAdminUsers,
@@ -43,21 +44,17 @@ func AdminUsersHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *htt
 		}
 	}
 
-	var userInvites []models.UserInvite
+	userInvites, err := ctx.UserInviteService.List()
 
-	if cu, _ := middleware.User(r); cu.IsAdmin {
-		userInvites, err = ctx.UserInviteService.List()
-
-		if err != nil {
-			return &middleware.Template{
-				Name:   tplAdminUsers,
-				Err:    err,
-				Active: "users",
-				Data: map[string]interface{}{
-					"users":      users,
-					"pagination": p,
-				},
-			}
+	if err != nil {
+		return &middleware.Template{
+			Name:   tplAdminUsers,
+			Err:    err,
+			Active: "users",
+			Data: map[string]interface{}{
+				"users":      users,
+				"pagination": p,
+			},
 		}
 	}
 
@@ -88,7 +85,6 @@ func AdminUserNewPostHandler(ctx *middleware.AppContext, w http.ResponseWriter, 
 		Email:         r.FormValue("email"),
 		PlainPassword: []byte(r.FormValue("password")),
 		Active:        convertCheckbox(r, "active"),
-		IsAdmin:       convertCheckbox(r, "admin"),
 	}
 
 	userID, err := ctx.UserService.Create(u)
@@ -161,7 +157,6 @@ func AdminUserEditPostHandler(ctx *middleware.AppContext, w http.ResponseWriter,
 		Username:      r.FormValue("username"),
 		PlainPassword: []byte(r.FormValue("password")),
 		Active:        convertCheckbox(r, "active"),
-		IsAdmin:       convertCheckbox(r, "admin"),
 	}
 
 	changePassword := false
@@ -202,15 +197,23 @@ func AdminUserDeleteHandler(ctx *middleware.AppContext, w http.ResponseWriter, r
 		}
 	}
 
-	oneAdmin, err := ctx.UserService.OneAdmin()
+	oneUser, err := ctx.UserService.OneUser()
 
-	if oneAdmin && user.IsAdmin {
+	if err != nil {
+		return &middleware.Template{
+			RedirectPath: "admin/users",
+			Active:       "users",
+			Err:          err,
+		}
+	}
+
+	if oneUser {
 		return &middleware.Template{
 			RedirectPath: "admin/users",
 			Active:       "users",
 			Err: httperror.New(http.StatusUnprocessableEntity,
-				"Could not remove administrator. No Administrator would remain.",
-				fmt.Errorf("could not remove administrator %s no administrator would remain", user.Username)),
+				"Could not remove user. No user would remain.",
+				fmt.Errorf("could not remove user %s no user would remain", user.Username)),
 		}
 	}
 

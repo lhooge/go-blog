@@ -36,7 +36,6 @@ func AdminProfilePostHandler(ctx *middleware.AppContext, w http.ResponseWriter, 
 		Email:       r.FormValue("email"),
 		DisplayName: r.FormValue("displayname"),
 		Active:      true,
-		IsAdmin:     ctxUser.IsAdmin,
 	}
 
 	if _, err := ctx.UserService.Authenticate(ctxUser, ctx.ConfigService.LoginMethod, []byte(r.PostFormValue("current_password"))); err != nil {
