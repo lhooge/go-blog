@@ -91,7 +91,7 @@ func GetArticleByIDHandler(ctx *middleware.AppContext, w http.ResponseWriter, r 
 func ListArticlesHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
 	page := getPageParam(r)
 
-	t, err := ctx.ArticleService.CountArticles(nil, models.OnlyPublished)
+	t, err := ctx.ArticleService.CountArticles(nil, nil, models.OnlyPublished)
 
 	p := &models.Pagination{
 		Total:       t,
@@ -108,7 +108,7 @@ func ListArticlesHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *h
 		}
 	}
 
-	a, err := ctx.ArticleService.ListArticles(nil, p, models.OnlyPublished)
+	a, err := ctx.ArticleService.ListArticles(nil, nil, p, models.OnlyPublished)
 
 	if err != nil {
 		return &middleware.Template{
@@ -139,9 +139,73 @@ func ListArticlesHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *h
 	}
 }
 
+//ListArticlesHandler returns the template which contains all published articles
+func ListArticlesCategoryHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
+	page := getPageParam(r)
+
+	category := getVar(r, "category")
+
+	c, err := ctx.CategoryService.GetCategoryBySlug(category)
+
+	if err != nil {
+		return &middleware.Template{
+			Name:   tplArticles,
+			Active: "articles",
+			Err:    err,
+		}
+	}
+
+	t, err := ctx.ArticleService.CountArticles(nil, c, models.OnlyPublished)
+
+	p := &models.Pagination{
+		Total:       t,
+		Limit:       ctx.ConfigService.ArticlesPerPage,
+		CurrentPage: page,
+		RelURL:      "articles/page",
+	}
+
+	if err != nil {
+		return &middleware.Template{
+			Name:   tplArticles,
+			Active: "articles",
+			Err:    err,
+		}
+	}
+
+	a, err := ctx.ArticleService.ListArticles(nil, c, p, models.OnlyPublished)
+
+	if err != nil {
+		return &middleware.Template{
+			Name:   tplArticles,
+			Active: "articles",
+			Err:    err,
+		}
+	}
+
+	cs, err := ctx.CategoryService.ListCategories(models.CategoriesWithArticles)
+
+	if err != nil {
+		return &middleware.Template{
+			Name:   tplArticles,
+			Active: "articles",
+			Err:    err,
+		}
+	}
+
+	return &middleware.Template{
+		Name:   tplArticles,
+		Active: "articles",
+		Data: map[string]interface{}{
+			"articles":   a,
+			"categories": cs,
+			"pagination": p,
+		},
+	}
+}
+
 //IndexArticlesHandler returns the template information for the index page
 func IndexArticlesHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
-	a, err := ctx.ArticleService.IndexArticles(nil, nil, models.OnlyPublished)
+	a, err := ctx.ArticleService.IndexArticles(nil, nil, nil, models.OnlyPublished)
 
 	if err != nil {
 		return &middleware.Template{
@@ -183,7 +247,7 @@ func RSSFeed(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request)
 func AdminListArticlesHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
 	u, _ := middleware.User(r)
 
-	t, err := ctx.ArticleService.CountArticles(u, models.All)
+	t, err := ctx.ArticleService.CountArticles(u, nil, models.All)
 
 	if err != nil {
 		return &middleware.Template{
@@ -200,7 +264,7 @@ func AdminListArticlesHandler(ctx *middleware.AppContext, w http.ResponseWriter,
 		RelURL:      "admin/articles/page",
 	}
 
-	a, err := ctx.ArticleService.ListArticles(u, p, models.All)
+	a, err := ctx.ArticleService.ListArticles(u, nil, p, models.All)
 
 	if err != nil {
 		return &middleware.Template{

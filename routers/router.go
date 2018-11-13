@@ -141,6 +141,9 @@ func publicRoutes(ctx *m.AppContext, router *mux.Router, chain alice.Chain) {
 	router.Handle("/", chain.Then(useTemplateHandler(ctx, c.ListArticlesHandler))).Methods("GET")
 	router.Handle("/index", chain.Then(useTemplateHandler(ctx, c.IndexArticlesHandler))).Methods("GET")
 
+	router.Handle("/articles/category/{categorySlug}", chain.Then(useTemplateHandler(ctx, c.ListArticlesCategoryHandler))).Methods("GET")
+	router.Handle("/articles/category/{categorySlug}/{page}", chain.Then(useTemplateHandler(ctx, c.ListArticlesCategoryHandler))).Methods("GET")
+
 	router.Handle("/articles/page/{page}", chain.Then(useTemplateHandler(ctx, c.ListArticlesHandler))).Methods("GET")
 	router.Handle("/article/{year}/{month}/{slug}", chain.Then(useTemplateHandler(ctx, c.GetArticleHandler))).Methods("GET")
 	router.Handle("/article/by-id/{articleID}", chain.Then(useTemplateHandler(ctx, c.GetArticleByIDHandler))).Methods("GET")

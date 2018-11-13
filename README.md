@@ -53,7 +53,6 @@ TODOs
  * Revisit Makefile (v0.3)
  * Review async mails 
  * Review preview of articles and sites / error handling
- * Categories?
  * Roles?
 
 Licence

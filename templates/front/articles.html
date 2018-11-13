@@ -42,7 +42,7 @@
 		<ul>
 			{{range .categories}}
 			<li>
-				<a href="#" href="/">{{.Name}}</a>
+				<a href="/articles/category/{{.SlugEscape}}">{{.Name}}</a>
 			</li>
 			{{end}}
 		</ul>

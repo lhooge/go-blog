@@ -3,16 +3,12 @@
 {{template "front/head" .}}
 </head>
 
-<body>
-	{{template "front/title"}}
-	
+<body>	
 	{{template "front/navigation" .}}
-	
+
 	<main>
-		<section class="max--width">
-			<h2>Error</h2>
-	
-			{{template "skel/flash" .}}
-		</section>
+		<h2>Error</h2>
+
+		{{template "skel/flash" .}}
 	</main>
 {{end}}

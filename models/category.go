@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"net/url"
 	"strings"
 	"time"
 
@@ -54,6 +55,11 @@ type CategoryDatasourceService interface {
 //CategoryService containing the service to access categories
 type CategoryService struct {
 	Datasource CategoryDatasourceService
+}
+
+//SlugEscape escapes the slug for use in URLs
+func (c Category) SlugEscape() string {
+	return url.PathEscape(c.Slug)
 }
 
 func (cs CategoryService) GetCategoryBySlug(s string) (*Category, error) {
@@ -116,7 +122,7 @@ func (cs CategoryService) CreateCategory(c *Category) (int, error) {
 	return cid, nil
 }
 
-//UpdateArticle updates a category
+//UpdateCategory updates a category
 func (cs CategoryService) UpdateCategory(c *Category) error {
 	if err := c.validate(); err != nil {
 		return err

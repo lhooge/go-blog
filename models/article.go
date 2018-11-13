@@ -35,8 +35,8 @@ type Article struct {
 //ArticleDatasourceService defines an interface for CRUD operations of articles
 type ArticleDatasourceService interface {
 	Create(a *Article) (int, error)
-	List(u *User, p *Pagination, pc PublishedCriteria) ([]Article, error)
-	Count(u *User, pc PublishedCriteria) (int, error)
+	List(u *User, c *Category, p *Pagination, pc PublishedCriteria) ([]Article, error)
+	Count(u *User, c *Category, pc PublishedCriteria) (int, error)
 	Get(articleID int, u *User, pc PublishedCriteria) (*Article, error)
 	GetBySlug(slug string, u *User, pc PublishedCriteria) (*Article, error)
 	Publish(a *Article) error
@@ -220,14 +220,14 @@ func (as ArticleService) GetArticleByID(id int, u *User, pc PublishedCriteria) (
 
 // CountArticles returns the number of articles.
 // The publishedCriteria defines whether the published and/or unpublished articles should be considered
-func (as ArticleService) CountArticles(u *User, pc PublishedCriteria) (int, error) {
-	return as.Datasource.Count(u, pc)
+func (as ArticleService) CountArticles(u *User, c *Category, pc PublishedCriteria) (int, error) {
+	return as.Datasource.Count(u, c, pc)
 }
 
 // ListArticles returns all article by the slug.
 // The publishedCriteria defines whether the published and/or unpublished articles should be considered
-func (as ArticleService) ListArticles(u *User, p *Pagination, pc PublishedCriteria) ([]Article, error) {
-	return as.Datasource.List(u, p, pc)
+func (as ArticleService) ListArticles(u *User, c *Category, p *Pagination, pc PublishedCriteria) ([]Article, error) {
+	return as.Datasource.List(u, c, p, pc)
 }
 
 // RSSFeed receives a specified number of articles in RSS
@@ -239,7 +239,8 @@ func (as ArticleService) RSSFeed(p *Pagination, pc PublishedCriteria) (RSS, erro
 		Language:    as.AppConfig.Language,
 	}
 
-	articles, err := as.Datasource.List(nil, p, pc)
+	//TODO: categories in rss feeds
+	articles, err := as.Datasource.List(nil, nil, p, pc)
 
 	if err != nil {
 		return RSS{}, err
@@ -274,8 +275,8 @@ type IndexArticle struct {
 	Articles []Article
 }
 
-func (as ArticleService) IndexArticles(u *User, p *Pagination, pc PublishedCriteria) ([]IndexArticle, error) {
-	arts, err := as.Datasource.List(u, p, pc)
+func (as ArticleService) IndexArticles(u *User, c *Category, p *Pagination, pc PublishedCriteria) ([]IndexArticle, error) {
+	arts, err := as.Datasource.List(u, c, p, pc)
 
 	if err != nil {
 		return nil, err
