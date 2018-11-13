@@ -5,6 +5,7 @@
 package middleware
 
 import (
+	"database/sql"
 	"errors"
 	"fmt"
 	"html/template"
@@ -97,6 +98,12 @@ func FuncMap(ss models.SiteService, cfg *settings.Settings) template.FuncMap {
 		},
 		"BuildDate": func() string {
 			return cfg.BuildDate
+		},
+		"NilString": func(s sql.NullString) string {
+			if !s.Valid {
+				return ""
+			}
+			return s.String
 		},
 		"FormatNilDateTime": func(t models.NullTime) string {
 			if !t.Valid {

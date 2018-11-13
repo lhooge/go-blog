@@ -22,7 +22,7 @@ func (rdb SQLiteArticleDatasource) Create(a *Article) (int, error) {
 		nil,
 		false,
 		time.Now(),
-		a.Category.ID,
+		a.CID,
 		a.Author.ID)
 
 	if err != nil {
@@ -53,11 +53,10 @@ func (rdb SQLiteArticleDatasource) List(u *User, c *Category, p *Pagination, pc 
 
 	for rows.Next() {
 		var a Article
-		var c Category
 		var ru User
 
 		if err := rows.Scan(&a.ID, &a.Headline, &a.Teaser, &a.Content, &a.Published, &a.PublishedOn, &a.Slug, &a.LastModified, &ru.ID, &ru.DisplayName,
-			&ru.Email, &ru.Username, &ru.IsAdmin, &c.ID, &c.Name); err != nil {
+			&ru.Email, &ru.Username, &ru.IsAdmin, &a.CID, &a.CName); err != nil {
 			return nil, err
 		}
 

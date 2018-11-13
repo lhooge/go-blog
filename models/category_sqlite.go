@@ -3,7 +3,6 @@ package models
 import (
 	"bytes"
 	"database/sql"
-	"fmt"
 	"time"
 )
 
@@ -38,15 +37,16 @@ func (rdb SQLiteCategoryDatasource) List(fc FilterCriteria) ([]Category, error) 
 
 	var args []interface{}
 
-	stmt.WriteString("SELECT c.id, c.name, c.slug, c.last_modified, ")
+	stmt.WriteString("SELECT DISTINCT c.id, c.name, c.slug, c.last_modified, ")
 	stmt.WriteString("u.id, u.display_name, u.username, u.email, u.is_admin ")
 	stmt.WriteString("FROM category as c ")
 	stmt.WriteString("INNER JOIN user as u ")
 	stmt.WriteString("ON c.user_id = u.id ")
 
-	if fc == CategoriesWithArticles {
+	if fc == CategoriesWithPublishedArticles {
 		stmt.WriteString("INNER JOIN article as a ")
 		stmt.WriteString("ON c.id = a.category_id ")
+		stmt.WriteString("WHERE a.published = true ")
 	} else if fc == CategoriesWithoutArticles {
 		stmt.WriteString("LEFT JOIN article as a ")
 		stmt.WriteString("ON c.id = a.category_id ")
@@ -128,7 +128,6 @@ func (rdb SQLiteCategoryDatasource) GetBySlug(slug string) (*Category, error) {
 	stmt.WriteString("ON u.id = c.user_id ")
 	stmt.WriteString("WHERE c.slug=? ")
 
-	fmt.Println("yes")
 	var c Category
 	var ru User
 

@@ -5,6 +5,7 @@
 package controllers
 
 import (
+	"database/sql"
 	"fmt"
 	"net/http"
 
@@ -30,7 +31,7 @@ func GetArticleHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *htt
 		}
 	}
 
-	c, err := ctx.CategoryService.ListCategories(models.CategoriesWithArticles)
+	c, err := ctx.CategoryService.ListCategories(models.CategoriesWithPublishedArticles)
 
 	if err != nil {
 		return &middleware.Template{
@@ -69,7 +70,7 @@ func GetArticleByIDHandler(ctx *middleware.AppContext, w http.ResponseWriter, r 
 		}
 	}
 
-	c, err := ctx.CategoryService.ListCategories(models.CategoriesWithArticles)
+	c, err := ctx.CategoryService.ListCategories(models.CategoriesWithPublishedArticles)
 
 	if err != nil {
 		return &middleware.Template{
@@ -118,7 +119,7 @@ func ListArticlesHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *h
 		}
 	}
 
-	c, err := ctx.CategoryService.ListCategories(models.CategoriesWithArticles)
+	c, err := ctx.CategoryService.ListCategories(models.CategoriesWithPublishedArticles)
 
 	if err != nil {
 		return &middleware.Template{
@@ -143,7 +144,7 @@ func ListArticlesHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *h
 func ListArticlesCategoryHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
 	page := getPageParam(r)
 
-	category := getVar(r, "category")
+	category := getVar(r, "categorySlug")
 
 	c, err := ctx.CategoryService.GetCategoryBySlug(category)
 
@@ -182,7 +183,7 @@ func ListArticlesCategoryHandler(ctx *middleware.AppContext, w http.ResponseWrit
 		}
 	}
 
-	cs, err := ctx.CategoryService.ListCategories(models.CategoriesWithArticles)
+	cs, err := ctx.CategoryService.ListCategories(models.CategoriesWithPublishedArticles)
 
 	if err != nil {
 		return &middleware.Template{
@@ -305,28 +306,19 @@ func AdminArticleNewHandler(ctx *middleware.AppContext, w http.ResponseWriter, r
 // AdminArticleNewPostHandler handles the creation of a new article
 func AdminArticleNewPostHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
 	u, _ := middleware.User(r)
-
-	cid, err := parseInt(r.FormValue("category"))
-
-	if err != nil {
-		return &middleware.Template{
-			Name:   tplAdminArticleNew,
-			Active: "articles",
-			Err:    err,
-		}
-	}
-
-	c := &models.Category{
-		ID: cid,
-	}
-
 	a := &models.Article{
 		Headline: r.FormValue("headline"),
 		Teaser:   r.FormValue("teaser"),
 		Content:  r.FormValue("content"),
 		Author:   u,
-		Category: c,
 	}
+	cid, err := parseInt(r.FormValue("categoryID"))
+
+	if err != nil {
+		cid = 0
+	}
+
+	a.CID = sql.NullInt64{Int64: int64(cid), Valid: true}
 
 	if r.FormValue("action") == "preview" {
 		return previewArticle(a)

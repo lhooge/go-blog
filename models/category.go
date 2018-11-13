@@ -23,7 +23,7 @@ type Category struct {
 type FilterCriteria int
 
 const (
-	CategoriesWithArticles = iota
+	CategoriesWithPublishedArticles = iota
 	CategoriesWithoutArticles
 	AllCategories
 )
@@ -99,7 +99,7 @@ func (cs CategoryService) ListCategories(fc FilterCriteria) ([]Category, error) 
 // CreateCategory creates a category
 func (cs CategoryService) CreateCategory(c *Category) (int, error) {
 	for i := 0; i < 10; i++ {
-		c.Slug = utils.CreateURLSafeSlug(c.Slug, i)
+		c.Slug = utils.CreateURLSafeSlug(c.Name, i)
 		_, err := cs.Datasource.GetBySlug(c.Slug)
 
 		if err != nil {

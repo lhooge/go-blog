@@ -28,8 +28,12 @@ type Article struct {
 	Content      string
 	Slug         string
 	LastModified time.Time
-	Category     *Category
 	Author       *User
+
+	//duplicate category struct to support left joins with nulls
+	//TODO: find a better solution
+	CID   sql.NullInt64
+	CName sql.NullString
 }
 
 //ArticleDatasourceService defines an interface for CRUD operations of articles

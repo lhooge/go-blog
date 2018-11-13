@@ -16,6 +16,7 @@
 				<th></th>
 				<th>Published on</th>
 				<th>Title</th>
+				<th>Category</th>
 				<th>User</th>
 				<th>Last modified</th>
 				<th>Actions</th>
@@ -27,6 +28,7 @@
 				<td>{{.Published | BoolToIcon}}</td>
 				<td>{{.PublishedOn | FormatNilDate}}</td>
 				<td>{{.Headline}}</td>
+				<td>{{.CName | NilString}}</td>
 				<td>{{.Author.Username}}</td>
 				<td>{{.LastModified | FormatDateTime}}</td>
 				<td class="action-data">
@@ -38,8 +40,8 @@
 
 					<a href="/admin/article/edit/{{.ID}}" title="Edit">Edit</a>
 					<a href="/admin/article/delete/{{.ID}}" title="Remove">Delete</a>
-					
-					{{if .Published}}	
+
+					{{if .Published}}
 						<a href="/article/{{.Slug}}" target="_blank" title="Show">Show</a>
 					{{end}}
 				</td>
