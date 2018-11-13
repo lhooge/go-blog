@@ -5,7 +5,10 @@
 </head>
 
 <body>
-	{{template "front/title"}}
+	<div class="container">
+		<header>
+			<h1 class="header-text">{{PageTitle}}</h1>
+		</header>
 	
 	{{template "front/navigation" .}}
 	
@@ -23,9 +26,16 @@
 			<a href="/">&laquo; Go to articles</a>
 		{{end}}
 		</article>
-		<aside>
-		
-		</aside>
 	</main>
+	<aside>
+		<ul>
+			<li>
+				<a href="#" href="/">Sonstiges</a>
+			</li>
+			<li>
+				<a href="#" class="active" href="/">Golang</a>
+			</li>
+		</ul>
+	</aside>
 	{{template "front/footer"}}
 {{end}}

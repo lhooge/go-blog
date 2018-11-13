@@ -5,38 +5,51 @@
 </head>
 
 <body>
-	{{template "front/title"}}
+	<div class="container">
+		<header>
+			<h1 class="header-text">{{PageTitle}}</h1>
+		</header>
 	
-	{{template "front/navigation" .}}
-	<main>
-		<div id="index">
-			<h2>Index</h2>
-			{{template "skel/flash" .}}
-	
-			{{if not .ErrorMsg}}
-				{{if not .articles}}
-					<div style="margin-top: 10px" class="alert alert-info" role="info">No articles here yet.</div>
+		{{template "front/navigation" .}}
+		<main>
+			<div id="index">
+				<h2>Index</h2>
+				{{template "skel/flash" .}}
+		
+				{{if not .ErrorMsg}}
+					{{if not .articles}}
+						<div style="margin-top: 10px" class="alert alert-info" role="info">No articles here yet.</div>
+					{{end}}
 				{{end}}
-			{{end}}
-	
-			{{range .articles}}
-				<ul>
-					<li class="year">
-						<div class="year">
-							<span>{{.Year}}</span>
-						</div>
-					</li>
-	
-					<ul class="submenu">
-						{{range .Articles}}
-						<li class="submenu-item">
-							<a href="/article/{{.SlugEscape}}">{{.PublishedOn.Time | FormatDate}} Author: {{.Author.DisplayName}} | {{.Headline}}
+		
+				{{range .articles}}
+					<ul>
+						<li class="year">
+							{{.Year}}
 						</li>
-						{{end}}
+		
+						<ul class="submenu">
+							{{range .Articles}}
+							<li class="submenu-item">
+								<a href="/article/{{.SlugEscape}}">{{.PublishedOn.Time | FormatDate}} Author: {{.Author.DisplayName}} | {{.Headline}}</a>
+							</li>
+							{{end}}
+						</ul>
 					</ul>
-				</ul>
-			{{end}}
-		</div>
-	</main>
-	{{template "front/footer"}}
+				{{end}}
+			</div>
+		</main>
+		
+		<aside>
+			<ul>
+				<li>
+					<a href="#" href="/">Sonstiges</a>
+				</li>
+				<li>
+					<a href="#" class="active" href="/">Golang</a>
+				</li>
+			</ul>
+		</aside>
+		
+		{{template "front/footer"}}
 {{end}}

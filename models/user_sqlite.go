@@ -16,7 +16,7 @@ func (rdb SQLiteUserDatasource) List(p *Pagination) ([]User, error) {
 	var stmt bytes.Buffer
 	var args []interface{}
 
-	stmt.WriteString("SELECT rowid, username, email, display_name, last_modified, active, is_admin FROM user ORDER BY username ASC ")
+	stmt.WriteString("SELECT id, username, email, display_name, last_modified, active, is_admin FROM user ORDER BY username ASC ")
 
 	if p != nil {
 		stmt.WriteString("LIMIT ? OFFSET ? ")
@@ -54,9 +54,9 @@ func (rdb SQLiteUserDatasource) List(p *Pagination) ([]User, error) {
 func (rdb SQLiteUserDatasource) Get(userID int) (*User, error) {
 	var u User
 
-	if err := rdb.SQLConn.QueryRow("SELECT u.rowid, u.username, u.email, u.display_name, u.last_modified, u.active, u.is_admin,  u.salt "+
+	if err := rdb.SQLConn.QueryRow("SELECT u.id, u.username, u.email, u.display_name, u.last_modified, u.active, u.is_admin,  u.salt "+
 		"FROM user as u "+
-		"WHERE u.rowid=? ", userID).
+		"WHERE u.id=? ", userID).
 		Scan(&u.ID, &u.Username, &u.Email, &u.DisplayName, &u.LastModified, &u.Active, &u.IsAdmin, &u.Salt); err != nil {
 		return nil, err
 	}
@@ -68,7 +68,7 @@ func (rdb SQLiteUserDatasource) Get(userID int) (*User, error) {
 func (rdb SQLiteUserDatasource) GetByMail(mail string) (*User, error) {
 	var u User
 
-	if err := rdb.SQLConn.QueryRow("SELECT rowid, is_admin, active, display_name, username, email, salt, password FROM user WHERE email=? ", mail).
+	if err := rdb.SQLConn.QueryRow("SELECT id, is_admin, active, display_name, username, email, salt, password FROM user WHERE email=? ", mail).
 		Scan(&u.ID, &u.IsAdmin, &u.Active, &u.DisplayName, &u.Username, &u.Email, &u.Salt, &u.Password); err != nil {
 		return nil, err
 	}
@@ -79,7 +79,7 @@ func (rdb SQLiteUserDatasource) GetByMail(mail string) (*User, error) {
 func (rdb SQLiteUserDatasource) GetByUsername(username string) (*User, error) {
 	var u User
 
-	if err := rdb.SQLConn.QueryRow("SELECT rowid, is_admin, active, display_name, username, email, salt, password FROM user WHERE username=? ", username).
+	if err := rdb.SQLConn.QueryRow("SELECT id, is_admin, active, display_name, username, email, salt, password FROM user WHERE username=? ", username).
 		Scan(&u.ID, &u.IsAdmin, &u.Active, &u.DisplayName, &u.Username, &u.Email, &u.Salt, &u.Password); err != nil {
 		return nil, err
 	}
@@ -117,7 +117,7 @@ func (rdb SQLiteUserDatasource) Update(u *User, changePassword bool) error {
 
 		args = append(args, u.Salt, u.Password)
 	}
-	stmt.WriteString("WHERE rowid=?;")
+	stmt.WriteString("WHERE id=?;")
 
 	args = append(args, u.ID)
 
@@ -132,7 +132,7 @@ func (rdb SQLiteUserDatasource) Update(u *User, changePassword bool) error {
 func (rdb SQLiteUserDatasource) Count(ac AdminCriteria) (int, error) {
 	var stmt bytes.Buffer
 
-	stmt.WriteString("SELECT count(rowid) FROM user ")
+	stmt.WriteString("SELECT count(id) FROM user ")
 
 	if ac == OnlyAdmins {
 		stmt.WriteString("WHERE is_admin = '1'")
@@ -153,7 +153,7 @@ func (rdb SQLiteUserDatasource) Count(ac AdminCriteria) (int, error) {
 func (rdb SQLiteUserDatasource) Remove(userID int) error {
 	var stmt bytes.Buffer
 
-	stmt.WriteString("DELETE FROM user WHERE rowid=?")
+	stmt.WriteString("DELETE FROM user WHERE id=?")
 
 	if _, err := rdb.SQLConn.Exec(stmt.String(), userID); err != nil {
 		return err

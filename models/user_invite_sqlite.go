@@ -15,11 +15,11 @@ func (rdb SQLiteUserInviteDatasource) List() ([]UserInvite, error) {
 	var stmt bytes.Buffer
 	var args []interface{}
 
-	stmt.WriteString("SELECT ui.rowid, ui.username, ui.email, ui.display_name, ui.created_at, ui.is_admin, ")
-	stmt.WriteString("u.rowid, u.username, u.email, u.display_name ")
+	stmt.WriteString("SELECT ui.id, ui.username, ui.email, ui.display_name, ui.created_at, ui.is_admin, ")
+	stmt.WriteString("u.id, u.username, u.email, u.display_name ")
 	stmt.WriteString("FROM user_invite as ui ")
 	stmt.WriteString("INNER JOIN user as u ")
-	stmt.WriteString("ON u.rowid = ui.created_by ")
+	stmt.WriteString("ON u.id = ui.created_by ")
 	stmt.WriteString("ORDER BY ui.username ASC ")
 
 	rows, err := rdb.SQLConn.Query(stmt.String(), args...)
@@ -54,12 +54,12 @@ func (rdb SQLiteUserInviteDatasource) Get(inviteID int) (*UserInvite, error) {
 	var u User
 	var ui UserInvite
 
-	if err := rdb.SQLConn.QueryRow("SELECT ui.rowid, ui.hash, ui.username, ui.email, ui.display_name, ui.created_at, ui.is_admin, "+
-		"u.rowid, u.username, u.email, u.display_name "+
+	if err := rdb.SQLConn.QueryRow("SELECT ui.id, ui.hash, ui.username, ui.email, ui.display_name, ui.created_at, ui.is_admin, "+
+		"u.id, u.username, u.email, u.display_name "+
 		"FROM user_invite as ui "+
 		"INNER JOIN user as u "+
-		"ON u.rowid = ui.created_by "+
-		"WHERE ui.rowid=? ", inviteID).
+		"ON u.id = ui.created_by "+
+		"WHERE ui.id=? ", inviteID).
 		Scan(&ui.ID, &ui.Hash, &ui.Username, &ui.Email, &ui.DisplayName, &ui.CreatedAt, &ui.IsAdmin, &u.ID, &u.Username, &u.Email, &u.DisplayName); err != nil {
 		return nil, err
 	}
@@ -73,11 +73,11 @@ func (rdb SQLiteUserInviteDatasource) GetByHash(hash string) (*UserInvite, error
 	var ui UserInvite
 	var u User
 
-	if err := rdb.SQLConn.QueryRow("SELECT ui.rowid, ui.hash, ui.username, ui.email, ui.display_name, ui.created_at, ui.is_admin, "+
-		"u.rowid, u.username, u.email, u.display_name "+
+	if err := rdb.SQLConn.QueryRow("SELECT ui.id, ui.hash, ui.username, ui.email, ui.display_name, ui.created_at, ui.is_admin, "+
+		"u.id, u.username, u.email, u.display_name "+
 		"FROM user_invite as ui "+
 		"INNER JOIN user as u "+
-		"ON u.rowid = ui.created_by "+
+		"ON u.id = ui.created_by "+
 		"WHERE ui.hash=? ", hash).
 		Scan(&ui.ID, &ui.Hash, &ui.Username, &ui.Email, &ui.DisplayName, &ui.CreatedAt, &ui.IsAdmin, &u.ID, &u.Username, &u.Email, &u.DisplayName); err != nil {
 		return nil, err
@@ -90,7 +90,7 @@ func (rdb SQLiteUserInviteDatasource) GetByHash(hash string) (*UserInvite, error
 
 func (rdb SQLiteUserInviteDatasource) Update(ui *UserInvite) error {
 	if _, err := rdb.SQLConn.Exec("UPDATE user_invite SET hash=?, username=?, email=?, display_name=?, is_admin=?, created_at=?, created_by=? "+
-		"WHERE rowid=? ", ui.Hash, ui.Username, ui.Email, ui.DisplayName, ui.IsAdmin, ui.CreatedBy.ID, ui.ID); err != nil {
+		"WHERE id=? ", ui.Hash, ui.Username, ui.Email, ui.DisplayName, ui.IsAdmin, ui.CreatedBy.ID, ui.ID); err != nil {
 		return err
 	}
 
@@ -118,7 +118,7 @@ func (rdb SQLiteUserInviteDatasource) Create(ui *UserInvite) (int, error) {
 func (rdb SQLiteUserInviteDatasource) Count() (int, error) {
 	var total int
 
-	if err := rdb.SQLConn.QueryRow("SELECT count(rowid) FROM user_invite").Scan(&total); err != nil {
+	if err := rdb.SQLConn.QueryRow("SELECT count(id) FROM user_invite").Scan(&total); err != nil {
 		return 0, err
 	}
 
@@ -129,7 +129,7 @@ func (rdb SQLiteUserInviteDatasource) Count() (int, error) {
 func (rdb SQLiteUserInviteDatasource) Remove(inviteID int) error {
 	var stmt bytes.Buffer
 
-	stmt.WriteString("DELETE FROM user_invite WHERE rowid=?")
+	stmt.WriteString("DELETE FROM user_invite WHERE id=?")
 
 	if _, err := rdb.SQLConn.Exec(stmt.String(), inviteID); err != nil {
 		return err

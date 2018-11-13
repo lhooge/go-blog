@@ -6,7 +6,10 @@
 </head>
 
 <body>
-	{{template "front/title"}}
+	<div class="container">
+		<header>
+			<h1 class="header-text">{{PageTitle}}</h1>
+		</header>
 	
 	{{template "front/navigation" .}}
 	
@@ -38,7 +41,10 @@
 	<aside>
 		<ul>
 			<li>
-				<a href="#" class="active" href="/">Articles</a>
+				<a href="#" href="/">Sonstiges</a>
+			</li>
+			<li>
+				<a href="#" class="active" href="/">Golang</a>
 			</li>
 		</ul>
 	</aside>

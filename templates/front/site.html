@@ -2,16 +2,20 @@
 
 {{template "front/head" .}}
 </head>
+	<body>
+		<div class="container">
+			<header>
+				<h1 class="header-text">{{PageTitle}}</h1>
+			</header>
 
-<body>
-	{{template "front/title"}}
+			{{template "front/title"}}
 		
-	{{template "front/navigation" .}}
-	
-	<main>
-		{{template "skel/flash" .}}
-		{{with .site}}
-		    {{.Content | ParseMarkdown}}
-		{{end}}
-	</main>
-	{{end}}
+			{{template "front/navigation" .}}
+		
+			<main>
+				{{template "skel/flash" .}}
+				{{with .site}}
+				    {{.Content | ParseMarkdown}}
+				{{end}}
+			</main>
+{{end}}

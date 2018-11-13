@@ -21,6 +21,7 @@ type TokenDatasourceService interface {
 
 //Token represents a token
 type Token struct {
+	ID          int
 	Hash        string
 	Type        TokenType
 	RequestedAt time.Time

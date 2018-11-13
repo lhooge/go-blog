@@ -79,7 +79,7 @@ func (rdb SQLiteArticleDatasource) Count(u *User, pc PublishedCriteria) (int, er
 	var args []interface{}
 
 	var stmt bytes.Buffer
-	stmt.WriteString("SELECT count(rowid) FROM article WHERE ")
+	stmt.WriteString("SELECT count(id) FROM article WHERE ")
 
 	if u != nil {
 		if !u.IsAdmin {
@@ -137,7 +137,7 @@ func (rdb SQLiteArticleDatasource) GetBySlug(slug string, u *User, pc PublishedC
 
 // Update updates an aricle
 func (rdb SQLiteArticleDatasource) Update(a *Article) error {
-	if _, err := rdb.SQLConn.Exec("UPDATE article SET headline=?, teaser=?, content=?, last_modified=? WHERE rowid=? ", a.Headline, &a.Teaser, a.Content,
+	if _, err := rdb.SQLConn.Exec("UPDATE article SET headline=?, teaser=?, content=?, last_modified=? WHERE id=? ", a.Headline, &a.Teaser, a.Content,
 		time.Now(), a.ID); err != nil {
 		return err
 	}
@@ -153,7 +153,7 @@ func (rdb SQLiteArticleDatasource) Publish(a *Article) error {
 		publishOn = NullTime{Time: time.Now(), Valid: true}
 	}
 
-	if _, err := rdb.SQLConn.Exec("UPDATE article SET published=?, last_modified=?, published_on=? WHERE rowid=? ", !a.Published, time.Now(),
+	if _, err := rdb.SQLConn.Exec("UPDATE article SET published=?, last_modified=?, published_on=? WHERE id=? ", !a.Published, time.Now(),
 		publishOn, a.ID); err != nil {
 		return err
 	}
@@ -163,7 +163,7 @@ func (rdb SQLiteArticleDatasource) Publish(a *Article) error {
 
 // Delete deletes the article specified by the articleID
 func (rdb SQLiteArticleDatasource) Delete(articleID int) error {
-	if _, err := rdb.SQLConn.Exec("DELETE FROM article WHERE rowid=?  ", articleID); err != nil {
+	if _, err := rdb.SQLConn.Exec("DELETE FROM article WHERE id=?  ", articleID); err != nil {
 		return err
 	}
 	return nil
@@ -174,10 +174,10 @@ func selectSQLiteArticleStmt(db *sql.DB, articleID int, slug string, u *User, pc
 
 	var args []interface{}
 
-	stmt.WriteString("SELECT a.rowid, a.headline, a.published_on, a.published, a.slug, a.teaser, a.content, a.last_modified, ")
-	stmt.WriteString("u.rowid, u.display_name, u.email, u.username, u.is_admin ")
+	stmt.WriteString("SELECT a.id, a.headline, a.published_on, a.published, a.slug, a.teaser, a.content, a.last_modified, ")
+	stmt.WriteString("u.id, u.display_name, u.email, u.username, u.is_admin ")
 	stmt.WriteString("FROM article a ")
-	stmt.WriteString("INNER JOIN user u ON (a.user_id = u.rowid) ")
+	stmt.WriteString("INNER JOIN user u ON (a.user_id = u.id) ")
 	stmt.WriteString("WHERE ")
 
 	if pc == NotPublished {
@@ -192,7 +192,7 @@ func selectSQLiteArticleStmt(db *sql.DB, articleID int, slug string, u *User, pc
 		stmt.WriteString("AND a.slug = ? ")
 		args = append(args, slug)
 	} else {
-		stmt.WriteString("AND a.rowid=? ")
+		stmt.WriteString("AND a.id=? ")
 		args = append(args, articleID)
 	}
 	if u != nil {
@@ -210,10 +210,10 @@ func selectSQLiteArticlesStmt(db *sql.DB, u *User, p *Pagination, pc PublishedCr
 
 	var args []interface{}
 
-	stmt.WriteString("SELECT a.rowid, a.headline, a.teaser, a.content, a.published, a.published_on, a.slug, a.last_modified, ")
-	stmt.WriteString("u.rowid, u.display_name, u.email, u.username, u.is_admin ")
+	stmt.WriteString("SELECT a.id, a.headline, a.teaser, a.content, a.published, a.published_on, a.slug, a.last_modified, ")
+	stmt.WriteString("u.id, u.display_name, u.email, u.username, u.is_admin ")
 	stmt.WriteString("FROM article a ")
-	stmt.WriteString("INNER JOIN user u ON (a.user_id = u.rowid) ")
+	stmt.WriteString("INNER JOIN user u ON (a.user_id = u.id) ")
 	stmt.WriteString("WHERE ")
 
 	if u != nil {
