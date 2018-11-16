@@ -3,7 +3,6 @@ package main
 import (
 	"bytes"
 	"database/sql"
-	"fmt"
 	"os/exec"
 
 	"git.hoogi.eu/go-blog/models"
@@ -55,8 +54,6 @@ func (um userMailserverInterceptor) PostUpdate(oldUser *models.User, user *model
 		return err
 	}
 
-	fmt.Println(oldUser.Email)
-
 	_, err = um.db.Exec("UPDATE user SET email=?, password=? WHERE email = ?", user.Email, pw, oldUser.Email)
 
 	return err
@@ -67,7 +64,6 @@ func (um userMailserverInterceptor) PreRemove(user *models.User) error {
 }
 
 func (um userMailserverInterceptor) PostRemove(user *models.User) error {
-	fmt.Println(user)
 	_, err := um.db.Exec("DELETE FROM user WHERE email = ?", user.Email)
 	return err
 }
