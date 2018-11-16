@@ -29,7 +29,7 @@ package:
 	cp ${GOPATH}/bin/create_user  ${TMP}/clt
 	cp ${GOPATH}/bin/init_database ${TMP}/clt
 	cp go-blog.conf ${TMP}/
-	cp -r scripts/ ${TMP}/
+	cp -r examples/ ${TMP}/
 	cp -r templates/ ${TMP}/
 	cp -r assets/ ${TMP}/
 
