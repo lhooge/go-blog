@@ -51,10 +51,10 @@ a {
 	text-decoration: underline;
 }
 
-<<<<<<< HEAD
+main ul {
+	padding-left: 2.2em;
+}
 
-=======
->>>>>>> develop
 a:hover,
 a:focus {
 	text-decoration: none;
@@ -72,8 +72,8 @@ body {
 
 main {
 	width: 100%;
-	grid-column-start: 2; 
-	grid-column-end: 4; 
+	grid-column-start: 2;
+	grid-column-end: 4;
 	grid-row-start: 2;
 	grid-row-end: 3;
 	padding: 0 1em 1em 1em;
@@ -92,8 +92,8 @@ main {
 }
 
 footer {
-	grid-column-start: 1; 
-	grid-column-end: 5; 
+	grid-column-start: 1;
+	grid-column-end: 5;
 	grid-row-start: 3;
 	grid-row-end: 4;
 	background-color: #1f1f1f;
@@ -109,9 +109,9 @@ footer p {
 }
 
 /* Header */
-header {	
-	grid-column-start: 1; 
-	grid-column-end: 5; 
+header {
+	grid-column-start: 1;
+	grid-column-end: 5;
 	grid-row-start: 1;
 	grid-row-end: 2;
 	background-color: #285e8e;
@@ -124,8 +124,8 @@ header {
 }
 
 aside {
-	grid-column-start: 4; 
-	grid-column-end: 5; 
+	grid-column-start: 4;
+	grid-column-end: 5;
 	grid-row-start: 2;
 	grid-row-end: 3;
 	background-color: #1f1f1f;
@@ -135,8 +135,8 @@ aside {
 nav {
 	background-color: #1f1f1f;
 	font-size: 1.5em;
-	grid-column-start: 1; 
-	grid-column-end: 2; 
+	grid-column-start: 1;
+	grid-column-end: 2;
 	grid-row-start: 2;
 	grid-row-end: 3;
 }
@@ -193,7 +193,7 @@ aside a.active {
 	border-left-width: 0.3125rem;
 }
 
-nav li, 
+nav li,
 aside li {
 	list-style-type: none;
 }
@@ -211,8 +211,8 @@ aside li {
 
 /* Main content */
 main {
-	grid-column-start: 2; 
-	grid-column-end: 4; 
+	grid-column-start: 2;
+	grid-column-end: 4;
 	grid-row-start: 2;
 	grid-row-end: 3;
 	max-width: 75em;
@@ -258,8 +258,6 @@ main h4 {
 	margin-top: 0.4em;
 }
 
-<<<<<<< HEAD
-=======
 main ul {
 	margin-left: 1.5em;
 	line-height: 1.5;
@@ -275,7 +273,6 @@ main ul li p {
   line-height: 1.5;
 }
 
->>>>>>> develop
 main ol {
 	margin-left: 2.2em;
 	line-height: 1.5;
@@ -286,19 +283,7 @@ main p {
   line-height: 1.5;
 }
 
-<<<<<<< HEAD
-main ul {
-	margin-left: 2.5em;
-	line-height: 1.5;
-}
-
-
-main ul li {
-  padding-left: 0.5em;
-  line-height: 1.5;
-}
-
-article .article_link {
+.article_link {
 	margin: 0;
 }
 
