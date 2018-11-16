@@ -27,7 +27,7 @@ func FileGetHandler(ctx *middleware.AppContext) http.Handler {
 			return
 		}
 
-		loc := filepath.Join(ctx.ConfigService.Location, f.Filename)
+		loc := filepath.Join(ctx.ConfigService.Location, f.FullFilename)
 
 		w.Header().Set("Content-Type", f.ContentType)
 		w.Header().Set("Content-Disposition", "inline")
@@ -171,9 +171,6 @@ func AdminUploadFilePostHandler(ctx *middleware.AppContext, w http.ResponseWrite
 
 	file.Filename = filename
 	file.Extension = ext
-
-	fmt.Println(filename)
-	fmt.Println(ext)
 
 	_, err = ctx.FileService.Upload(file, data)
 
