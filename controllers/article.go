@@ -205,9 +205,70 @@ func ListArticlesCategoryHandler(ctx *middleware.AppContext, w http.ResponseWrit
 	}
 }
 
+//IndexArticlesCategoryHandler returns the template information for the index page grouped by categories
+func IndexArticlesCategoryHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
+	cs, err := ctx.CategoryService.List(models.CategoriesWithPublishedArticles)
+
+	if err != nil {
+		return &middleware.Template{
+			Name:   tplIndexArticles,
+			Active: "index",
+			Err:    err,
+		}
+	}
+
+	category := getVar(r, "categorySlug")
+
+	c, err := ctx.CategoryService.GetBySlug(category)
+
+	if err != nil {
+		fmt.Println("test", category)
+		return &middleware.Template{
+			Name:   tplIndexArticles,
+			Active: "index",
+			Err:    err,
+			Data: map[string]interface{}{
+				"categories": cs,
+			},
+		}
+	}
+
+	a, err := ctx.ArticleService.Index(nil, c, nil, models.OnlyPublished)
+
+	if err != nil {
+		return &middleware.Template{
+			Name:   tplIndexArticles,
+			Active: "index",
+			Err:    err,
+			Data: map[string]interface{}{
+				"categories": cs,
+			},
+		}
+	}
+
+	return &middleware.Template{
+		Name:   tplIndexArticles,
+		Active: "index",
+		Data: map[string]interface{}{
+			"articles":   a,
+			"categories": cs,
+		},
+	}
+}
+
 //IndexArticlesHandler returns the template information for the index page
 func IndexArticlesHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
 	a, err := ctx.ArticleService.Index(nil, nil, nil, models.OnlyPublished)
+
+	if err != nil {
+		return &middleware.Template{
+			Name:   tplIndexArticles,
+			Active: "index",
+			Err:    err,
+		}
+	}
+
+	c, err := ctx.CategoryService.List(models.CategoriesWithPublishedArticles)
 
 	if err != nil {
 		return &middleware.Template{
@@ -221,7 +282,8 @@ func IndexArticlesHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *
 		Name:   tplIndexArticles,
 		Active: "index",
 		Data: map[string]interface{}{
-			"articles": a,
+			"articles":   a,
+			"categories": c,
 		},
 	}
 }

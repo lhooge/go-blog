@@ -39,12 +39,12 @@
 				{{end}}
 			</div>
 		</main>
-		
+
 		<aside>
 			<ul>
 				{{range .categories}}
 				<li>
-					<a href="#" href="/">{{.Name}}</a>
+					<a{{if $.catActive}}{{if eq $.catActive .SlugEscape}} class="active"{{end}}{{end}} href="/index/category/{{.SlugEscape}}">{{.Name}}</a>
 				</li>
 				{{end}}
 			</ul>

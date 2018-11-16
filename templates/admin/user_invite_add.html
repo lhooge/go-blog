@@ -17,10 +17,6 @@
 		<label for="displayname">Display name</label>
 		<input type="text" id="displayname" name="displayname" {{if .user_invite}}value="{{.user_invite.DisplayName}}"{{end}} placeholder="Display name..." required>
 
-		<div class="checkbox">
-			<label><input type="checkbox" id="admin" name="admin" value="on"{{if .user_invite.IsAdmin}} checked{{end}}>Admin?</label>
-		</div>
-			
 		{{ .csrfField }}
 		<div class="button-group">
 			<button name="action" value="add">Invite</button>
