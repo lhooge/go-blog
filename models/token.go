@@ -1,10 +1,7 @@
 package models
 
 import (
-	"crypto/sha512"
-	"database/sql"
 	"database/sql/driver"
-	"encoding/hex"
 	"errors"
 	"fmt"
 	"net/http"
@@ -24,10 +21,12 @@ type TokenDatasourceService interface {
 
 //Token represents a token
 type Token struct {
+	ID          int
 	Hash        string
 	Type        TokenType
 	RequestedAt time.Time
-	Author      *User
+
+	Author *User
 }
 
 const (
@@ -66,26 +65,21 @@ type TokenService struct {
 	Datasource TokenDatasourceService
 }
 
-//AddToken creates a random SHA512 hash is generated here
-func (ts TokenService) AddToken(t *Token) error {
-	hash := sha512.New()
-	hash.Write(utils.RandomSecureKey(32))
-
-	t.Hash = hex.EncodeToString(hash.Sum(nil))
+//Create creates a new token
+func (ts TokenService) Create(t *Token) error {
+	t.Hash = utils.RandomHash(32)
 
 	_, err := ts.Datasource.Create(t)
 
 	return err
 }
 
-//GetToken gets all token for a defined token type expires after a defined time
+//Get gets all token for a defined token type expires after a defined time
 //Expired tokens will be removed
-func (ts TokenService) GetToken(hash string, tt TokenType, expireAfter time.Duration) (*Token, error) {
+func (ts TokenService) Get(hash string, tt TokenType, expireAfter time.Duration) (*Token, error) {
 	token, err := ts.Datasource.Get(hash, tt)
+
 	if err != nil {
-		if err == sql.ErrNoRows {
-			return nil, httperror.New(http.StatusNotFound, "The token was not found. Fill out the form to receive a new token", errors.New("the token was not found"))
-		}
 		return nil, err
 	}
 
@@ -93,14 +87,15 @@ func (ts TokenService) GetToken(hash string, tt TokenType, expireAfter time.Dura
 
 	if now.After(token.RequestedAt.Add(expireAfter)) {
 		err = ts.Datasource.Remove(token.Hash, tt)
-		logger.Log.Errorf("could not remove expired token", err)
+		logger.Log.Errorf("could not remove expired token, err %v", err)
+
 		return nil, httperror.New(http.StatusNotFound, "The token is already expired. Fill out the form to receive a new token", errors.New("the token was expired"))
 	}
 
 	return token, nil
 }
 
-//RemoveToken removes a token
-func (ts TokenService) RemoveToken(hash string, tt TokenType) error {
+//Remove removes a token
+func (ts TokenService) Remove(hash string, tt TokenType) error {
 	return ts.Datasource.Remove(hash, tt)
 }

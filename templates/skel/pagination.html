@@ -1,0 +1,11 @@
+{{define "skel/pagination"}}
+{{if .pagination}}
+<div style="text-align: center">
+	<div class="lw-pagination">
+		<ul class="pagination">
+			{{PaginationBar .pagination}}
+		</ul>
+	</div>
+</div>
+{{end}}
+{{end}}

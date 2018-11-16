@@ -18,27 +18,20 @@ func (rdb SQLiteFileDatasource) GetByFilename(filename string, u *User) (*File, 
 
 	var args []interface{}
 
-	stmt.WriteString("SELECT f.rowid, f.filename, f.content_type, f.size, f.last_modified, f.user_id, ")
-	stmt.WriteString("u.display_name, u.username, u.email, u.is_admin ")
+	stmt.WriteString("SELECT f.id, f.filename, f.content_type, f.size, f.last_modified, f.user_id, ")
+	stmt.WriteString("u.display_name, u.username, u.email ")
 	stmt.WriteString("FROM file as f ")
 	stmt.WriteString("INNER JOIN user as u ")
-	stmt.WriteString("ON u.rowid = f.user_id ")
+	stmt.WriteString("ON u.id = f.user_id ")
 	stmt.WriteString("WHERE f.filename=? ")
 
 	args = append(args, filename)
-
-	if u != nil {
-		if !u.IsAdmin {
-			stmt.WriteString("AND f.user_id=? ")
-			args = append(args, u.ID)
-		}
-	}
 
 	var f File
 	var ru User
 
 	if err := rdb.SQLConn.QueryRow(stmt.String(), args...).Scan(&f.ID, &f.Filename, &f.ContentType, &f.Size, &f.LastModified, &ru.ID,
-		&ru.DisplayName, &ru.Username, &ru.Email, &ru.IsAdmin); err != nil {
+		&ru.DisplayName, &ru.Username, &ru.Email); err != nil {
 		return nil, err
 	}
 
@@ -54,27 +47,20 @@ func (rdb SQLiteFileDatasource) Get(fileID int, u *User) (*File, error) {
 
 	var args []interface{}
 
-	stmt.WriteString("SELECT f.rowid, f.filename, f.content_type, f.size, f.last_modified, f.user_id, ")
-	stmt.WriteString("u.display_name, u.username, u.email, u.is_admin ")
+	stmt.WriteString("SELECT f.id, f.filename, f.content_type, f.size, f.last_modified, f.user_id, ")
+	stmt.WriteString("u.display_name, u.username, u.email ")
 	stmt.WriteString("FROM file as f ")
 	stmt.WriteString("INNER JOIN user as u ")
-	stmt.WriteString("ON u.rowid = f.user_id ")
-	stmt.WriteString("WHERE f.rowid=? ")
+	stmt.WriteString("ON u.id = f.user_id ")
+	stmt.WriteString("WHERE f.id=? ")
 
 	args = append(args, fileID)
-
-	if u != nil {
-		if !u.IsAdmin {
-			stmt.WriteString("AND f.user_id=? ")
-			args = append(args, u.ID)
-		}
-	}
 
 	var f File
 	var ru User
 
 	if err := rdb.SQLConn.QueryRow(stmt.String(), args...).Scan(&f.ID, &f.Filename, &f.ContentType, &f.Size, &f.LastModified, &ru.ID,
-		&ru.DisplayName, &ru.Username, &ru.Email, &ru.IsAdmin); err != nil {
+		&ru.DisplayName, &ru.Username, &ru.Email); err != nil {
 		return nil, err
 	}
 
@@ -108,19 +94,11 @@ func (rdb SQLiteFileDatasource) List(u *User, p *Pagination) ([]File, error) {
 
 	var args []interface{}
 
-	stmt.WriteString("SELECT f.rowid, f.filename, f.content_type, f.size, f.last_modified, ")
-	stmt.WriteString("u.rowid, u.display_name, u.username, u.email, u.is_admin ")
+	stmt.WriteString("SELECT f.id, f.filename, f.content_type, f.size, f.last_modified, ")
+	stmt.WriteString("u.id, u.display_name, u.username, u.email ")
 	stmt.WriteString("FROM file as f ")
 	stmt.WriteString("INNER JOIN user as u ")
-	stmt.WriteString("ON f.user_id = u.rowid ")
-
-	if u != nil {
-		if !u.IsAdmin {
-			stmt.WriteString("WHERE f.user_id=? ")
-			args = append(args, u.ID)
-		}
-	}
-
+	stmt.WriteString("ON f.user_id = u.id ")
 	stmt.WriteString("ORDER BY f.last_modified DESC ")
 
 	if p != nil {
@@ -143,7 +121,7 @@ func (rdb SQLiteFileDatasource) List(u *User, p *Pagination) ([]File, error) {
 
 	for rows.Next() {
 		if err = rows.Scan(&f.ID, &f.Filename, &f.ContentType, &f.Size, &f.LastModified, &us.ID, &us.DisplayName,
-			&us.Username, &us.Email, &u.IsAdmin); err != nil {
+			&us.Username, &us.Email); err != nil {
 			return nil, err
 		}
 
@@ -167,14 +145,7 @@ func (rdb SQLiteFileDatasource) Count(u *User) (int, error) {
 
 	var args []interface{}
 
-	stmt.WriteString("SELECT count(rowid) FROM file ")
-
-	if u != nil {
-		if !u.IsAdmin {
-			stmt.WriteString("WHERE user_id = ?")
-			args = append(args, u.ID)
-		}
-	}
+	stmt.WriteString("SELECT count(id) FROM file ")
 
 	var total int
 
@@ -185,9 +156,10 @@ func (rdb SQLiteFileDatasource) Count(u *User) (int, error) {
 	return total, nil
 }
 
-//Delete deletes a file based on fileID; users which are not the owner are not allowed to remove files; except admins
+//Delete deletes a file based on fileID; users which are not the owner are not allowed to remove files;
+//except admins
 func (rdb SQLiteFileDatasource) Delete(fileID int) error {
-	if _, err := rdb.SQLConn.Exec("DELETE FROM file WHERE rowid=?", fileID); err != nil {
+	if _, err := rdb.SQLConn.Exec("DELETE FROM file WHERE id=?", fileID); err != nil {
 		return err
 	}
 	return nil

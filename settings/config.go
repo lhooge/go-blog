@@ -6,13 +6,16 @@
 package settings
 
 import (
+	"errors"
 	"fmt"
 	"io/ioutil"
+	"net/url"
 	"os"
 	"strings"
 	"time"
 
 	"git.hoogi.eu/cfg"
+	"git.hoogi.eu/go-blog/components/logger"
 	"git.hoogi.eu/go-blog/utils"
 )
 
@@ -54,15 +57,11 @@ func (de *DatabaseEngine) Unmarshal(value string) error {
 }
 
 type Settings struct {
-	Environment string `cfg:"environment" default:"prod"`
+	Environment  string `cfg:"environment" default:"prod"`
+	BuildVersion string `cfg:"-"`
+	BuildDate    string `cfg:"-"`
 
-	AppVersion string
-	BuildDate  string
-
-	Language string `cfg:"language"`
-	Title    string `cfg:"title"`
-	Subtitle string `cfg:"subtitle"`
-
+	Application
 	Blog
 	User
 	File
@@ -81,39 +80,39 @@ type Server struct {
 	UseTLS bool   `cfg:"use_tls" default:"yes"`
 	Cert   string `cfg:"ssl_certificate_file"`
 	Key    string `cfg:"ssl_certificate_key_file"`
+}
 
-	Domain string `cfg:"domain"`
+type Application struct {
+	Title       string `cfg:"application_title"`
+	Language    string `cfg:"application_language"`
+	Description string `cfg:"application_description"`
+	Domain      string `cfg:"application_domain"`
 }
 
 type Database struct {
-	Engine   DatabaseEngine `cfg:"database_engine"`
-	Host     string         `cfg:"mysql_host" default:"127.0.0.1"`
-	Port     int            `cfg:"mysql_port" default:"3306"`
-	User     string         `cfg:"mysql_user" default:"root"`
-	Password string         `cfg:"mysql_password" default:""`
-	Name     string         `cfg:"mysql_database" default:"go_blog"`
-	File     string         `cfg:"sqlite_file"`
+	File string `cfg:"sqlite_file" default:"data/goblog.sqlite"`
 }
+
 type File struct {
-	Location      string       `cfg:"file_location"`
-	MaxUploadSize cfg.FileSize `cfg:"file_max_upload_size"`
+	Location      string       `cfg:"file_location" default:"/srv/goblog/files/"`
+	MaxUploadSize cfg.FileSize `cfg:"file_max_upload_size" default:"20MB"`
 }
 
 type Blog struct {
-	ArticlesPerPage int `cfg:"blog_articles_per_page" default:"12"`
+	ArticlesPerPage int `cfg:"blog_articles_per_page" default:"20"`
+	RSSFeedItems    int `cfg:"blog_rss_feed_items" default:"10"`
 }
 
 type User struct {
 	MinPasswordLength int         `cfg:"user_min_password_length" default:"12"`
 	InterceptorPlugin string      `cfg:"user_interceptor_plugin"`
-	LoginMethod       LoginMethod `cfg:"user_login_method"`
+	LoginMethod       LoginMethod `cfg:"user_login_method" default:"username"`
 }
 
 type Mail struct {
 	Host     string `cfg:"mail_smtp_host" default:"127.0.0.1"`
 	Port     int    `cfg:"mail_smtp_port" default:"25"`
 	User     string `cfg:"mail_smtp_user"`
-	Helo     string `cfg:"mail_smtp_helo"`
 	Password string `cfg:"mail_smtp_password"`
 
 	SenderAddress string `cfg:"mail_sender_address"`
@@ -121,84 +120,99 @@ type Mail struct {
 }
 
 type Session struct {
-	TTL               time.Duration `cfg:"session_time_to_live"`
-	GarbageCollection time.Duration `cfg:"session_garbage_collection"`
-	CookieName        string        `cfg:"session_cookie_name"`
-	CookieSecure      bool          `cfg:"session_cookie_secure"`
-	CookiePath        string        `cfg:"session_cookie_path"`
+	TTL               time.Duration `cfg:"session_time_to_live" default:"2h"`
+	GarbageCollection time.Duration `cfg:"session_garbage_collection" default:"5m"`
+	CookieName        string        `cfg:"session_cookie_name" default:"goblog"`
+	CookieSecure      bool          `cfg:"session_cookie_secure" default:"true"`
+	CookiePath        string        `cfg:"session_cookie_path" default:"/admin"`
 }
 
 type CSRF struct {
-	CookieName   string `cfg:"csrf_cookie_name"`
-	CookieSecure bool   `cfg:"csrf_cookie_secure"`
-	CookiePath   string `cfg:"csrf_cookie_path"`
+	CookieName   string `cfg:"csrf_cookie_name" default:"csrf"`
+	CookieSecure bool   `cfg:"csrf_cookie_secure" default:"true"`
+	CookiePath   string `cfg:"csrf_cookie_path" default:"/admin"`
 	RandomKey    string `cfg:"csrf_random_key"`
 }
 
 type Log struct {
-	Level      string `cfg:"log_level"`
-	File       string `cfg:"log_file"`
-	Access     bool   `cfg:"log_access"`
-	AccessFile string `cfg:"log_access_file"`
+	Level      string `cfg:"log_level" default:"info"`
+	File       string `cfg:"log_file" default:"/var/log/goblog/error.log"`
+	Access     bool   `cfg:"log_access" default:"true"`
+	AccessFile string `cfg:"log_access_file" default:"/var/log/goblog/access.log"`
 }
 
 const csrfTokenFilename = ".csrftoken"
 
-//MergeConfigs merges the multiple config files. Returns the parsed settings and applied defaults or an error
-func MergeConfigs(configs []cfg.File) (*Settings, map[string]cfg.Default, error) {
+func MergeConfigs(configs []cfg.File) (*Settings, error) {
 	c := cfg.ConfigFiles{}
 
 	for _, cp := range configs {
-		c.AddConfig(cp.Path, cp.Name)
+		c.AddConfig(cp.Path, cp.Name, cp.Required)
 	}
 
 	settings := new(Settings)
+
 	def, err := c.MergeConfigsInto(settings)
 
-	return settings, def, err
+	for k, d := range def {
+		logger.Log.Warnf("config: no config value for key '%s' found in any config - assuming default value: '%v'", k, d.Value)
+	}
+
+	return settings, err
 }
 
-//LoadConfig load a single config file. Returns the settings and applied defaults or an error
-func LoadConfig(filename string) (*Settings, map[string]cfg.Default, error) {
+func LoadConfig(filename string) (*Settings, error) {
 	settings := new(Settings)
 	def, err := cfg.LoadConfigInto(filename, settings)
-	return settings, def, err
+
+	for k, d := range def {
+		logger.Log.Warnf("config: no config value for %s key found in any config - assuming default value %v", k, d.Value)
+	}
+
+	return settings, err
 }
 
-//CheckConfig checks some config values
 func (cfg *Settings) CheckConfig() error {
 	//check log file is rw in production mode
 	if cfg.Environment != "dev" {
 		if _, err := os.OpenFile(cfg.Log.File, os.O_RDONLY|os.O_CREATE, 0644); err != nil {
-			return fmt.Errorf("could not open log file %s error %v", cfg.Log.File, err)
+			return fmt.Errorf("config: could not open log file %s error %v", cfg.Log.File, err)
 		}
 		if _, err := os.OpenFile(cfg.Log.AccessFile, os.O_RDONLY|os.O_CREATE, 0644); err != nil {
-			return fmt.Errorf("could not open access log file %s error %v", cfg.Log.AccessFile, err)
+			return fmt.Errorf("config: could not open access log file %s error %v", cfg.Log.AccessFile, err)
 		}
+	}
+
+	if len(cfg.Application.Domain) == 0 {
+		return errors.New("config: please specify a domain name 'application_domain'")
+	}
+
+	_, err := url.ParseRequestURI(cfg.Application.Domain)
+	if err != nil {
+		return fmt.Errorf("config: invalid url setting for key 'application_domain' value '%s'", cfg.Application.Domain)
 	}
 
 	//server settings
 	if cfg.Server.UseTLS {
 		if _, err := os.Open(cfg.Server.Cert); err != nil {
-			return fmt.Errorf("could not open certificate %s error %v", cfg.Server.Cert, err)
+			return fmt.Errorf("config: could not open certificate %s error %v", cfg.Server.Cert, err)
 		}
 		if _, err := os.Open(cfg.Server.Key); err != nil {
-			return fmt.Errorf("could not open private key file %s error %v", cfg.Server.Key, err)
+			return fmt.Errorf("config: could not open private key file %s error %v", cfg.Server.Key, err)
 		}
 	}
 
 	if cfg.Server.Port < 1 || cfg.Server.Port > 65535 {
-		return fmt.Errorf("invalid port setting server_port is %d", cfg.Server.Port)
+		return fmt.Errorf("config: invalid port setting for key 'server_port' value %d", cfg.Server.Port)
 	}
 
 	if _, err := os.Open(cfg.File.Location); err != nil {
-		return fmt.Errorf("could not open file path %s error %v", cfg.File.Location, err)
+		return fmt.Errorf("config: could not open file path %s error %v", cfg.File.Location, err)
 	}
 
 	return nil
 }
 
-//GenerateCSRF generates a random csrf token and saves it in the .csrftoken file
 func (cfg *Settings) GenerateCSRF() (bool, error) {
 	if len(cfg.CSRF.RandomKey) == 0 {
 
@@ -206,7 +220,10 @@ func (cfg *Settings) GenerateCSRF() (bool, error) {
 
 		if _, err := os.Stat(csrfTokenFilename); os.IsNotExist(err) {
 			//create a random csrf token
-			r := utils.RandomSource{CharsToGen: utils.AlphaUpperLowerNumericSpecial}
+			r := utils.RandomSource{
+				CharsToGen: utils.AlphaUpperLowerNumericSpecial,
+			}
+
 			b = r.RandomSequence(32)
 
 			err := ioutil.WriteFile(csrfTokenFilename, b, 0640)

@@ -7,21 +7,22 @@ package middleware
 import (
 	"html/template"
 
-	"git.hoogi.eu/go-blog/components/mail"
 	"git.hoogi.eu/go-blog/models"
-	"git.hoogi.eu/go-blog/models/sessions"
 	"git.hoogi.eu/go-blog/settings"
+	"git.hoogi.eu/session"
 )
 
 //AppContext contains the services, session store, templates
 type AppContext struct {
-	SessionStore   *sessions.CookieStore
-	ArticleService models.ArticleService
-	UserService    models.UserService
-	SiteService    models.SiteService
-	FileService    models.FileService
-	TokenService   models.TokenService
-	MailService    mail.Service
-	ConfigService  *settings.Settings
-	Templates      *template.Template
+	SessionService    *session.SessionService
+	ArticleService    models.ArticleService
+	CategoryService   models.CategoryService
+	UserService       models.UserService
+	UserInviteService models.UserInviteService
+	SiteService       models.SiteService
+	FileService       models.FileService
+	TokenService      models.TokenService
+	Mailer            models.Mailer
+	ConfigService     *settings.Settings
+	Templates         *template.Template
 }

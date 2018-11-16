@@ -1,0 +1,25 @@
+{{define "admin/file_upload"}}
+
+{{template "admin/head" .}}
+{{template "admin/navigation" .}}
+<main>
+	{{template "skel/flash" .}}
+	
+	<h2>Upload a file</h2>
+
+	<form enctype="multipart/form-data" action="/admin/file/upload" method="post">
+		<label for="file">File</label>
+		<input type="file" id="file" name="file" placeholder="Choose a file" required>
+
+		<label for="content">Optional change filename (do not include extension)</label>
+		<input type="text" id="newfilename" name="newfilename" placeholder="New filename...">
+
+		{{ .csrfField }}
+		
+		<div class="button-group">
+			<button name="action" value="upload">Upload</button>
+		</div>
+	</form>
+</main>
+{{template "admin/footer"}}
+{{end}}

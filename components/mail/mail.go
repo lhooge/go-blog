@@ -15,6 +15,19 @@ type Service struct {
 	From          string
 }
 
+func NewMailService(subjectPrefix, from string, smtpConfig SMTPConfig) Service {
+	s := Service{
+		SubjectPrefix: subjectPrefix,
+		From:          from,
+		SMTPConfig:    smtpConfig,
+	}
+
+	go s.readBuffer()
+
+	return s
+
+}
+
 //SMTPConfig holds the configuration for the SMTP server
 type SMTPConfig struct {
 	Address  string
@@ -33,11 +46,19 @@ type Mail struct {
 
 func (m Mail) buildMessage(s Service) []byte {
 	var buf bytes.Buffer
+
+	buf.WriteString("From: ")
+	buf.WriteString(s.From)
+	buf.WriteString("\r\n")
 	buf.WriteString("To: ")
 	buf.WriteString(m.To)
 	buf.WriteString("\r\n")
 	buf.WriteString("Subject: ")
-	buf.WriteString(s.SubjectPrefix)
+
+	if len(s.SubjectPrefix) > 0 {
+		buf.WriteString(fmt.Sprintf("%s%s%s", "[", s.SubjectPrefix, "] "))
+	}
+
 	buf.WriteString(m.Subject)
 	buf.WriteString("\r\n")
 	buf.WriteString(m.Body)
@@ -64,6 +85,7 @@ func (s Service) Send(m Mail) error {
 			return err
 		}
 
+		return nil
 	} else {
 		//anonymous
 		c, err := smtp.Dial(fmt.Sprintf("%s:%d", s.SMTPConfig.Address, s.SMTPConfig.Port))
@@ -105,5 +127,29 @@ func (s Service) Send(m Mail) error {
 
 		return c.Quit()
 	}
-	return nil
+}
+
+var buffer = make(chan Mail, 10)
+var errc = make(chan error, 1)
+
+func (s Service) readBuffer() <-chan error {
+	for {
+		mail := <-buffer
+
+		if err := s.Send(mail); err != nil {
+			errc <- err
+		}
+
+		close(errc)
+
+		return errc
+	}
+}
+
+func (s Service) SendAsync(m Mail) error {
+	go func() {
+		buffer <- m
+	}()
+
+	return <-errc
 }

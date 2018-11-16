@@ -33,7 +33,7 @@ func (rdb SQLiteTokenDatasource) Get(hash string, tt TokenType) (*Token, error) 
 	var t Token
 	var u User
 
-	if err := rdb.SQLConn.QueryRow("SELECT t.hash, t.requested_at, t.token_type, t.user_id FROM token as t WHERE hash=? AND token_type=? ", hash, tt.String()).
+	if err := rdb.SQLConn.QueryRow("SELECT t.id, t.hash, t.requested_at, t.token_type, t.user_id FROM token as t WHERE hash=? AND token_type=? ", &t.ID, hash, tt.String()).
 		Scan(&t.Hash, &t.RequestedAt, &t.Type, &u.ID); err != nil {
 		return nil, err
 	}
@@ -45,7 +45,7 @@ func (rdb SQLiteTokenDatasource) Get(hash string, tt TokenType) (*Token, error) 
 
 //Remove removes a token based on the hash
 func (rdb SQLiteTokenDatasource) Remove(hash string, tt TokenType) error {
-	if _, err := rdb.SQLConn.Exec("DELETE FROM token WHERE hash=? AND token_type=?  ", hash, tt.String()); err != nil {
+	if _, err := rdb.SQLConn.Exec("DELETE FROM token WHERE hash=? AND token_type=? ", hash, tt.String()); err != nil {
 		return err
 	}
 	return nil

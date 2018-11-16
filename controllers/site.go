@@ -15,16 +15,9 @@ import (
 	"git.hoogi.eu/go-blog/models"
 )
 
-const (
-	tplSite          = "front/site"
-	tplAdminSites    = "admin/sites"
-	tplAdminSiteEdit = "admin/edit_site"
-	tplAdminSiteNew  = "admin/new_site"
-)
-
 //SiteHandler returns the site template only published sites are considered
 func SiteHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
-	site, err := ctx.SiteService.GetSiteByLink(getVar(r, "site"), models.OnlyPublished)
+	site, err := ctx.SiteService.GetByLink(getVar(r, "site"), models.OnlyPublished)
 
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -51,7 +44,7 @@ func SiteHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Requ
 func AdminSitesHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
 	page := getPageParam(r)
 
-	total, err := ctx.SiteService.CountSites(models.All)
+	total, err := ctx.SiteService.Count(models.All)
 
 	if err != nil {
 		return &middleware.Template{
@@ -68,7 +61,7 @@ func AdminSitesHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *htt
 		RelURL:      "admin/sites/page",
 	}
 
-	sites, err := ctx.SiteService.ListSites(models.All, pagination)
+	sites, err := ctx.SiteService.List(models.All, pagination)
 
 	if err != nil {
 		return &middleware.Template{
@@ -117,7 +110,7 @@ func AdminSiteNewPostHandler(ctx *middleware.AppContext, w http.ResponseWriter, 
 		return previewSite(s)
 	}
 
-	siteID, err := ctx.SiteService.CreateSite(s)
+	siteID, err := ctx.SiteService.Create(s)
 	if err != nil {
 		return &middleware.Template{
 			Name:   tplAdminSiteNew,
@@ -150,7 +143,7 @@ func AdminSiteEditHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *
 		}
 	}
 
-	s, err := ctx.SiteService.GetSiteByID(siteID, models.All)
+	s, err := ctx.SiteService.GetByID(siteID, models.All)
 
 	if err != nil {
 		return &middleware.Template{
@@ -192,7 +185,7 @@ func AdminSiteEditPostHandler(ctx *middleware.AppContext, w http.ResponseWriter,
 		return previewSite(s)
 	}
 
-	if err := ctx.SiteService.UpdateSite(s); err != nil {
+	if err := ctx.SiteService.Update(s); err != nil {
 		return &middleware.Template{
 			Name:   tplAdminSites,
 			Err:    err,
@@ -237,7 +230,7 @@ func AdminSiteOrderHandler(ctx *middleware.AppContext, w http.ResponseWriter, r 
 		}
 	}
 
-	if err := ctx.SiteService.OrderSite(siteID, d); err != nil {
+	if err := ctx.SiteService.Order(siteID, d); err != nil {
 		return &middleware.Template{
 			Name:   tplAdminSites,
 			Err:    err,
@@ -266,7 +259,7 @@ func AdminSitePublishHandler(ctx *middleware.AppContext, w http.ResponseWriter, 
 		}
 	}
 
-	s, err := ctx.SiteService.GetSiteByID(siteID, models.All)
+	s, err := ctx.SiteService.GetByID(siteID, models.All)
 
 	if err != nil {
 		return &middleware.Template{
@@ -318,7 +311,7 @@ func AdminSitePublishPostHandler(ctx *middleware.AppContext, w http.ResponseWrit
 		}
 	}
 
-	if err := ctx.SiteService.PublishSite(siteID); err != nil {
+	if err := ctx.SiteService.Publish(siteID); err != nil {
 		return &middleware.Template{
 			Name:   tplAdminSites,
 			Err:    err,
@@ -347,7 +340,7 @@ func AdminSiteDeleteHandler(ctx *middleware.AppContext, w http.ResponseWriter, r
 		}
 	}
 
-	site, err := ctx.SiteService.GetSiteByID(siteID, models.All)
+	site, err := ctx.SiteService.GetByID(siteID, models.All)
 
 	if err != nil {
 		return &middleware.Template{
@@ -388,7 +381,7 @@ func AdminSiteDeletePostHandler(ctx *middleware.AppContext, w http.ResponseWrite
 		}
 	}
 
-	err = ctx.SiteService.DeleteSite(siteID)
+	err = ctx.SiteService.Delete(siteID)
 	if err != nil {
 		return &middleware.Template{
 			Name:   tplAdminSites,

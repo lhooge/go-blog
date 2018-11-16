@@ -5,7 +5,9 @@
 package middleware
 
 import (
+	"database/sql"
 	"errors"
+	"fmt"
 	"html/template"
 	"net/http"
 	"os"
@@ -29,6 +31,7 @@ type Template struct {
 	Active       string
 	Data         map[string]interface{}
 	SuccessMsg   string
+	WarnMsg      string
 	RedirectPath string
 	Err          error
 }
@@ -45,15 +48,42 @@ func NotFound(ctx *AppContext, rw http.ResponseWriter, r *http.Request) *Templat
 	getFlash(rw, r, "ErrorMsg")
 	getFlash(rw, r, "SuccessMsg")
 
-	return &Template{
-		Name: "front/error",
-		Err:  httperror.New(http.StatusNotFound, "Nothing was found at this location", errors.New("not found")),
+	session, _ := ctx.SessionService.Get(rw, r)
+	if session != nil && strings.HasPrefix(r.URL.EscapedPath(), "/admin") {
+		return &Template{
+			Name: "admin/error",
+			Err:  httperror.New(http.StatusNotFound, "Nothing was found at this location", errors.New("page not found")),
+		}
+	} else {
+		return &Template{
+			Name: "front/error",
+			Err:  httperror.New(http.StatusNotFound, "Nothing was found at this location", errors.New("page not found")),
+		}
 	}
 }
 
 //FuncMap some functions for use in templates
 func FuncMap(ss models.SiteService, cfg *settings.Settings) template.FuncMap {
 	return template.FuncMap{
+		"GetMetadata": func(data map[string]interface{}) template.HTML {
+			var meta string
+
+			if len(cfg.Description) > 0 {
+				meta = fmt.Sprintf("<meta name=\"description\" content=\"%s\">\n", cfg.Description)
+			}
+
+			if value, ok := data["article"]; ok {
+				if art, ok := value.(*models.Article); ok {
+					meta = fmt.Sprintf("<meta name=\"description\" content=\"%s\">\n", art.Teaser)
+					meta += fmt.Sprintf("\t\t<meta name=\"author\" content=\"%s\">\n", art.Author.DisplayName)
+				}
+			} else if value, ok := data["site"]; ok {
+				if site, ok := value.(*models.Site); ok {
+					meta = fmt.Sprintf("\t\t<meta name=\"author\" content=\"%s\">\n", site.Author.DisplayName)
+				}
+			}
+			return template.HTML(meta)
+		},
 		"Language": func() string {
 			return cfg.Language
 		},
@@ -63,14 +93,17 @@ func FuncMap(ss models.SiteService, cfg *settings.Settings) template.FuncMap {
 		"PageTitle": func() string {
 			return cfg.Title
 		},
-		"SubTitle": func() string {
-			return cfg.Subtitle
-		},
-		"AppVersion": func() string {
-			return cfg.AppVersion
+		"BuildVersion": func() string {
+			return cfg.BuildVersion
 		},
 		"BuildDate": func() string {
 			return cfg.BuildDate
+		},
+		"NilString": func(s sql.NullString) string {
+			if !s.Valid {
+				return ""
+			}
+			return s.String
 		},
 		"FormatNilDateTime": func(t models.NullTime) string {
 			if !t.Valid {
@@ -92,7 +125,7 @@ func FuncMap(ss models.SiteService, cfg *settings.Settings) template.FuncMap {
 		},
 		"BoolToIcon": func(b bool) template.HTML {
 			if b {
-				return template.HTML("<span class=\"glyphicon glyphicon-ok-circle\" aria-hidden=\"true\"></span>")
+				return template.HTML(`<img alt="circle-checked" src="../assets/svg/circle-check.svg">`)
 			}
 			return template.HTML("")
 		},
@@ -102,8 +135,12 @@ func FuncMap(ss models.SiteService, cfg *settings.Settings) template.FuncMap {
 		"ParseMarkdown": func(s string) template.HTML {
 			return template.HTML(models.MarkdownToHTML(s))
 		},
+		"NToBr": func(in string) template.HTML {
+			out := models.NewlineToBr(models.EscapeHTML(in))
+			return template.HTML(out)
+		},
 		"GetSites": func() []models.Site {
-			sites, err := ss.ListSites(models.OnlyPublished, nil)
+			sites, err := ss.List(models.OnlyPublished, nil)
 
 			if err != nil {
 				logger.Log.Error(err)

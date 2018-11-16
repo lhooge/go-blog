@@ -9,7 +9,6 @@ import (
 	"os"
 
 	c "git.hoogi.eu/go-blog/controllers"
-	"git.hoogi.eu/go-blog/controllers/json"
 	m "git.hoogi.eu/go-blog/middleware"
 	"git.hoogi.eu/go-blog/settings"
 
@@ -42,13 +41,10 @@ func InitRoutes(ctx *m.AppContext, cfg *settings.Settings) *mux.Router {
 		}
 	}
 
-	chain = chain.Append(csrf)
-
 	publicRoutes(ctx, sr, chain)
-
 	ar := router.PathPrefix("/admin").Subrouter()
 
-	restrictedChain := chain.Append(ctx.AuthHandler)
+	restrictedChain := chain.Append(csrf).Append(ctx.AuthHandler)
 
 	restrictedRoutes(ctx, ar, restrictedChain)
 
@@ -75,7 +71,7 @@ func fileLoggingHandler(accessLogPath string) (flh func(http.Handler) http.Handl
 }
 
 func restrictedRoutes(ctx *m.AppContext, router *mux.Router, chain alice.Chain) {
-	//article routes
+	//article
 	router.Handle("/articles", chain.Then(useTemplateHandler(ctx, c.AdminListArticlesHandler))).Methods("GET")
 	router.Handle("/articles/page/{page}", chain.Then(useTemplateHandler(ctx, c.AdminListArticlesHandler))).Methods("GET")
 	router.Handle("/article/new", chain.Then(useTemplateHandler(ctx, c.AdminArticleNewHandler))).Methods("GET")
@@ -87,7 +83,7 @@ func restrictedRoutes(ctx *m.AppContext, router *mux.Router, chain alice.Chain) 
 	router.Handle("/article/delete/{articleID}", chain.Then(useTemplateHandler(ctx, c.AdminArticleDeleteHandler))).Methods("GET")
 	router.Handle("/article/delete/{articleID}", chain.Then(useTemplateHandler(ctx, c.AdminArticleDeletePostHandler))).Methods("POST")
 
-	//user routes
+	//user
 	router.Handle("/user/profile", chain.Then(useTemplateHandler(ctx, c.AdminProfileHandler))).Methods("GET")
 	router.Handle("/user/profile", chain.Then(useTemplateHandler(ctx, c.AdminProfilePostHandler))).Methods("POST")
 	router.Handle("/users", chain.Append(ctx.RequireAdmin).Then(useTemplateHandler(ctx, c.AdminUsersHandler))).Methods("GET")
@@ -99,7 +95,14 @@ func restrictedRoutes(ctx *m.AppContext, router *mux.Router, chain alice.Chain) 
 	router.Handle("/user/delete/{userID}", chain.Append(ctx.RequireAdmin).Then(useTemplateHandler(ctx, c.AdminUserDeleteHandler))).Methods("GET")
 	router.Handle("/user/delete/{userID}", chain.Append(ctx.RequireAdmin).Then(useTemplateHandler(ctx, c.AdminUserDeletePostHandler))).Methods("POST")
 
-	//site routes
+	//user invites
+	router.Handle("/user-invite/new", chain.Append(ctx.RequireAdmin).Then(useTemplateHandler(ctx, c.AdminUserInviteNewHandler))).Methods("GET")
+	router.Handle("/user-invite/new", chain.Append(ctx.RequireAdmin).Then(useTemplateHandler(ctx, c.AdminUserInviteNewPostHandler))).Methods("POST")
+	router.Handle("/user-invite/resend/{inviteID}", chain.Append(ctx.RequireAdmin).Then(useTemplateHandler(ctx, c.AdminUserInviteResendPostHandler))).Methods("POST")
+	router.Handle("/user-invite/delete/{inviteID}", chain.Append(ctx.RequireAdmin).Then(useTemplateHandler(ctx, c.AdminUserInviteDeleteHandler))).Methods("GET")
+	router.Handle("/user-invite/delete/{inviteID}", chain.Append(ctx.RequireAdmin).Then(useTemplateHandler(ctx, c.AdminUserInviteDeletePostHandler))).Methods("POST")
+
+	//site
 	router.Handle("/sites", chain.Append(ctx.RequireAdmin).Then(useTemplateHandler(ctx, c.AdminSitesHandler))).Methods("GET")
 	router.Handle("/site/page/{page}", chain.Then(useTemplateHandler(ctx, c.AdminSitesHandler))).Methods("GET")
 	router.Handle("/site/new", chain.Append(ctx.RequireAdmin).Then(useTemplateHandler(ctx, c.AdminSiteNewHandler))).Methods("GET")
@@ -110,9 +113,18 @@ func restrictedRoutes(ctx *m.AppContext, router *mux.Router, chain alice.Chain) 
 	router.Handle("/site/edit/{siteID}", chain.Append(ctx.RequireAdmin).Then(useTemplateHandler(ctx, c.AdminSiteEditPostHandler))).Methods("POST")
 	router.Handle("/site/delete/{siteID}", chain.Append(ctx.RequireAdmin).Then(useTemplateHandler(ctx, c.AdminSiteDeleteHandler))).Methods("GET")
 	router.Handle("/site/delete/{siteID}", chain.Append(ctx.RequireAdmin).Then(useTemplateHandler(ctx, c.AdminSiteDeletePostHandler))).Methods("POST")
-	router.Handle("/site/order/{siteID}", chain.Append(ctx.RequireAdmin).Then(useTemplateHandler(ctx, c.AdminSiteOrderHandler))).Methods("GET")
+	router.Handle("/site/order/{siteID}", chain.Append(ctx.RequireAdmin).Then(useTemplateHandler(ctx, c.AdminSiteOrderHandler))).Methods("POST")
 
-	//file routes
+	//article
+	router.Handle("/categories", chain.Then(useTemplateHandler(ctx, c.AdminListCategoriesHandler))).Methods("GET")
+	router.Handle("/category/new", chain.Then(useTemplateHandler(ctx, c.AdminCategoryNewHandler))).Methods("GET")
+	router.Handle("/category/new", chain.Then(useTemplateHandler(ctx, c.AdminCategoryNewPostHandler))).Methods("POST")
+	router.Handle("/category/edit/{categoryID}", chain.Then(useTemplateHandler(ctx, c.AdminCategoryEditHandler))).Methods("GET")
+	router.Handle("/category/edit/{categoryID}", chain.Then(useTemplateHandler(ctx, c.AdminCategoryEditPostHandler))).Methods("POST")
+	router.Handle("/category/delete/{categoryID}", chain.Then(useTemplateHandler(ctx, c.AdminCategoryDeleteHandler))).Methods("GET")
+	router.Handle("/category/delete/{categoryID}", chain.Then(useTemplateHandler(ctx, c.AdminCategoryDeletePostHandler))).Methods("POST")
+
+	//file
 	router.Handle("/files", chain.Then(useTemplateHandler(ctx, c.AdminListFilesHandler))).Methods("GET")
 	router.Handle("/files/page/{page}", chain.Then(useTemplateHandler(ctx, c.AdminListFilesHandler))).Methods("GET")
 	router.Handle("/file/upload", chain.Then(useTemplateHandler(ctx, c.AdminUploadFileHandler))).Methods("GET")
@@ -122,18 +134,25 @@ func restrictedRoutes(ctx *m.AppContext, router *mux.Router, chain alice.Chain) 
 
 	router.Handle("/logout", chain.Then(useTemplateHandler(ctx, c.LogoutHandler))).Methods("GET")
 
-	router.Handle("/json/session/keep-alive", chain.Then(useJSONHandler(ctx, json.KeepAliveSessionHandler))).Methods("GET")
+	router.Handle("/json/session/keep-alive", chain.Then(useJSONHandler(ctx, c.KeepAliveSessionHandler))).Methods("GET")
 }
 
 func publicRoutes(ctx *m.AppContext, router *mux.Router, chain alice.Chain) {
 	router.Handle("/", chain.Then(useTemplateHandler(ctx, c.ListArticlesHandler))).Methods("GET")
+	router.Handle("/articles/category/{categorySlug}", chain.Then(useTemplateHandler(ctx, c.ListArticlesCategoryHandler))).Methods("GET")
+	router.Handle("/articles/category/{categorySlug}/{page}", chain.Then(useTemplateHandler(ctx, c.ListArticlesCategoryHandler))).Methods("GET")
 	router.Handle("/index", chain.Then(useTemplateHandler(ctx, c.IndexArticlesHandler))).Methods("GET")
-	router.Handle("/site/{site}", chain.Then(useTemplateHandler(ctx, c.SiteHandler))).Methods("GET")
+	router.Handle("/index/category/{categorySlug}", chain.Then(useTemplateHandler(ctx, c.IndexArticlesCategoryHandler))).Methods("GET")
+
 	router.Handle("/articles/page/{page}", chain.Then(useTemplateHandler(ctx, c.ListArticlesHandler))).Methods("GET")
 	router.Handle("/article/{year}/{month}/{slug}", chain.Then(useTemplateHandler(ctx, c.GetArticleHandler))).Methods("GET")
+	router.Handle("/article/by-id/{articleID}", chain.Then(useTemplateHandler(ctx, c.GetArticleByIDHandler))).Methods("GET")
+
+	router.Handle("/rss.xml", chain.Then(useXMLHandler(ctx, c.RSSFeed))).Methods("GET")
+
+	router.Handle("/site/{site}", chain.Then(useTemplateHandler(ctx, c.SiteHandler))).Methods("GET")
 
 	router.Handle("/file/{filename}", chain.Then(c.FileGetHandler(ctx))).Methods("GET")
-
 	router.Handle("/admin", chain.Then(useTemplateHandler(ctx, c.LoginHandler))).Methods("GET")
 	router.Handle("/admin", chain.Then(useTemplateHandler(ctx, c.LoginPostHandler))).Methods("POST")
 
@@ -143,6 +162,8 @@ func publicRoutes(ctx *m.AppContext, router *mux.Router, chain alice.Chain) {
 	router.Handle("/admin/reset-password/{hash}", chain.Then(useTemplateHandler(ctx, c.ResetPasswordHandler))).Methods("GET")
 	router.Handle("/admin/reset-password/{hash}", chain.Then(useTemplateHandler(ctx, c.ResetPasswordPostHandler))).Methods("POST")
 
+	router.Handle("/admin/activate-account/{hash}", chain.Then(useTemplateHandler(ctx, c.ActivateAccountHandler))).Methods("GET")
+	router.Handle("/admin/activate-account/{hash}", chain.Then(useTemplateHandler(ctx, c.ActivateAccountPostHandler))).Methods("POST")
 }
 
 func useTemplateHandler(ctx *m.AppContext, handler m.Handler) m.TemplateHandler {
@@ -151,4 +172,8 @@ func useTemplateHandler(ctx *m.AppContext, handler m.Handler) m.TemplateHandler 
 
 func useJSONHandler(ctx *m.AppContext, handler m.JHandler) m.JSONHandler {
 	return m.JSONHandler{AppCtx: ctx, Handler: handler}
+}
+
+func useXMLHandler(ctx *m.AppContext, handler m.XHandler) m.XMLHandler {
+	return m.XMLHandler{AppCtx: ctx, Handler: handler}
 }

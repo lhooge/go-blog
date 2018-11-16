@@ -28,7 +28,6 @@ func TestCreateGetEditUser(t *testing.T) {
 		Username:    "homer",
 		Password:    []byte("1234567890"),
 		Active:      true,
-		IsAdmin:     false,
 	}
 
 	userID, err := doCreateUserRequest(expectedUser)
@@ -43,7 +42,6 @@ func TestCreateGetEditUser(t *testing.T) {
 		Username:    "homer",
 		Password:    []byte("1234567890"),
 		Active:      true,
-		IsAdmin:     false,
 	}
 
 	err = doEditUsersRequest(expectedUser)
@@ -71,9 +69,6 @@ func checkUser(user, expectedUser *models.User) error {
 	}
 	if user.ID != expectedUser.ID {
 		return fmt.Errorf("got an unexpected id. expected: %d, actual: %d", expectedUser.ID, user.ID)
-	}
-	if user.IsAdmin != expectedUser.IsAdmin {
-		return fmt.Errorf("got an unexpected isAdmin. expected: %t, actual: %t", expectedUser.IsAdmin, user.IsAdmin)
 	}
 	if user.Active != expectedUser.Active {
 		return fmt.Errorf("got an unexpected active. expected: %t, actual: %t", expectedUser.Active, user.Active)
@@ -105,15 +100,15 @@ func doGetUserRequest(userid int) (*models.User, error) {
 
 func doEditUsersRequest(user *models.User) error {
 	values := url.Values{}
-
-	setValues(values, "displayname", user.DisplayName)
-	setValues(values, "username", user.Username)
-	setValues(values, "email", user.Email)
+	addValue(values, "displayname", user.DisplayName)
+	addValue(values, "username", user.Username)
+	addValue(values, "email", user.Email)
 	s := "on"
+
 	if user.Active == false {
 		s = "off"
 	}
-	setValues(values, "active", s)
+	addValue(values, "active", s)
 
 	req, err := postRequest("/admin/user/edit", values)
 	if err != nil {
@@ -153,10 +148,11 @@ func doListUsersRequest() ([]models.User, error) {
 
 func doCreateUserRequest(user *models.User) (int, error) {
 	values := url.Values{}
-	setValues(values, "displayname", user.DisplayName)
-	setValues(values, "username", user.Username)
-	setValues(values, "email", user.Email)
-	setValues(values, "password", string(user.Password))
+	addValue(values, "displayname", user.DisplayName)
+	addValue(values, "username", user.Username)
+	addValue(values, "email", user.Email)
+	addValue(values, "password", string(user.Password))
+	addCheckboxValue(values, "active", user.Active)
 
 	req, err := postRequest("/admin/user/new", values)
 	if err != nil {
@@ -217,7 +213,7 @@ func (imu *inMemoryUser) Update(u *models.User, changePassword bool) error {
 	return sql.ErrNoRows
 }
 
-func (imu *inMemoryUser) Count(ac models.AdminCriteria) (int, error) {
+func (imu *inMemoryUser) Count() (int, error) {
 	//TODO() evaluate admin criteria
 	return len(imu.users), nil
 }

@@ -4,8 +4,8 @@
 
 package models
 
-// Action This type is used for YES/NO actions
-// Title is shown as the headline
+// Action this type is used for YES/NO actions see template/admin/action.html
+// Title is shown in the headline
 // ActionURL defines where the form should be sent
 // BackLinkURL defines where to go back
 // WarnMsg defines an optional warning which is shown above the description

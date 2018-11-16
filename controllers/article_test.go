@@ -29,7 +29,7 @@ func TestCreateGetArticle(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	rcvArticle, err2 := ctx.ArticleService.GetArticleByID(dummyUser(), artID, models.All)
+	rcvArticle, err2 := ctx.ArticleService.GetByID(artID, dummyUser(), models.All)
 	if err2 != nil {
 		t.Fatal(err)
 	}
@@ -52,6 +52,7 @@ func TestCreateGetArticle(t *testing.T) {
 		ID:       artID,
 		Slug:     rcvArticle.Slug,
 		Headline: "a new headline",
+		Teaser:   "A sample teaser",
 		Content:  "A new h1 header\n============\nthis is sample new content...",
 	}
 
@@ -89,14 +90,16 @@ func checkArticle(article *models.Article, expectedArticle *models.Article) erro
 func getSampleArticle() *models.Article {
 	return &models.Article{
 		Headline: "a sample headline",
+		Teaser:   "A sample teaser",
 		Content:  "An h1 header\n============\nthis is sample content...",
 	}
 }
 
 func doEditArticleRequest(articleID int, article *models.Article) error {
 	values := url.Values{}
-	setValues(values, "headline", article.Headline)
-	setValues(values, "content", article.Content)
+	addValue(values, "headline", article.Headline)
+	addValue(values, "teaser", article.Teaser)
+	addValue(values, "content", article.Content)
 
 	req, err := postRequest("/admin/article/edit", values)
 	if err != nil {
@@ -124,8 +127,9 @@ func doEditArticleRequest(articleID int, article *models.Article) error {
 
 func doCreateArticleRequest(article *models.Article) (int, error) {
 	values := url.Values{}
-	setValues(values, "headline", article.Headline)
-	setValues(values, "content", article.Content)
+	addValue(values, "headline", article.Headline)
+	addValue(values, "teaser", article.Teaser)
+	addValue(values, "content", article.Content)
 
 	req, err := postRequest("/admin/article/new", values)
 	if err != nil {
@@ -180,7 +184,7 @@ func (ima *inMemoryArticle) Create(a *models.Article) (int, error) {
 	return artID, nil
 }
 
-func (ima *inMemoryArticle) List(user *models.User, pg *models.Pagination, pc models.PublishedCriteria) ([]models.Article, error) {
+func (ima *inMemoryArticle) List(user *models.User, c *models.Category, pg *models.Pagination, pc models.PublishedCriteria) ([]models.Article, error) {
 	ima.RLock()
 	defer ima.RUnlock()
 
@@ -192,7 +196,7 @@ func (ima *inMemoryArticle) List(user *models.User, pg *models.Pagination, pc mo
 	return arts, nil
 }
 
-func (ima *inMemoryArticle) Count(user *models.User, publishedCriteria models.PublishedCriteria) (int, error) {
+func (ima *inMemoryArticle) Count(user *models.User, c *models.Category, publishedCriteria models.PublishedCriteria) (int, error) {
 	return -1, nil
 }
 

@@ -1,0 +1,37 @@
+{{define "admin/user_edit"}}
+
+{{template "admin/head" .}}
+{{template "admin/navigation" .}}
+<main>
+	{{template "skel/flash" .}}
+
+	<h2>Edit user</h2>
+
+		{{with .user}}
+			<form action="/admin/user/edit/{{.ID}}" method="post">
+				<label for="username">Username</label>
+				<input type="username" name="username"  value="{{.Username}}" id="username" placeholder="Username..." required>
+
+				<label for="email">Email</label>
+				<input type="email" name="email"  value="{{.Email}}" id="email" placeholder="Email..." required>
+
+				<label for="displayname">Display name</label>
+				<input type="text" value="{{.DisplayName}}" id="displayname" name="displayname" placeholder="Display name..." required>
+
+				<label for="password">New password</label>
+				<input type="password" id="password" name="password" placeholder="Password...">
+
+				<div class="checkbox">
+					<label><input type="checkbox" id="active" name="active" value="on"{{if .Active}} checked{{end}}>Is activated?</label>
+				</div>
+
+				{{ $.csrfField }}
+
+				<div class="button-group">
+					<button name="action" value="update">Save</button>
+				</div>
+			</form>
+		{{end}}
+</main>
+{{template "admin/footer"}}
+{{end}}

@@ -14,7 +14,6 @@ import (
 	"git.hoogi.eu/go-blog/components/database"
 	"git.hoogi.eu/go-blog/components/logger"
 	"git.hoogi.eu/go-blog/models"
-	"git.hoogi.eu/go-blog/settings"
 	"git.hoogi.eu/go-blog/utils"
 )
 
@@ -24,6 +23,7 @@ type createUserFlag struct {
 	email       string
 	displayName string
 	admin       bool
+	sqlite      string
 }
 
 var (
@@ -40,8 +40,7 @@ func main() {
 	password := flag.String("password", "", "Password for the admin user ")
 	email := flag.String("email", "", "Email for the created user ")
 	displayName := flag.String("displayname", "", "Display name for the admin user ")
-	isAdmin := flag.Bool("admin", false, "If set a new administrator will be created; otherwise a non-admin is created")
-	config := flag.String("config", "", "Config location to the configuration file. This will get the mysql connection parameters from the config")
+	file := flag.String("sqlite", "", "Location to the sqlite3 database file")
 
 	flag.Parse()
 
@@ -51,10 +50,10 @@ func main() {
 			password:    *password,
 			email:       *email,
 			displayName: *displayName,
-			admin:       *isAdmin,
+			sqlite:      *file,
 		}
 
-		err := initUser.CreateUser(*config)
+		err := initUser.CreateUser()
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
@@ -62,7 +61,8 @@ func main() {
 		fmt.Printf("The user '%s' was successfully created\n", *username)
 	}
 }
-func (userFlags createUserFlag) CreateUser(config string) error {
+
+func (userFlags createUserFlag) CreateUser() error {
 	if utils.TrimmedStringIsEmpty(userFlags.username) {
 		return fmt.Errorf("the username (-username) must be specified")
 	}
@@ -75,68 +75,37 @@ func (userFlags createUserFlag) CreateUser(config string) error {
 	if utils.TrimmedStringIsEmpty(userFlags.displayName) {
 		return fmt.Errorf("the display name (-displayname) must be specified")
 	}
-	if len(config) == 0 {
-		return fmt.Errorf("please specify the location of the configuration file")
+	if utils.TrimmedStringIsEmpty(userFlags.sqlite) {
+		return fmt.Errorf("please specify the location of the sqlite3 database file")
 	}
 
-	c, _, err := settings.LoadConfig(config)
+	var userService models.UserService
+
+	dbConfig := database.SQLiteConfig{
+		File: userFlags.sqlite,
+	}
+
+	db, err := dbConfig.Open()
 
 	if err != nil {
 		return err
 	}
 
-	var userService models.UserService
-
-	if c.Database.Engine == settings.MySQL {
-		dbConfig := database.MySQLConfig{
-			Host:     c.Database.Host,
-			User:     c.Database.User,
-			Port:     c.Database.Port,
-			Password: c.Database.Password,
-			Database: c.Database.Name,
-		}
-
-		db, err := dbConfig.Open()
-
-		if err != nil {
-			return err
-		}
-
-		userService = models.UserService{
-			Datasource: models.MySQLUserDatasource{
-				SQLConn: db,
-			},
-			Config: c.User,
-		}
-	} else if c.Database.Engine == settings.SQLite {
-		dbConfig := database.SQLiteConfig{
-			File: c.Database.File,
-		}
-
-		db, err := dbConfig.Open()
-
-		if err != nil {
-			return err
-		}
-
-		userService = models.UserService{
-			Datasource: models.SQLiteUserDatasource{
-				SQLConn: db,
-			},
-			Config: c.User,
-		}
+	userService = models.UserService{
+		Datasource: models.SQLiteUserDatasource{
+			SQLConn: db,
+		},
 	}
 
 	user := &models.User{
-		Username:    userFlags.username,
-		DisplayName: userFlags.displayName,
-		Email:       userFlags.email,
-		Password:    []byte(userFlags.password),
-		IsAdmin:     userFlags.admin,
-		Active:      true,
+		Username:      userFlags.username,
+		DisplayName:   userFlags.displayName,
+		Email:         userFlags.email,
+		PlainPassword: []byte(userFlags.password),
+		Active:        true,
 	}
 
-	if _, err := userService.CreateUser(user); err != nil {
+	if _, err := userService.Create(user); err != nil {
 		return err
 	}
 	return nil

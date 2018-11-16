@@ -6,7 +6,9 @@ package utils
 
 import (
 	"crypto/rand"
+	"crypto/sha512"
 	"encoding/base64"
+	"encoding/hex"
 	"io"
 	"math/big"
 
@@ -80,4 +82,11 @@ func EncodeBase64(input string) string {
 func DecodeBase64(b64 string) (string, error) {
 	out, err := base64.StdEncoding.DecodeString(b64)
 	return string(out), err
+}
+
+func RandomHash(length int) string {
+	hash := sha512.New()
+	hash.Write(RandomSecureKey(length))
+
+	return hex.EncodeToString(hash.Sum(nil))
 }

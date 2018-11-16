@@ -1,0 +1,30 @@
+{{define "admin/site_edit"}}
+
+{{template "admin/head" .}}
+{{template "admin/navigation" .}}
+<main>
+	{{template "skel/flash" .}}
+	<h2>Update site</h2>
+
+	{{with .site}}
+		<form action="/admin/site/edit/{{.ID}}" method="post">
+			<label for="headline">Title</label>
+			<input type="text" value="{{.Title}}" id="title" name="title" placeholder="Title..." required>
+
+			<label for="headline">Link</label>
+			<input type="text" value="{{.Link}}" id="link" name="link" placeholder="Link..." required>
+
+			<label for="content">Content</label>
+			<textarea rows="25" id="content" name="content">{{.Content}}</textarea>
+
+			{{ $.csrfField }}
+			
+			<div class="button-group">
+				<button name="action" value="save">Save</button>
+				<button name="action" formtarget="_blank" value="preview">Preview</button>
+			</div>
+		</form>
+	{{end}}
+</main>
+{{template "admin/footer"}}
+{{end}}

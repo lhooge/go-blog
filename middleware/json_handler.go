@@ -26,27 +26,27 @@ type JHandler func(*AppContext, http.ResponseWriter, *http.Request) (*models.JSO
 func (fn JSONHandler) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	rw.Header().Set("Content-Type", "application/json")
 
-	retJSON, err := fn.Handler(fn.AppCtx, rw, r)
+	data, err := fn.Handler(fn.AppCtx, rw, r)
 	if err != nil {
-		logger.Log.Error(retJSON)
+		logger.Log.Error(err)
 
-		js, err2 := json.Marshal(err)
+		mjson, err2 := json.Marshal(err)
 		if err2 != nil {
 			logger.Log.Error(err2)
 			http.Error(rw, err2.Error(), http.StatusInternalServerError)
 			return
 		}
 
-		rw.Write(js)
+		rw.Write(mjson)
 		return
 	}
 
-	js, err2 := json.Marshal(retJSON)
+	mjson, err2 := json.Marshal(data)
 
 	if err2 != nil {
 		http.Error(rw, err2.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	rw.Write(js)
+	rw.Write(mjson)
 }

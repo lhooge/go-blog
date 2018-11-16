@@ -1,0 +1,40 @@
+{{define "admin/user_profile"}}
+
+{{template "admin/head" .}}
+{{template "admin/navigation" .}}
+
+<main>
+	{{template "skel/flash" .}}
+
+	<h2>Edit profile</h2>
+
+	{{with .user}}
+		<form action="/admin/user/profile" method="post">
+			<label for="username">Username</label>
+			<input type="username" name="username"  value="{{.Username}}" id="username" placeholder="Username..." required>
+
+			<label for="email">Email</label>
+			<input type="email" value="{{.Email}}" name="email" id="email" placeholder="Email..." required>
+
+			<label for="displayname">Display name</label>
+			<input type="text" value="{{.DisplayName}}" id="displayname" name="displayname" placeholder="Display name..." required>
+
+			<label for="current_password">Current password</label>
+			<input type="password" id="current_password" name="current_password" placeholder="Current password..." required>
+
+			<label for="password">New password</label>
+			<input type="password" id="password" name="password" placeholder="Password...">
+
+			<label for="retyped_password">Retype password</label>
+			<input type="password" id="retyped_password" name="retyped_password" placeholder="Retype password...">
+
+			{{ $.csrfField }}
+			
+			<div class="button-group">
+				<button name="action" value="update">Save</button>
+			</div>
+		</form>
+	{{end}}
+</main>
+{{template "admin/footer"}}
+{{end}}

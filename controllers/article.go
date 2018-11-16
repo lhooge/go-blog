@@ -5,6 +5,7 @@
 package controllers
 
 import (
+	"database/sql"
 	"fmt"
 	"net/http"
 
@@ -14,16 +15,6 @@ import (
 	"git.hoogi.eu/go-blog/utils"
 )
 
-const (
-	tplArticle       = "front/article"
-	tplArticles      = "front/articles"
-	tplIndexArticles = "front/index"
-
-	tplAdminArticles    = "admin/articles"
-	tplAdminArticleNew  = "admin/new_article"
-	tplAdminArticleEdit = "admin/edit_article"
-)
-
 //GetArticleHandler returns a specific article
 //Parameters in the url form 2016/03/my-headline are used for obtaining the article
 func GetArticleHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
@@ -31,7 +22,7 @@ func GetArticleHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *htt
 	month := getVar(r, "month")
 	slug := getVar(r, "slug")
 
-	article, err := ctx.ArticleService.GetArticleBySlug(nil, utils.AppendString(year, "/", month, "/", slug), models.OnlyPublished)
+	a, err := ctx.ArticleService.GetBySlug(utils.AppendString(year, "/", month, "/", slug), nil, models.OnlyPublished)
 
 	if err != nil {
 		return &middleware.Template{
@@ -40,10 +31,60 @@ func GetArticleHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *htt
 		}
 	}
 
+	c, err := ctx.CategoryService.List(models.CategoriesWithPublishedArticles)
+
+	if err != nil {
+		return &middleware.Template{
+			Name:   tplArticles,
+			Active: "articles",
+			Err:    err,
+		}
+	}
+
 	return &middleware.Template{
 		Name: tplArticle,
 		Data: map[string]interface{}{
-			"article": article,
+			"article":    a,
+			"categories": c,
+		}}
+}
+
+//GetArticleHandler returns a specific article
+//Parameters in the url form 2016/03/my-headline are used for obtaining the article
+func GetArticleByIDHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
+	id, err := parseInt(getVar(r, "articleID"))
+
+	if err != nil {
+		return &middleware.Template{
+			Name: tplAdminArticleEdit,
+			Err:  httperror.ParameterMissing("articleID", err),
+		}
+	}
+
+	a, err := ctx.ArticleService.GetByID(id, nil, models.OnlyPublished)
+
+	if err != nil {
+		return &middleware.Template{
+			Name: tplArticle,
+			Err:  err,
+		}
+	}
+
+	c, err := ctx.CategoryService.List(models.CategoriesWithPublishedArticles)
+
+	if err != nil {
+		return &middleware.Template{
+			Name:   tplArticles,
+			Active: "articles",
+			Err:    err,
+		}
+	}
+
+	return &middleware.Template{
+		Name: tplArticle,
+		Data: map[string]interface{}{
+			"article":    a,
+			"categories": c,
 		}}
 }
 
@@ -51,10 +92,10 @@ func GetArticleHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *htt
 func ListArticlesHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
 	page := getPageParam(r)
 
-	total, err := ctx.ArticleService.CountArticles(nil, models.OnlyPublished)
+	t, err := ctx.ArticleService.Count(nil, nil, models.OnlyPublished)
 
-	pagination := &models.Pagination{
-		Total:       total,
+	p := &models.Pagination{
+		Total:       t,
 		Limit:       ctx.ConfigService.ArticlesPerPage,
 		CurrentPage: page,
 		RelURL:      "articles/page",
@@ -68,7 +109,17 @@ func ListArticlesHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *h
 		}
 	}
 
-	article, err := ctx.ArticleService.ListArticles(nil, pagination, models.OnlyPublished)
+	a, err := ctx.ArticleService.List(nil, nil, p, models.OnlyPublished)
+
+	if err != nil {
+		return &middleware.Template{
+			Name:   tplArticles,
+			Active: "articles",
+			Err:    err,
+		}
+	}
+
+	c, err := ctx.CategoryService.List(models.CategoriesWithPublishedArticles)
 
 	if err != nil {
 		return &middleware.Template{
@@ -82,14 +133,142 @@ func ListArticlesHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *h
 		Name:   tplArticles,
 		Active: "articles",
 		Data: map[string]interface{}{
-			"articles":   article,
-			"pagination": pagination,
-		}}
+			"articles":   a,
+			"categories": c,
+			"pagination": p,
+		},
+	}
+}
+
+//ListArticlesHandler returns the template which contains all published articles
+func ListArticlesCategoryHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
+	page := getPageParam(r)
+
+	category := getVar(r, "categorySlug")
+
+	c, err := ctx.CategoryService.GetBySlug(category)
+
+	if err != nil {
+		return &middleware.Template{
+			Name:   tplArticles,
+			Active: "articles",
+			Err:    err,
+		}
+	}
+
+	t, err := ctx.ArticleService.Count(nil, c, models.OnlyPublished)
+
+	p := &models.Pagination{
+		Total:       t,
+		Limit:       ctx.ConfigService.ArticlesPerPage,
+		CurrentPage: page,
+		RelURL:      "articles/page",
+	}
+
+	if err != nil {
+		return &middleware.Template{
+			Name:   tplArticles,
+			Active: "articles",
+			Err:    err,
+		}
+	}
+
+	a, err := ctx.ArticleService.List(nil, c, p, models.OnlyPublished)
+
+	if err != nil {
+		return &middleware.Template{
+			Name:   tplArticles,
+			Active: "articles",
+			Err:    err,
+		}
+	}
+
+	cs, err := ctx.CategoryService.List(models.CategoriesWithPublishedArticles)
+
+	if err != nil {
+		return &middleware.Template{
+			Name:   tplArticles,
+			Active: "articles",
+			Err:    err,
+		}
+	}
+
+	return &middleware.Template{
+		Name:   tplArticles,
+		Active: "articles",
+		Data: map[string]interface{}{
+			"articles":   a,
+			"categories": cs,
+			"catActive":  c.SlugEscape(),
+			"pagination": p,
+		},
+	}
+}
+
+//IndexArticlesCategoryHandler returns the template information for the index page grouped by categories
+func IndexArticlesCategoryHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
+	cs, err := ctx.CategoryService.List(models.CategoriesWithPublishedArticles)
+
+	if err != nil {
+		return &middleware.Template{
+			Name:   tplIndexArticles,
+			Active: "index",
+			Err:    err,
+		}
+	}
+
+	category := getVar(r, "categorySlug")
+
+	c, err := ctx.CategoryService.GetBySlug(category)
+
+	if err != nil {
+		fmt.Println("test", category)
+		return &middleware.Template{
+			Name:   tplIndexArticles,
+			Active: "index",
+			Err:    err,
+			Data: map[string]interface{}{
+				"categories": cs,
+			},
+		}
+	}
+
+	a, err := ctx.ArticleService.Index(nil, c, nil, models.OnlyPublished)
+
+	if err != nil {
+		return &middleware.Template{
+			Name:   tplIndexArticles,
+			Active: "index",
+			Err:    err,
+			Data: map[string]interface{}{
+				"categories": cs,
+			},
+		}
+	}
+
+	return &middleware.Template{
+		Name:   tplIndexArticles,
+		Active: "index",
+		Data: map[string]interface{}{
+			"articles":   a,
+			"categories": cs,
+		},
+	}
 }
 
 //IndexArticlesHandler returns the template information for the index page
 func IndexArticlesHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
-	article, err := ctx.ArticleService.IndexArticles(nil, nil, models.OnlyPublished)
+	a, err := ctx.ArticleService.Index(nil, nil, nil, models.OnlyPublished)
+
+	if err != nil {
+		return &middleware.Template{
+			Name:   tplIndexArticles,
+			Active: "index",
+			Err:    err,
+		}
+	}
+
+	c, err := ctx.CategoryService.List(models.CategoriesWithPublishedArticles)
 
 	if err != nil {
 		return &middleware.Template{
@@ -103,17 +282,36 @@ func IndexArticlesHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *
 		Name:   tplIndexArticles,
 		Active: "index",
 		Data: map[string]interface{}{
-			"indexed_articles": article,
-		}}
+			"articles":   a,
+			"categories": c,
+		},
+	}
+}
+
+//GetArticleHandler returns a specific article
+//Parameters in the url form 2016/03/my-headline are used for obtaining the article
+func RSSFeed(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) (*models.XMLData, error) {
+	p := &models.Pagination{
+		Limit: ctx.ConfigService.RSSFeedItems,
+	}
+
+	rss, err := ctx.ArticleService.RSSFeed(p, models.OnlyPublished)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &models.XMLData{
+		Data:      rss,
+		HexEncode: true,
+	}, nil
 }
 
 //AdminListArticlesHandler returns all articles, also not yet published articles will be shown
 func AdminListArticlesHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
-	user, _ := middleware.User(r)
+	u, _ := middleware.User(r)
 
-	page := getPageParam(r)
-
-	total, err := ctx.ArticleService.CountArticles(user, models.All)
+	t, err := ctx.ArticleService.Count(u, nil, models.All)
 
 	if err != nil {
 		return &middleware.Template{
@@ -123,14 +321,14 @@ func AdminListArticlesHandler(ctx *middleware.AppContext, w http.ResponseWriter,
 		}
 	}
 
-	pagination := &models.Pagination{
-		Total:       total,
+	p := &models.Pagination{
+		Total:       t,
 		Limit:       20,
-		CurrentPage: page,
+		CurrentPage: getPageParam(r),
 		RelURL:      "admin/articles/page",
 	}
 
-	articles, err := ctx.ArticleService.ListArticles(user, pagination, models.All)
+	a, err := ctx.ArticleService.List(u, nil, p, models.All)
 
 	if err != nil {
 		return &middleware.Template{
@@ -143,41 +341,63 @@ func AdminListArticlesHandler(ctx *middleware.AppContext, w http.ResponseWriter,
 		Name:   tplAdminArticles,
 		Active: "articles",
 		Data: map[string]interface{}{
-			"articles":   articles,
-			"pagination": pagination,
+			"articles":   a,
+			"pagination": p,
 		}}
 }
 
 // AdminArticleNewHandler returns the template which shows the form to create a new article
 func AdminArticleNewHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
+	c, err := ctx.CategoryService.List(models.AllCategories)
+
+	if err != nil {
+		return &middleware.Template{
+			Name: tplAdminCategories,
+			Err:  err,
+		}
+	}
+
 	return &middleware.Template{
 		Active: "articles",
 		Name:   tplAdminArticleNew,
+		Data: map[string]interface{}{
+			"categories": c,
+		},
 	}
 }
 
 // AdminArticleNewPostHandler handles the creation of a new article
 func AdminArticleNewPostHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
-	user, _ := middleware.User(r)
+	u, _ := middleware.User(r)
 
-	article := &models.Article{
-		Content:  r.FormValue("content"),
+	a := &models.Article{
 		Headline: r.FormValue("headline"),
-		Author:   user,
+		Teaser:   r.FormValue("teaser"),
+		Content:  r.FormValue("content"),
+		Author:   u,
 	}
+
+	cid, err := parseInt(r.FormValue("categoryID"))
+
+	if err != nil {
+		cid = 0
+	}
+
+	a.CID = sql.NullInt64{Int64: int64(cid), Valid: true}
 
 	if r.FormValue("action") == "preview" {
-		return previewArticle(article)
+		return previewArticle(a)
 	}
 
-	articleID, err := ctx.ArticleService.CreateArticle(article)
+	id, err := ctx.ArticleService.Create(a)
+
 	if err != nil {
 		return &middleware.Template{
 			Name:   tplAdminArticleNew,
 			Active: "articles",
 			Err:    err,
 			Data: map[string]interface{}{
-				"article": article,
+				"article": a,
 			},
 		}
 	}
@@ -187,15 +407,16 @@ func AdminArticleNewPostHandler(ctx *middleware.AppContext, w http.ResponseWrite
 		Active:       "articles",
 		SuccessMsg:   "Article successfully saved",
 		Data: map[string]interface{}{
-			"articleID": articleID,
-		}}
+			"articleID": id,
+		},
+	}
 }
 
 //AdminArticleEditHandler shows the form for changing an article
 func AdminArticleEditHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
-	user, _ := middleware.User(r)
+	u, _ := middleware.User(r)
 
-	articleID, err := parseInt(getVar(r, "articleID"))
+	id, err := parseInt(getVar(r, "articleID"))
 
 	if err != nil {
 		return &middleware.Template{
@@ -204,7 +425,7 @@ func AdminArticleEditHandler(ctx *middleware.AppContext, w http.ResponseWriter, 
 		}
 	}
 
-	article, err := ctx.ArticleService.GetArticleByID(user, articleID, models.All)
+	a, err := ctx.ArticleService.GetByID(id, u, models.All)
 
 	if err != nil {
 		return &middleware.Template{
@@ -217,17 +438,18 @@ func AdminArticleEditHandler(ctx *middleware.AppContext, w http.ResponseWriter, 
 		Name:   tplAdminArticleEdit,
 		Active: "articles",
 		Data: map[string]interface{}{
-			"article": article,
-		}}
+			"article": a,
+		},
+	}
 }
 
 //AdminArticleEditPostHandler handles the update of an article
 func AdminArticleEditPostHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
-	user, _ := middleware.User(r)
+	u, _ := middleware.User(r)
 
 	reqVar := getVar(r, "articleID")
 
-	articleID, err := parseInt(reqVar)
+	id, err := parseInt(reqVar)
 
 	if err != nil {
 		return &middleware.Template{
@@ -237,25 +459,27 @@ func AdminArticleEditPostHandler(ctx *middleware.AppContext, w http.ResponseWrit
 		}
 	}
 
-	article := &models.Article{
-		ID:       articleID,
-		Content:  r.FormValue("content"),
+	a := &models.Article{
+		ID:       id,
 		Headline: r.FormValue("headline"),
-		Author:   user,
+		Teaser:   r.FormValue("teaser"),
+		Content:  r.FormValue("content"),
+		Author:   u,
 	}
 
 	if r.FormValue("action") == "preview" {
-		return previewArticle(article)
+		return previewArticle(a)
 	}
 
-	if err = ctx.ArticleService.UpdateArticle(article, user); err != nil {
+	if err = ctx.ArticleService.Update(a, u); err != nil {
 		return &middleware.Template{
 			Name:   tplAdminArticleEdit,
 			Err:    err,
 			Active: "articles",
 			Data: map[string]interface{}{
-				"article": article,
-			}}
+				"article": a,
+			},
+		}
 	}
 
 	return &middleware.Template{
@@ -267,11 +491,11 @@ func AdminArticleEditPostHandler(ctx *middleware.AppContext, w http.ResponseWrit
 
 //AdminArticlePublishHandler returns the action template which asks the user if the article should be published / unpublished
 func AdminArticlePublishHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
-	user, _ := middleware.User(r)
+	u, _ := middleware.User(r)
 
 	reqVar := getVar(r, "articleID")
 
-	articleID, err := parseInt(reqVar)
+	id, err := parseInt(reqVar)
 
 	if err != nil {
 		return &middleware.Template{
@@ -281,12 +505,12 @@ func AdminArticlePublishHandler(ctx *middleware.AppContext, w http.ResponseWrite
 		}
 	}
 
-	a, err := ctx.ArticleService.GetArticleByID(user, articleID, models.All)
+	a, err := ctx.ArticleService.GetByID(id, u, models.All)
 
-	var publishInfo models.Action
+	var action models.Action
 
 	if a.Published {
-		publishInfo = models.Action{
+		action = models.Action{
 			ID:          "unpublishSite",
 			ActionURL:   fmt.Sprintf("/admin/article/publish/%d", a.ID),
 			BackLinkURL: "/admin/articles",
@@ -294,7 +518,7 @@ func AdminArticlePublishHandler(ctx *middleware.AppContext, w http.ResponseWrite
 			Title:       "Confirm unpublishing of article",
 		}
 	} else {
-		publishInfo = models.Action{
+		action = models.Action{
 			ID:          "publishSite",
 			ActionURL:   fmt.Sprintf("/admin/article/publish/%d", a.ID),
 			BackLinkURL: "/admin/articles",
@@ -307,18 +531,18 @@ func AdminArticlePublishHandler(ctx *middleware.AppContext, w http.ResponseWrite
 		Name:   tplAdminAction,
 		Active: "articles",
 		Data: map[string]interface{}{
-			"action": publishInfo,
+			"action": action,
 		},
 	}
 }
 
 // AdminArticlePublishPostHandler publishes or "depublishes" an article
 func AdminArticlePublishPostHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
-	user, _ := middleware.User(r)
+	u, _ := middleware.User(r)
 
 	reqVar := getVar(r, "articleID")
 
-	articleID, err := parseInt(reqVar)
+	id, err := parseInt(reqVar)
 
 	if err != nil {
 		return &middleware.Template{
@@ -327,7 +551,7 @@ func AdminArticlePublishPostHandler(ctx *middleware.AppContext, w http.ResponseW
 		}
 	}
 
-	if err := ctx.ArticleService.PublishArticle(articleID, user); err != nil {
+	if err := ctx.ArticleService.Publish(id, u); err != nil {
 		return &middleware.Template{
 			RedirectPath: "admin/articles",
 			Err:          err,
@@ -343,11 +567,11 @@ func AdminArticlePublishPostHandler(ctx *middleware.AppContext, w http.ResponseW
 
 //AdminArticleDeleteHandler returns the action template which asks the user if the article should be removed
 func AdminArticleDeleteHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
-	user, _ := middleware.User(r)
+	u, _ := middleware.User(r)
 
 	reqVar := getVar(r, "articleID")
 
-	articleID, err := parseInt(reqVar)
+	id, err := parseInt(reqVar)
 
 	if err != nil {
 		return &middleware.Template{
@@ -357,7 +581,7 @@ func AdminArticleDeleteHandler(ctx *middleware.AppContext, w http.ResponseWriter
 		}
 	}
 
-	article, err := ctx.ArticleService.GetArticleByID(user, articleID, models.All)
+	a, err := ctx.ArticleService.GetByID(id, u, models.All)
 
 	if err != nil {
 		return &middleware.Template{
@@ -367,11 +591,11 @@ func AdminArticleDeleteHandler(ctx *middleware.AppContext, w http.ResponseWriter
 		}
 	}
 
-	deleteInfo := models.Action{
+	action := models.Action{
 		ID:          "deleteArticle",
-		ActionURL:   fmt.Sprintf("/admin/article/delete/%d", article.ID),
+		ActionURL:   fmt.Sprintf("/admin/article/delete/%d", a.ID),
 		BackLinkURL: "/admin/articles",
-		Description: fmt.Sprintf("%s %s?", "Do you want to delete the article", article.Headline),
+		Description: fmt.Sprintf("%s %s?", "Do you want to delete the article", a.Headline),
 		Title:       "Confirm removal of article",
 	}
 
@@ -379,18 +603,18 @@ func AdminArticleDeleteHandler(ctx *middleware.AppContext, w http.ResponseWriter
 		Name:   tplAdminAction,
 		Active: "articles",
 		Data: map[string]interface{}{
-			"action": deleteInfo,
+			"action": action,
 		},
 	}
 }
 
 //AdminArticleDeletePostHandler handles the removing of an article
 func AdminArticleDeletePostHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
-	user, _ := middleware.User(r)
+	u, _ := middleware.User(r)
 
 	reqVar := getVar(r, "articleID")
 
-	articleID, err := parseInt(reqVar)
+	id, err := parseInt(reqVar)
 
 	if err != nil {
 		return &middleware.Template{
@@ -399,7 +623,7 @@ func AdminArticleDeletePostHandler(ctx *middleware.AppContext, w http.ResponseWr
 		}
 	}
 
-	err = ctx.ArticleService.DeleteArticle(articleID, user)
+	err = ctx.ArticleService.Delete(id, u)
 	if err != nil {
 		return &middleware.Template{
 			RedirectPath: "admin/articles",
@@ -414,11 +638,11 @@ func AdminArticleDeletePostHandler(ctx *middleware.AppContext, w http.ResponseWr
 	}
 }
 
-func previewArticle(article *models.Article) *middleware.Template {
+func previewArticle(a *models.Article) *middleware.Template {
 	return &middleware.Template{
 		Name: tplArticle,
 		Data: map[string]interface{}{
-			"article": article,
+			"article": a,
 		},
 	}
 }

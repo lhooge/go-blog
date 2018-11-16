@@ -1,0 +1,44 @@
+{{define "admin/files"}}
+
+{{template "admin/head" .}}
+{{template "admin/navigation" .}}
+<main>
+	{{template "skel/flash" .}}
+
+	<h2>Files</h2>
+
+	<p><a href="/admin/file/upload">Upload a file</a></p>
+
+	<table class="table">
+		<thead>
+			<tr>
+				<th>Last modified</th>
+				<th>Filename</th>
+				<th>ContentType</th>
+				<th>Size</th>
+				<th>User</th>
+				<th>Actions</th>
+			</tr>
+		</thead>
+
+		<tbody>
+			{{range .files}} 
+				<tr>
+					<td>{{.LastModified | FormatDateTime}}</td>
+					<td>{{.Filename}}</td>
+					<td>{{.ContentType}}</td>
+					<td>{{.Size}}</td>
+					<td>{{.Author.Username}}</td>
+					<td class="action-data">
+						<a href="/file/{{.Filename}}" title="Show file">Show file</a>
+						<a href="/admin/file/delete/{{.ID}}" title="Remove">Remove</a>
+					</td>
+				</tr>
+			{{end}}
+		</tbody>
+	</table>
+
+	{{template "skel/pagination" .}}
+</main>
+{{template "admin/footer"}}
+{{end}}

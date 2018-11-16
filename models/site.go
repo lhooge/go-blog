@@ -102,9 +102,7 @@ func (s *Site) validate(ds SiteDatasourceService, changeLink bool) error {
 		}
 
 		if l != nil {
-			return httperror.New(http.StatusUnprocessableEntity,
-				fmt.Sprintf("The link %s already exists.", s.Link),
-				fmt.Errorf("the link %s already exits", s.Link))
+			return httperror.New(http.StatusUnprocessableEntity, fmt.Sprintf("The link %s already exists.", s.Link), fmt.Errorf("the link %s already exits", s.Link))
 		}
 	}
 
@@ -116,13 +114,13 @@ type SiteService struct {
 	Datasource SiteDatasourceService
 }
 
-// ListSites returns all sites
-func (ss SiteService) ListSites(pc PublishedCriteria, p *Pagination) ([]Site, error) {
+//List returns all sites
+func (ss SiteService) List(pc PublishedCriteria, p *Pagination) ([]Site, error) {
 	return ss.Datasource.List(pc, p)
 }
 
-//PublishSite switches the publish state of the site
-func (ss SiteService) PublishSite(siteID int) error {
+//Publish switches the publish state of the site
+func (ss SiteService) Publish(siteID int) error {
 	s, err := ss.Datasource.Get(siteID, All)
 
 	if err != nil {
@@ -138,8 +136,8 @@ func (ss SiteService) PublishSite(siteID int) error {
 	return nil
 }
 
-// CreateSite creates a site
-func (ss SiteService) CreateSite(s *Site) (int, error) {
+//Create creates a site
+func (ss SiteService) Create(s *Site) (int, error) {
 	if err := s.validate(ss.Datasource, true); err != nil {
 		return -1, err
 	}
@@ -157,14 +155,14 @@ func (ss SiteService) CreateSite(s *Site) (int, error) {
 	return ss.Datasource.Create(s)
 }
 
-//OrderSite reorder the site
-func (ss SiteService) OrderSite(siteID int, dir Direction) error {
+//Order reorder the site
+func (ss SiteService) Order(siteID int, dir Direction) error {
 	return ss.Datasource.Order(siteID, dir)
 }
 
-//UpdateSite updates a site
-func (ss SiteService) UpdateSite(s *Site) error {
-	oldSite, err := ss.GetSiteByID(s.ID, All)
+//Update updates a site
+func (ss SiteService) Update(s *Site) error {
+	oldSite, err := ss.GetByID(s.ID, All)
 
 	if err != nil {
 		return err
@@ -183,9 +181,9 @@ func (ss SiteService) UpdateSite(s *Site) error {
 	return ss.Datasource.Update(s)
 }
 
-//DeleteSite deletes a site
-func (ss SiteService) DeleteSite(siteID int) error {
-	s, err := ss.GetSiteByID(siteID, All)
+//Delete deletes a site
+func (ss SiteService) Delete(siteID int) error {
+	s, err := ss.GetByID(siteID, All)
 
 	if err != nil {
 		return err
@@ -194,19 +192,19 @@ func (ss SiteService) DeleteSite(siteID int) error {
 	return ss.Datasource.Delete(s)
 }
 
-// GetSiteByLink Get a site by the link.
-func (ss SiteService) GetSiteByLink(link string, pc PublishedCriteria) (*Site, error) {
+// GetByLink Get a site by the link.
+func (ss SiteService) GetByLink(link string, pc PublishedCriteria) (*Site, error) {
 	return ss.Datasource.GetByLink(link, pc)
 
 }
 
-// GetSiteByID Get a site by the id.
-func (ss SiteService) GetSiteByID(siteID int, pc PublishedCriteria) (*Site, error) {
+// GetByID Get a site by the id.
+func (ss SiteService) GetByID(siteID int, pc PublishedCriteria) (*Site, error) {
 	return ss.Datasource.Get(siteID, pc)
 
 }
 
-// CountSites returns the number of sites
-func (ss SiteService) CountSites(pc PublishedCriteria) (int, error) {
+// Count returns the number of sites
+func (ss SiteService) Count(pc PublishedCriteria) (int, error) {
 	return ss.Datasource.Count(pc)
 }

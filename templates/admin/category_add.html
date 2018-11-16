@@ -1,0 +1,25 @@
+{{define "admin/category_add"}}
+
+{{template "admin/head" .}}
+{{template "admin/navigation" .}}
+
+<main>
+	{{template "skel/flash" .}}
+
+	<h2>Add a category</h2>
+
+	<form action="/admin/category/new" method="post">
+		<label for="name">Name</label>
+		<input type="text" id="name" name="name" placeholder="Name..." {{if .category.Name}}value="{{.category.Name}}"{{end}} required>
+
+	    {{ .csrfField }}
+
+		<div class="button-group">
+			<button name="action" value="save">Save</button>
+		</div>
+	</form>
+</main>
+
+{{template "admin/footer"}}
+
+{{end}}

@@ -24,7 +24,7 @@ type UserDatasourceService interface {
 	List(p *Pagination) ([]User, error)
 	Get(userID int) (*User, error)
 	Update(u *User, changePassword bool) error
-	Count(ac AdminCriteria) (int, error)
+	Count() (int, error)
 	GetByMail(mail string) (*User, error)
 	GetByUsername(username string) (*User, error)
 	Remove(userID int) error
@@ -32,31 +32,47 @@ type UserDatasourceService interface {
 
 //User represents a user
 type User struct {
-	ID           int
-	Username     string
-	Email        string
-	DisplayName  string
-	Password     []byte
-	Salt         []byte
-	LastModified time.Time
-	Active       bool
-	IsAdmin      bool
+	ID            int
+	Username      string
+	Email         string
+	DisplayName   string
+	Password      []byte
+	PlainPassword []byte
+	Salt          []byte
+	LastModified  time.Time
+	Active        bool
 }
 
 const (
 	bcryptRounds = 12
 )
 
+//UserService containing the service to access users
+type UserService struct {
+	Datasource      UserDatasourceService
+	Config          settings.User
+	UserInterceptor UserInterceptor
+}
+
 //UserInterceptor will be executed before and after updating/creating users
-//build your own interceptor as plugin
 type UserInterceptor interface {
 	PreCreate(user *User) error
 	PostCreate(user *User) error
-	PreUpdate(user *User) error
-	PostUpdate(user *User) error
+	PreUpdate(oldUser *User, user *User) error
+	PostUpdate(oldUser *User, user *User) error
+	PreRemove(user *User) error
+	PostRemove(user *User) error
 }
 
-func (u *User) validate(ds UserDatasourceService, minPasswordLength int, changeMail, changeUserName, changePassword bool) error {
+type Validations int
+
+const (
+	VDupEmail = 1 << iota
+	VDupUsername
+	VPassword
+)
+
+func (u *User) validate(us UserService, minPasswordLength int, v Validations) error {
 	u.DisplayName = strings.TrimSpace(u.DisplayName)
 	u.Email = strings.TrimSpace(u.Email)
 	u.Username = strings.TrimSpace(u.Username)
@@ -85,65 +101,77 @@ func (u *User) validate(ds UserDatasourceService, minPasswordLength int, changeM
 		return httperror.ValueTooLong("username", 60)
 	}
 
-	if changePassword {
-		if len(u.Password) < minPasswordLength && len(u.Password) >= 0 {
+	if (v & VPassword) != 0 {
+		if len(u.PlainPassword) < minPasswordLength && len(u.PlainPassword) > 0 {
 			return httperror.New(http.StatusUnprocessableEntity,
 				fmt.Sprintf("The password is too short. It must be at least %d characters long.", minPasswordLength),
 				fmt.Errorf("the password is too short, it must be at least %d characters long", minPasswordLength),
 			)
 		}
-
 	}
 
-	if changeMail {
-		user, err := ds.GetByMail(u.Email)
+	if (v & VDupEmail) != 0 {
+		err := us.duplicateMail(u.Email)
+
 		if err != nil {
-			if err != sql.ErrNoRows {
-				return err
-			}
-		}
-		if user != nil {
-			return httperror.New(http.StatusUnprocessableEntity,
-				fmt.Sprintf("The mail %s already exists.", u.Email),
-				fmt.Errorf("the mail %s already exits", u.Email))
+			return err
 		}
 	}
 
-	if changeUserName {
-		user, err := ds.GetByUsername(u.Username)
+	if (v & VDupUsername) != 0 {
+		err := us.duplicateUsername(u.Username)
+
 		if err != nil {
-			if err != sql.ErrNoRows {
-				return err
-			}
-		}
-		if user != nil {
-			return httperror.New(http.StatusUnprocessableEntity,
-				fmt.Sprintf("The username %s already exists.", u.Username),
-				fmt.Errorf("the username %s already exists", u.Username))
+			return err
 		}
 	}
+
 	return nil
 }
 
-//UserService containing the service to access users
-type UserService struct {
-	Datasource      UserDatasourceService
-	Config          settings.User
-	UserInterceptor UserInterceptor
+func (us UserService) duplicateMail(mail string) error {
+	user, err := us.Datasource.GetByMail(mail)
+	if err != nil {
+		if err != sql.ErrNoRows {
+			return err
+		}
+	}
+
+	if user != nil {
+		return httperror.New(http.StatusUnprocessableEntity, fmt.Sprintf("The mail %s already exists.", mail), fmt.Errorf("the mail %s already exits", mail))
+	}
+
+	return nil
 }
 
-//CountUsers returns the amount of users
-func (us UserService) CountUsers(a AdminCriteria) (int, error) {
-	return us.Datasource.Count(a)
+func (us UserService) duplicateUsername(username string) error {
+	user, err := us.Datasource.GetByUsername(username)
+	if err != nil {
+		if err != sql.ErrNoRows {
+			return err
+		}
+	}
+	if user != nil {
+		return httperror.New(http.StatusUnprocessableEntity,
+			fmt.Sprintf("The username %s already exists.", username),
+			fmt.Errorf("the username %s already exists", username))
+	}
+
+	return nil
 }
 
-//ListUsers returns a list of users. Limits the amount based on the defined pagination
-func (us UserService) ListUsers(p *Pagination) ([]User, error) {
+//Count returns the amount of users
+func (us UserService) Count() (int, error) {
+	return us.Datasource.Count()
+}
+
+//List returns a list of users. Limits the amount based on the defined pagination
+func (us UserService) List(p *Pagination) ([]User, error) {
 	return us.Datasource.List(p)
 }
 
-//GetUserByID gets the user based on the given id; will not contain the user password
-func (us UserService) GetUserByID(userID int) (*User, error) {
+//GetByID gets the user based on the given id; will not contain the user password
+func (us UserService) GetByID(userID int) (*User, error) {
 	u, err := us.Datasource.Get(userID)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -155,12 +183,12 @@ func (us UserService) GetUserByID(userID int) (*User, error) {
 	return u, nil
 }
 
-//GetUserByUsername gets the user based on the given username; will contain the user password
-func (us UserService) GetUserByUsername(username string) (*User, error) {
+//GetByUsername gets the user based on the given username; will contain the user password
+func (us UserService) GetByUsername(username string) (*User, error) {
 	u, err := us.Datasource.GetByUsername(username)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return nil, httperror.NotFound("user", fmt.Errorf("the user with username %s was not found", username))
+			return nil, httperror.NotFound("user", err)
 		}
 		return nil, err
 	}
@@ -168,32 +196,35 @@ func (us UserService) GetUserByUsername(username string) (*User, error) {
 	return u, nil
 }
 
-//GetUserByMail gets the user based on the given mail; will contain the user password
-func (us UserService) GetUserByMail(mail string) (*User, error) {
+//GetByMail gets the user based on the given mail; will contain the user password
+func (us UserService) GetByMail(mail string) (*User, error) {
 	u, err := us.Datasource.GetByMail(mail)
 
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return nil, httperror.NotFound("user", fmt.Errorf("the user with mail %s was not found", mail))
+			return nil, httperror.NotFound("user", err)
 		}
+
+		return nil, err
 	}
 	return u, nil
 }
 
-//CreateUser creates the user
+//Create creates the user
 //If an UserInterceptor is available the action PreCreate is executed before creating and PostCreate after creating the user
-func (us UserService) CreateUser(u *User) (int, error) {
+func (us UserService) Create(u *User) (int, error) {
 	if us.UserInterceptor != nil {
-		errUserInterceptor := us.UserInterceptor.PreCreate(u)
-		return -1, httperror.InternalServerError(fmt.Errorf("error while executing user interceptor 'PreCreate' error %v", errUserInterceptor))
+		if err := us.UserInterceptor.PreCreate(u); err != nil {
+			return -1, httperror.InternalServerError(fmt.Errorf("error while executing user interceptor 'PreCreate' error %v", err))
+		}
 	}
 
-	if err := u.validate(us.Datasource, us.Config.MinPasswordLength, true, true, true); err != nil {
+	if err := u.validate(us, us.Config.MinPasswordLength, VDupUsername|VDupEmail|VPassword); err != nil {
 		return -1, err
 	}
 
 	salt := utils.GenerateSalt()
-	saltedPassword := utils.AppendBytes(u.Password, salt)
+	saltedPassword := utils.AppendBytes(u.PlainPassword, salt)
 	password, err := utils.CryptPassword([]byte(saltedPassword), bcryptRounds)
 
 	if err != nil {
@@ -211,59 +242,65 @@ func (us UserService) CreateUser(u *User) (int, error) {
 
 	if us.UserInterceptor != nil {
 		errUserInterceptor := us.UserInterceptor.PostCreate(u)
-		logger.Log.Errorf("error while executing PostUpdate user interceptor method %v", errUserInterceptor)
+		logger.Log.Errorf("error while executing PostCreate user interceptor method %v", errUserInterceptor)
 	}
 
 	salt = nil
 	saltedPassword = nil
+	u.PlainPassword = nil
 
 	return userID, nil
 }
 
-//UpdateUser updates the user
+//Update updates the user
 //If an UserInterceptor is available the action PreUpdate is executed before updating and PostUpdate after updating the user
-func (us UserService) UpdateUser(u *User, changePassword bool) error {
+func (us UserService) Update(u *User, changePassword bool) error {
 	oldUser, err := us.Datasource.Get(u.ID)
 
 	if err != nil {
 		return err
 	}
 
-	if !oldUser.IsAdmin {
-		if oldUser.ID != u.ID {
-			return httperror.PermissionDenied("update", "user", fmt.Errorf("permission denied user %d is not granted to update user %d", oldUser.ID, u.ID))
+	if us.UserInterceptor != nil {
+		if err := us.UserInterceptor.PreUpdate(oldUser, u); err != nil {
+			return httperror.InternalServerError(fmt.Errorf("error while executing user interceptor 'PreUpdate' error %v", err))
 		}
 	}
 
-	if us.UserInterceptor != nil {
-		errUserInterceptor := us.UserInterceptor.PreUpdate(u)
-		return httperror.InternalServerError(fmt.Errorf("error while executing user interceptor 'PreUpdate' error %v", errUserInterceptor))
+	var v Validations
+
+	if u.Email != oldUser.Email {
+		v |= VDupEmail
 	}
 
-	var changedMail = !(u.Email == oldUser.Email)
-	var changedUserName = !(u.Username == oldUser.Username)
+	if u.Username != oldUser.Username {
+		v |= VDupUsername
+	}
 
-	if err = u.validate(us.Datasource, us.Config.MinPasswordLength, changedMail, changedUserName, changePassword); err != nil {
+	if changePassword {
+		v |= VPassword
+	}
+
+	if err = u.validate(us, us.Config.MinPasswordLength, v); err != nil {
 		return err
 	}
 
-	oneAdmin, err := us.OneAdmin()
+	oneAdmin, err := us.OneUser()
 
 	if err != nil {
 		return err
 	}
 
 	if oneAdmin {
-		if (oldUser.IsAdmin && !u.IsAdmin) || (oldUser.IsAdmin && !u.Active) {
-			return httperror.New(http.StatusUnprocessableEntity,
-				"Could not update user, because no administrator would remain",
-				fmt.Errorf("could not update user %s action, because no administrator would remain", oldUser.Username))
-		}
+		return httperror.New(http.StatusUnprocessableEntity,
+			"Could not update user, because no user would remain",
+			fmt.Errorf("could not update user %s action, because no administrator would remain", oldUser.Username))
+
 	}
 
 	if changePassword {
 		salt := utils.GenerateSalt()
-		saltedPassword := utils.AppendBytes(u.Password, salt)
+		saltedPassword := utils.AppendBytes(u.PlainPassword, salt)
 		password, err := utils.CryptPassword([]byte(saltedPassword), bcryptRounds)
 
 		if err != nil {
@@ -279,55 +316,82 @@ func (us UserService) UpdateUser(u *User, changePassword bool) error {
 	u.Password = nil
 
 	if us.UserInterceptor != nil {
-		errUserInterceptor := us.UserInterceptor.PostUpdate(u)
-		logger.Log.Errorf("error while executing PostUpdate user interceptor method %v", errUserInterceptor)
+		if err := us.UserInterceptor.PostUpdate(oldUser, u); err != nil {
+			logger.Log.Errorf("error while executing PostUpdate user interceptor method %v", err)
+		}
 	}
+	u.PlainPassword = nil
 
 	return err
 }
 
-//Authenticate tries to authenticates the user
-// if the user was found;; but the password is wrong the found user and an error will be returned
+// Authenticate authenticates the user by the given login method (email or username)
+// if the user was found but the password is wrong the found user and an error will be returned
 func (us UserService) Authenticate(u *User, loginMethod settings.LoginMethod, password []byte) (*User, error) {
 	var err error
 
 	if loginMethod == settings.EMail {
-		u, err = us.GetUserByMail(u.Email)
+		u, err = us.Datasource.GetByMail(u.Email)
 	} else {
-		u, err = us.GetUserByUsername(u.Username)
+		u, err = us.Datasource.GetByUsername(u.Username)
 	}
 
 	if err != nil {
+		if err == sql.ErrNoRows {
+			//Do some extra work
+			bcrypt.CompareHashAndPassword([]byte("$2a$12$bQlRnXTNZMp6kCyoAlnf3uZW5vtmSj9CHP7pYplRUVK2n0C5xBHBa"), password)
+			return nil, httperror.New(http.StatusUnauthorized, "Your username or password is invalid.", err)
+		}
 		return nil, err
 	}
 
 	if err := u.comparePassword(password); err != nil {
-		return u, err
+		return u, httperror.New(http.StatusUnauthorized, "Your username or password is invalid.", err)
 	}
+
+	if !u.Active {
+		return nil, httperror.New(http.StatusUnprocessableEntity,
+			"Your account is deactivated.",
+			fmt.Errorf("the user with id %d tried to logged in but the account is deactivated", u.ID))
+	}
+
 	return u, nil
 }
 
-//RemoveUser removes the user; returns an error if no dministrator would remain
-func (us UserService) RemoveUser(u *User) error {
-	oneAdmin, err := us.OneAdmin()
+// Remove removes the user returns an error if no administrator would remain
+func (us UserService) Remove(u *User) error {
+	if us.UserInterceptor != nil {
+		if err := us.UserInterceptor.PreRemove(u); err != nil {
+			return httperror.InternalServerError(fmt.Errorf("error while executing user interceptor 'PreRemove' error %v", err))
+		}
+	}
+
+	oneAdmin, err := us.OneUser()
 
 	if err != nil {
 		return err
 	}
 
 	if oneAdmin {
-		if u.IsAdmin {
-			return httperror.New(http.StatusUnprocessableEntity,
-				"Could not remove administrator. No Administrator would remain.",
-				fmt.Errorf("could not remove administrator %s no administrator would remain", u.Username))
+		return httperror.New(http.StatusUnprocessableEntity,
+			"Could not remove administrator. No Administrator would remain.",
+			fmt.Errorf("could not remove administrator %s no administrator would remain", u.Username))
+	}
+
+	err = us.Datasource.Remove(u.ID)
+
+	if us.UserInterceptor != nil {
+		if err := us.UserInterceptor.PostRemove(u); err != nil {
+			logger.Log.Errorf("error while executing PostRemove user interceptor method %v", err)
 		}
 	}
-	return us.Datasource.Remove(u.ID)
+
+	return err
 }
 
 //OneAdmin returns true if there is only one admin
-func (us UserService) OneAdmin() (bool, error) {
-	c, err := us.Datasource.Count(OnlyAdmins)
+func (us UserService) OneUser() (bool, error) {
+	c, err := us.Datasource.Count()
 
 	if err != nil {
 		return true, err

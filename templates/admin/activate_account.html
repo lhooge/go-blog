@@ -1,0 +1,24 @@
+{{define "admin/activate_account"}}
+
+{{template "admin/head" .}}
+<main>
+	{{template "skel/flash" .}}
+
+	<h2>Activate account</h2>
+			
+	<form action="/admin/activate-account/{{.hash}}" method="post">
+		<label for="password">Password</label>
+		<input type="password" id="password" name="password" placeholder="Password..." required>
+	
+		<label for="retyped_password">Retype password</label>
+		<input type="password" id="retyped_password" name="password_repeat" placeholder="Retype password...">
+			
+		{{ .csrfField }}
+		<div class="button-group">
+			<button name="action" value="add">Save</button>
+		</div>
+	</form>
+</main>
+</body>
+</html>
+{{end}}

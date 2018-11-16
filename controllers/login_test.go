@@ -20,7 +20,6 @@ func TestLogin(t *testing.T) {
 		Username:    "homer",
 		Password:    []byte("1234567890"),
 		Active:      true,
-		IsAdmin:     false,
 	}
 
 	_, err := doCreateUserRequest(expectedUser)
@@ -66,7 +65,6 @@ func TestFailLogin(t *testing.T) {
 		Username:    "homer",
 		Password:    []byte("12345678123"),
 		Active:      true,
-		IsAdmin:     false,
 	}
 
 	_, err := doCreateUserRequest(expectedUser)
@@ -94,8 +92,8 @@ func TestFailLogin(t *testing.T) {
 
 func doLoginRequest() (responseWrapper, error) {
 	values := url.Values{}
-	setValues(values, "username", "homer")
-	setValues(values, "password", "1234567890")
+	addValue(values, "username", "homer")
+	addValue(values, "password", "1234567890")
 
 	req, err := postRequest("/admin/login", values)
 	if err != nil {
