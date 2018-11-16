@@ -105,7 +105,7 @@ func (userFlags createUserFlag) CreateUser() error {
 		Active:        true,
 	}
 
-	if _, err := userService.CreateUser(user); err != nil {
+	if _, err := userService.Create(user); err != nil {
 		return err
 	}
 	return nil

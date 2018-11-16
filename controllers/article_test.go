@@ -29,7 +29,7 @@ func TestCreateGetArticle(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	rcvArticle, err2 := ctx.ArticleService.GetArticleByID(artID, dummyUser(), models.All)
+	rcvArticle, err2 := ctx.ArticleService.GetByID(artID, dummyUser(), models.All)
 	if err2 != nil {
 		t.Fatal(err)
 	}
@@ -184,7 +184,7 @@ func (ima *inMemoryArticle) Create(a *models.Article) (int, error) {
 	return artID, nil
 }
 
-func (ima *inMemoryArticle) List(user *models.User, pg *models.Pagination, pc models.PublishedCriteria) ([]models.Article, error) {
+func (ima *inMemoryArticle) List(user *models.User, c *models.Category, pg *models.Pagination, pc models.PublishedCriteria) ([]models.Article, error) {
 	ima.RLock()
 	defer ima.RUnlock()
 
@@ -196,7 +196,7 @@ func (ima *inMemoryArticle) List(user *models.User, pg *models.Pagination, pc mo
 	return arts, nil
 }
 
-func (ima *inMemoryArticle) Count(user *models.User, publishedCriteria models.PublishedCriteria) (int, error) {
+func (ima *inMemoryArticle) Count(user *models.User, c *models.Category, publishedCriteria models.PublishedCriteria) (int, error) {
 	return -1, nil
 }
 

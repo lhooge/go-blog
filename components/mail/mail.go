@@ -92,9 +92,9 @@ func (s Service) readBuffer() <-chan error {
 		}
 
 		close(errc)
-	}
 
-	return errc
+		return errc
+	}
 }
 
 func (s Service) SendAsync(m Mail) error {

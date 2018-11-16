@@ -65,15 +65,15 @@ func addCheckboxValue(m url.Values, key string, value bool) {
 }
 
 func dummyAdminUser() *models.User {
-	return &models.User{ID: 1, Email: "test@example.com", Username: "homer", DisplayName: "Homer Simpson", Active: true, IsAdmin: true}
+	return &models.User{ID: 1, Email: "test@example.com", Username: "homer", DisplayName: "Homer Simpson", Active: true}
 }
 
 func dummyUser() *models.User {
-	return &models.User{ID: 1, Email: "test-marge@example.com", Username: "marge", DisplayName: "Marge Simpson", Active: true, IsAdmin: false}
+	return &models.User{ID: 1, Email: "test-marge@example.com", Username: "marge", DisplayName: "Marge Simpson", Active: true}
 }
 
 func dummyInactiveUser() models.User {
-	return models.User{ID: 1, Email: "test-bart@example.com", Username: "bart", DisplayName: "Bart Simpson", Active: false, IsAdmin: false}
+	return models.User{ID: 1, Email: "test-bart@example.com", Username: "bart", DisplayName: "Bart Simpson", Active: false}
 }
 
 func postRequest(path string, values url.Values) (*http.Request, error) {

@@ -94,7 +94,7 @@ type Database struct {
 }
 
 type File struct {
-	Location      string       `cfg:"file_location" default:"/srv/goblog/files/`
+	Location      string       `cfg:"file_location" default:"/srv/goblog/files/"`
 	MaxUploadSize cfg.FileSize `cfg:"file_max_upload_size" default:"20MB"`
 }
 
