@@ -72,7 +72,7 @@ main {
 	grid-column-end: 4; 
 	grid-row-start: 2;
 	grid-row-end: 3;
-	padding: 1em;
+	padding: 0 1em 1em 1em;
 }
 
 @media (min-width: 75em) {
@@ -235,13 +235,7 @@ code {
 }
 
 article {
-	border-bottom-color: #555;
-	border-bottom-style: solid;
-	border-bottom-width: 0.0625rem;
 	padding: 1.25rem 0;
-}
-article:last-child {
-	border-bottom-style: none;
 }
 
 main h1 {
@@ -292,6 +286,10 @@ main p {
 .article_info {
 	font-size: 0.9em;
 	margin: 0 0 1em 0;
+	padding-bottom: 5px;
+	border-bottom-color: #285e8e;
+	border-bottom-style: solid;
+	border-bottom-width: 0.14rem;
 }
 
 .alert {
