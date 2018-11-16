@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"strings"
 	"syscall"
 
 	"git.hoogi.eu/go-blog/components/httperror"
@@ -31,7 +30,7 @@ func FileGetHandler(ctx *middleware.AppContext) http.Handler {
 		loc := filepath.Join(ctx.ConfigService.Location, f.Filename)
 
 		w.Header().Set("Content-Type", f.ContentType)
-		w.Header().Set("Content-Disposition", "attachment")
+		w.Header().Set("Content-Disposition", "inline")
 
 		rf, err := os.Open(loc)
 
@@ -150,8 +149,6 @@ func AdminUploadFilePostHandler(ctx *middleware.AppContext, w http.ResponseWrite
 		}
 	}
 
-	nf := r.FormValue("newfilename")
-
 	ct := http.DetectContentType(data)
 
 	file := &models.File{
@@ -161,20 +158,22 @@ func AdminUploadFilePostHandler(ctx *middleware.AppContext, w http.ResponseWrite
 		Size:        int64(len(data)),
 	}
 
-	if len(nf) > 0 {
-		idx := strings.LastIndex(nf, ".")
+	var filename string
+	var ext string
 
-		//check if an extension were provided in the new file name; if not try to use extension from form data
-		if idx > 0 {
-			ue := filepath.Ext(h.Filename)
+	ext = filepath.Ext(h.Filename[1:])
 
-			file.Filename = fmt.Sprintf("%s%s", nf, ue)
-		} else {
-			file.Filename = nf
-		}
+	if ext != "" {
+		filename = h.Filename[0 : len(h.Filename)-len(ext)]
 	} else {
-		file.Filename = h.Filename
+		filename = h.Filename
 	}
+
+	file.Filename = filename
+	file.Extension = ext
+
+	fmt.Println(filename)
+	fmt.Println(ext)
 
 	_, err = ctx.FileService.Upload(file, data)
 

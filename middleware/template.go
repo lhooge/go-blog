@@ -87,6 +87,9 @@ func FuncMap(ss models.SiteService, cfg *settings.Settings) template.FuncMap {
 		"Language": func() string {
 			return cfg.Language
 		},
+		"ApplicationURL": func() string {
+			return cfg.Application.Domain
+		},
 		"KeepAliveInterval": func() int64 {
 			return (cfg.Session.TTL.Nanoseconds() / 1e9) - 5
 		},

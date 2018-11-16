@@ -4,7 +4,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
-	"strings"
+	"strconv"
 	"time"
 
 	"git.hoogi.eu/go-blog/components/httperror"
@@ -17,6 +17,8 @@ type File struct {
 	ID           int
 	Location     string
 	Filename     string
+	Extension    string
+	FullFilename string
 	ContentType  string
 	Size         int64
 	LastModified time.Time
@@ -36,6 +38,10 @@ type FileDatasourceService interface {
 // validate validates if mandatory file fields are set
 // sanitizes the filename
 func (f *File) validate() error {
+	if len(f.Filename) == 0 {
+		return httperror.ValueRequired("filename")
+	}
+
 	if len(f.Filename) > 255 {
 		return httperror.ValueTooLong("filename", 255)
 	}
@@ -43,15 +49,8 @@ func (f *File) validate() error {
 	return nil
 }
 
-func (f *File) sanitizeFilename() string {
-	idx := strings.LastIndex(f.Filename, ".")
-
-	//ignore first dot
-	if idx > 0 {
-		extension := f.Filename[idx:len(f.Filename)]
-		return utils.SanitizeFilename(f.Filename[:idx]) + extension
-	}
-	return utils.SanitizeFilename(f.Filename)
+func (f File) buildSanitizedFilename() string {
+	return utils.SanitizeFilename(f.Filename) + "_" + strconv.Itoa(int(time.Now().Unix())) + f.Extension
 }
 
 //FileService containing the service to interact with files
@@ -97,7 +96,7 @@ func (fs FileService) Delete(fileID int, location string, u *User) error {
 		return err
 	}
 
-	return os.Remove(filepath.Join(location, file.Filename))
+	return os.Remove(filepath.Join(location, file.FullFilename))
 }
 
 //Upload uploaded files will be saved at the configured file location, filename is saved in the database
@@ -105,11 +104,13 @@ func (fs FileService) Upload(f *File, data []byte) (int, error) {
 	if err := f.validate(); err != nil {
 		return -1, err
 	}
-	f.Filename = f.sanitizeFilename()
 
-	fi := filepath.Join(f.Location, f.Filename)
+	f.FullFilename = f.buildSanitizedFilename()
+
+	fi := filepath.Join(f.Location, f.FullFilename)
 
 	err := ioutil.WriteFile(fi, data, 0640)
+
 	if err != nil {
 		return -1, err
 	}

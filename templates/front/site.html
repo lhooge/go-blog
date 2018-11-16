@@ -1,25 +1,28 @@
 {{define "front/site"}}
 
-{{define "front/articles"}}
-
 {{template "front/head" .}}
 
-	<link rel="alternate" type="application/rss+xml" href="/rss.xml">
-</head>
+		<link rel="alternate" type="application/rss+xml" href="/rss.xml">
+	</head>
 
-<body>
-	<div class="container">
-		<header>
-			<h1 class="header-text">{{PageTitle}}</h1>
-		</header>
+		<body>
+			<div class="container">
+				<header>
+					<h1 class="header-text">{{PageTitle}}</h1>
+				</header>
 
-	{{template "front/navigation" .}}
+			{{template "front/navigation" .}}
 
-	<main>
-		{{template "skel/flash" .}}
+			<main>
+				{{template "skel/flash" .}}
 
-		{{with .site}}
-		    {{.Content | ParseMarkdown}}
-		{{end}}
-	</main>
+				{{with .site}}
+				    {{.Content | ParseMarkdown}}
+				{{end}}
+			</main>
+
+				{{template "front/footer"}}
+			</div>
+		</body>
+	</html>
 {{end}}
