@@ -199,6 +199,7 @@ func ListArticlesCategoryHandler(ctx *middleware.AppContext, w http.ResponseWrit
 		Data: map[string]interface{}{
 			"articles":   a,
 			"categories": cs,
+			"catActive":  c.SlugEscape(),
 			"pagination": p,
 		},
 	}
