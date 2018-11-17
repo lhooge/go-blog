@@ -59,7 +59,7 @@ func (de *DatabaseEngine) Unmarshal(value string) error {
 type Settings struct {
 	Environment  string `cfg:"environment" default:"prod"`
 	BuildVersion string `cfg:"-"`
-	BuildDate    string `cfg:"-"`
+	BuildGitHash string `cfg:"-"`
 
 	Application
 	Blog
