@@ -6,7 +6,7 @@
 	{{template "skel/flash" .}}
 
 	<h2>Invite user</h2>
-			
+
 	<form action="/admin/user-invite/new" method="post">
 		<label for="username">Username</label>
 		<input type="username" name="username" {{if .user_invite}}value="{{.user_invite.Username}}"{{end}} value="{{.Username}}" id="username" placeholder="Username..." required>
@@ -23,5 +23,5 @@
 		</div>
 	</form>
 </main>
-{{template "admin/footer"}}
+{{template "admin/footer" .}}
 {{end}}

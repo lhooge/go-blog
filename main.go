@@ -56,6 +56,9 @@ func main() {
 		return
 	}
 
+	cfg.BuildVersion = BuildVersion
+	cfg.BuildGitHash = GitHash
+
 	if err = cfg.CheckConfig(); err != nil {
 		exitCode = 1
 		fmt.Println(err)

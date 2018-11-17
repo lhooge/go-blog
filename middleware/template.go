@@ -99,8 +99,8 @@ func FuncMap(ss models.SiteService, cfg *settings.Settings) template.FuncMap {
 		"BuildVersion": func() string {
 			return cfg.BuildVersion
 		},
-		"BuildDate": func() string {
-			return cfg.BuildDate
+		"BuildGitHash": func() string {
+			return cfg.BuildGitHash
 		},
 		"NilString": func(s sql.NullString) string {
 			if !s.Valid {

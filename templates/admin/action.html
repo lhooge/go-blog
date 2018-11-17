@@ -17,16 +17,16 @@
 			<div class="alert alert-info" role="alert"><p>{{.Description}}</p></div>
 
 			{{ $.csrfField }}
-			
+
 			<div class="button-group">
 				<button class="button button-yes" type="submit" name="action" value="yes">Yes</button>
-				<a href="{{.BackLinkURL}}" role="button" aria-disabled="true"><button class="button button-no" type="submit" name="action" value="yes">No</button></a>
+				<a href="{{.BackLinkURL}}" role="button" aria-disabled="true"><button class="button button-no" type="button" name="action" value="no">No</button></a>
 			</div>
 		</form>
 	{{end}}
 </main>
 
-{{template "admin/footer"}}
+{{template "admin/footer" .}}
 
 {{end}}
 

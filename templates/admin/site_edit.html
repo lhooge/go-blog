@@ -18,7 +18,7 @@
 			<textarea rows="25" id="content" name="content">{{.Content}}</textarea>
 
 			{{ $.csrfField }}
-			
+
 			<div class="button-group">
 				<button name="action" value="save">Save</button>
 				<button name="action" formtarget="_blank" value="preview">Preview</button>
@@ -26,5 +26,5 @@
 		</form>
 	{{end}}
 </main>
-{{template "admin/footer"}}
+{{template "admin/footer" .}}
 {{end}}
