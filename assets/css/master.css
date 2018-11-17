@@ -451,7 +451,14 @@ input[type='submit']:hover, input[type='submit']:focus {
 .action-data a:not(:first-child) {
 	padding: 0 5px;
 	text-align: center;
-	border-left: 1px solid black;
+}
+
+.action-data a[href^='http'] {
+    background: url('../svg/external-link.svg') no-repeat left center;
+    background-size: 10px 10px;
+    display: inline-block;
+    padding-left: 15px;
+	margin-left: 5px;
 }
 
 .action-data form {
