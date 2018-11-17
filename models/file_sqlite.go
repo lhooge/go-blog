@@ -30,7 +30,7 @@ func (rdb SQLiteFileDatasource) GetByFilename(filename string, u *User) (*File, 
 	var f File
 	var ru User
 
-	if err := rdb.SQLConn.QueryRow(stmt.String(), args...).Scan(&f.ID, &f.Filename, &f.ContentType, &f.Size, &f.LastModified, &ru.ID,
+	if err := rdb.SQLConn.QueryRow(stmt.String(), args...).Scan(&f.ID, &f.FullFilename, &f.ContentType, &f.Size, &f.LastModified, &ru.ID,
 		&ru.DisplayName, &ru.Username, &ru.Email); err != nil {
 		return nil, err
 	}
@@ -59,7 +59,7 @@ func (rdb SQLiteFileDatasource) Get(fileID int, u *User) (*File, error) {
 	var f File
 	var ru User
 
-	if err := rdb.SQLConn.QueryRow(stmt.String(), args...).Scan(&f.ID, &f.Filename, &f.ContentType, &f.Size, &f.LastModified, &ru.ID,
+	if err := rdb.SQLConn.QueryRow(stmt.String(), args...).Scan(&f.ID, &f.FullFilename, &f.ContentType, &f.Size, &f.LastModified, &ru.ID,
 		&ru.DisplayName, &ru.Username, &ru.Email); err != nil {
 		return nil, err
 	}
@@ -72,7 +72,7 @@ func (rdb SQLiteFileDatasource) Get(fileID int, u *User) (*File, error) {
 //Create inserts some file meta information into the database
 func (rdb SQLiteFileDatasource) Create(f *File) (int, error) {
 	res, err := rdb.SQLConn.Exec("INSERT INTO file (filename, content_type, size, last_modified, user_id) VALUES(?, ?, ?, ?, ?)",
-		f.Filename, f.ContentType, f.Size, time.Now(), f.Author.ID)
+		f.FullFilename, f.ContentType, f.Size, time.Now(), f.Author.ID)
 
 	if err != nil {
 		return -1, err
@@ -120,7 +120,7 @@ func (rdb SQLiteFileDatasource) List(u *User, p *Pagination) ([]File, error) {
 	var us User
 
 	for rows.Next() {
-		if err = rows.Scan(&f.ID, &f.Filename, &f.ContentType, &f.Size, &f.LastModified, &us.ID, &us.DisplayName,
+		if err = rows.Scan(&f.ID, &f.FullFilename, &f.ContentType, &f.Size, &f.LastModified, &us.ID, &us.DisplayName,
 			&us.Username, &us.Email); err != nil {
 			return nil, err
 		}

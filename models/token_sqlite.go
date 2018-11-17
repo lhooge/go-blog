@@ -33,8 +33,8 @@ func (rdb SQLiteTokenDatasource) Get(hash string, tt TokenType) (*Token, error) 
 	var t Token
 	var u User
 
-	if err := rdb.SQLConn.QueryRow("SELECT t.id, t.hash, t.requested_at, t.token_type, t.user_id FROM token as t WHERE hash=? AND token_type=? ", &t.ID, hash, tt.String()).
-		Scan(&t.Hash, &t.RequestedAt, &t.Type, &u.ID); err != nil {
+	if err := rdb.SQLConn.QueryRow("SELECT t.id, t.hash, t.requested_at, t.token_type, t.user_id FROM token as t WHERE t.hash=? AND t.token_type=? ", hash, tt.String()).
+		Scan(&t.ID, &t.Hash, &t.RequestedAt, &t.Type, &u.ID); err != nil {
 		return nil, err
 	}
 

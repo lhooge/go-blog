@@ -1,54 +1,57 @@
 {{define "front/index"}}
 
 {{template "front/head" .}}
-	<link rel="alternate" type="application/rss+xml" href="/rss.xml">
-</head>
+		<link rel="alternate" type="application/rss+xml" href="/rss.xml">
+	</head>
 
-<body>
-	<div class="container">
-		<header>
-			<h1 class="header-text">{{PageTitle}}</h1>
-		</header>
-	
-		{{template "front/navigation" .}}
-		<main>
-			<div id="index">
-				<h2>Index</h2>
-				{{template "skel/flash" .}}
-		
-				{{if not .ErrorMsg}}
-					{{if not .articles}}
-						<div style="margin-top: 10px" class="alert alert-info" role="info">No articles here yet.</div>
+	<body>
+		<div class="container">
+			<header>
+				<h1 class="header-text">{{PageTitle}}</h1>
+			</header>
+
+			{{template "front/navigation" .}}
+			<main>
+				<div id="index">
+					<h2>Index</h2>
+					{{template "skel/flash" .}}
+
+					{{if not .ErrorMsg}}
+						{{if not .articles}}
+							<div style="margin-top: 10px" class="alert alert-info" role="info">No articles here yet.</div>
+						{{end}}
 					{{end}}
-				{{end}}
-		
-				{{range .articles}}
-					<ul>
-						<li class="year">
-							{{.Year}}
-						</li>
-		
-						<ul class="submenu">
-							{{range .Articles}}
-							<li class="submenu-item">
-								<a href="/article/{{.SlugEscape}}">{{.PublishedOn.Time | FormatDate}} Author: {{.Author.DisplayName}} | {{.Headline}}</a>
-							</li>
-							{{end}}
-						</ul>
-					</ul>
-				{{end}}
-			</div>
-		</main>
 
-		<aside>
-			<ul>
-				{{range .categories}}
-				<li>
-					<a{{if $.catActive}}{{if eq $.catActive .SlugEscape}} class="active"{{end}}{{end}} href="/index/category/{{.SlugEscape}}">{{.Name}}</a>
-				</li>
-				{{end}}
-			</ul>
-		</aside>
-		
-		{{template "front/footer"}}
+					{{range .articles}}
+						<ul>
+							<li class="year">
+								{{.Year}}
+							</li>
+
+							<ul class="submenu">
+								{{range .Articles}}
+								<li class="submenu-item">
+									<a href="/article/{{.SlugEscape}}">{{.PublishedOn.Time | FormatDate}} Author: {{.Author.DisplayName}} | {{.Headline}}</a>
+								</li>
+								{{end}}
+							</ul>
+						</ul>
+					{{end}}
+				</div>
+			</main>
+
+			<aside>
+				<ul>
+					{{range .categories}}
+					<li>
+						<a{{if $.catActive}}{{if eq $.catActive .SlugEscape}} class="active"{{end}}{{end}} href="/index/category/{{.SlugEscape}}">{{.Name}}</a>
+					</li>
+					{{end}}
+				</ul>
+			</aside>
+
+			{{template "front/footer"}}
+		</div>
+	</body>
+</html>
 {{end}}

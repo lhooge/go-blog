@@ -2,50 +2,54 @@
 
 {{template "front/head" .}}
 
-	<link rel="alternate" type="application/rss+xml" href="/rss.xml">
-</head>
+		<link rel="alternate" type="application/rss+xml" href="/rss.xml">
+	</head>
 
-<body>
-	<div class="container">
-		<header>
-			<h1 class="header-text">{{PageTitle}}</h1>
-		</header>
-	
-	{{template "front/navigation" .}}
-	
-	<main>
-		{{template "skel/flash" .}}
-	
-		{{if not .ErrorMsg}}
-			{{if not .articles}}
-				<div style="margin-top: 10px" class="alert alert-info" role="info">No articles here yet.</div>
-			{{end}}
-		{{end}}
-	
-		{{range .articles}}
-		<article>
-			<h2 class="article_link"><a href="/article/{{.SlugEscape}}">{{.Headline}}</a></h2>
-			<p class="article_info">written by {{.Author.DisplayName}} on {{.PublishedOn.Time | FormatDate}}</p>
-	
-			<p>{{.Teaser | NToBr}}</p>
-		</article>
-	
-		{{end}}
-	
-		{{if .pagination}}
-			{{PaginationBar .pagination}}
-		{{end}}
-	</main>
+	<body>
+		<div class="container">
+			<header>
+				<h1 class="header-text">{{PageTitle}}</h1>
+			</header>
 
-	<aside>
-		<ul>
-			{{range .categories}}
-			<li>
-				<a{{if $.catActive}}{{if eq $.catActive .SlugEscape}} class="active"{{end}}{{end}} href="/articles/category/{{.SlugEscape}}">{{.Name}}</a>
-			</li>
-			{{end}}
-		</ul>
-	</aside>
-	
-	{{template "front/footer"}}
+			{{template "front/navigation" .}}
+
+			<main>
+				{{template "skel/flash" .}}
+
+				{{if not .ErrorMsg}}
+					{{if not .articles}}
+						<div style="margin-top: 10px" class="alert alert-info" role="info">No articles here yet.</div>
+					{{end}}
+				{{end}}
+
+				{{range .articles}}
+				<article>
+					<h2 class="article_link"><a href="/article/{{.SlugEscape}}">{{.Headline}}</a></h2>
+					<p class="article_info">written by {{.Author.DisplayName}} on {{.PublishedOn.Time | FormatDate}}</p>
+
+					<p>{{.Teaser | ParseMarkdown}}</p>
+				</article>
+
+				{{end}}
+
+				{{if .pagination}}
+					{{PaginationBar .pagination}}
+				{{end}}
+			</main>
+
+			<aside>
+				<ul>
+					{{range .categories}}
+					<li>
+						<a{{if $.catActive}}{{if eq $.catActive .SlugEscape}} class="active"{{end}}{{end}} href="/articles/category/{{.SlugEscape}}">{{.Name}}</a>
+					</li>
+					{{end}}
+				</ul>
+			</aside>
+
+			{{template "front/footer"}}
+
+		</div>
+	</body>
+</html>
 {{end}}

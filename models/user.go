@@ -291,7 +291,7 @@ func (us UserService) Update(u *User, changePassword bool) error {
 		return err
 	}
 
-	if oneAdmin {
+	if oneAdmin && !u.Active {
 		return httperror.New(http.StatusUnprocessableEntity,
 			"Could not update user, because no user would remain",
 			fmt.Errorf("could not update user %s action, because no administrator would remain", oldUser.Username))

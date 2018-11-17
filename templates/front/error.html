@@ -3,11 +3,26 @@
 {{template "front/head" .}}
 </head>
 
-<body>
-	{{template "admin/navigation" .}}
-	<main>
-			<h2>An error occured</h2>
+	<body>
+		<div class="container">
+			<header>
+				<h1 class="header-text">{{PageTitle}}</h1>
+			</header>
 
-			{{template "skel/flash" .}}
-	</main>
+			{{template "front/navigation" .}}
+
+			<main>
+					<h2>An error occured</h2>
+
+					{{template "skel/flash" .}}
+			</main>
+
+			<aside>
+
+			</aside>
+
+			{{template "front/footer"}}
+		</div>
+	</body>
+</html>
 {{end}}

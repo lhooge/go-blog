@@ -33,6 +33,7 @@ type SMTPConfig struct {
 	Address  string
 	Port     int
 	User     string
+	Helo     string
 	Password []byte
 }
 
@@ -75,9 +76,57 @@ func (m Mail) validate() error {
 
 //Send sends a mail over the configured SMTP server
 func (s Service) Send(m Mail) error {
-	auth := smtp.PlainAuth("", s.SMTPConfig.User, string(s.SMTPConfig.Password), s.SMTPConfig.Address)
+	if len(s.SMTPConfig.User) > 0 && len(s.SMTPConfig.Password) > 0 {
+		auth := smtp.PlainAuth("", s.SMTPConfig.User, string(s.SMTPConfig.Password), s.SMTPConfig.Address)
 
-	return smtp.SendMail(fmt.Sprintf("%s:%d", s.SMTPConfig.Address, s.SMTPConfig.Port), auth, s.From, []string{m.To}, m.buildMessage(s))
+		err := smtp.SendMail(fmt.Sprintf("%s:%d", s.SMTPConfig.Address, s.SMTPConfig.Port), auth, s.From, []string{m.To}, m.buildMessage(s))
+
+		if err != nil {
+			return err
+		}
+
+		return nil
+	} else {
+		//anonymous
+		c, err := smtp.Dial(fmt.Sprintf("%s:%d", s.SMTPConfig.Address, s.SMTPConfig.Port))
+
+		if err != nil {
+			return err
+		}
+
+		if len(s.SMTPConfig.Helo) > 0 {
+			if err := c.Hello(s.SMTPConfig.Helo); err != nil {
+				return err
+			}
+		}
+
+		// Set the sender and recipient first
+		if err := c.Mail(s.From); err != nil {
+			return err
+		}
+		if err := c.Rcpt(m.To); err != nil {
+			return err
+		}
+
+		wc, err := c.Data()
+		if err != nil {
+			return err
+		}
+
+		_, err = fmt.Fprintf(wc, string(m.buildMessage(s)))
+
+		if err != nil {
+			return err
+		}
+
+		err = wc.Close()
+
+		if err != nil {
+			return err
+		}
+
+		return c.Quit()
+	}
 }
 
 var buffer = make(chan Mail, 10)
