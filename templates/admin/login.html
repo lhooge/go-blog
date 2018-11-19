@@ -1,29 +1,44 @@
 {{define "admin/login"}}
+<!DOCTYPE html>
 
-{{template "admin/head" .}}
+<html{{if Language}} lang="{{Language}}"{{end}}>
+    <head>
+		<meta charset="UTF-8">
+		<title>{{PageTitle}} | Administration</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1.0">
+		<link rel="stylesheet" href="/assets/css/master.css">
+		<link rel="icon" href="/assets/favicon.ico" type="image/vnd.microsoft.icon">
+    </head>
+
+<body>
+	<div class="container-admin">
+		<header>
+			<h1 id="header-text">{{PageTitle}} | Administration</h1>
+		</header>
+
 		<main>
 			<form action="/admin" method="POST">
 				{{template "skel/flash" .}}
-				
+
 				<h2>Login</h2>
-	
+
 				<label for="username">Username</label>
 				<input type="text" required="required" name="username" id="username" value="{{.user.Username}}" placeholder="Username...">
-	
+
 				<label for="password">Password</label>
 				<input type="password" required="required" autocomplete="off" name="password" id="password" placeholder="Password...">
-	
+
 				{{if .state}}
 					<input type="hidden" required="required" name="state" value="{{.state}}">
 				{{end}}
-	
+
 				{{ .csrfField }}
-	
+
 				<div class="button-group">
 					<input type="submit" value="Login">
 				</div>
 			</form>
-	
+
 			<a style="float:right; margin: 5px" href="/admin/forgot-password" title="forgottenPassword">Forgot password?</a>
 		</main>
 	</div>
