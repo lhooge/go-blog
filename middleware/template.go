@@ -6,7 +6,6 @@ package middleware
 
 import (
 	"database/sql"
-	"errors"
 	"fmt"
 	"html/template"
 	"net/http"
@@ -52,12 +51,12 @@ func NotFound(ctx *AppContext, rw http.ResponseWriter, r *http.Request) *Templat
 	if session != nil && strings.HasPrefix(r.URL.EscapedPath(), "/admin") {
 		return &Template{
 			Name: "admin/error",
-			Err:  httperror.New(http.StatusNotFound, "Nothing was found at this location", errors.New("page not found")),
+			Err:  httperror.New(http.StatusNotFound, "Nothing was found at this location", fmt.Errorf("page %s not found", r.URL.EscapedPath())),
 		}
 	} else {
 		return &Template{
 			Name: "front/error",
-			Err:  httperror.New(http.StatusNotFound, "Nothing was found at this location", errors.New("page not found")),
+			Err:  httperror.New(http.StatusNotFound, "Nothing was found at this location", fmt.Errorf("page %s not found", r.URL.EscapedPath())),
 		}
 	}
 }

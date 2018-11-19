@@ -11,8 +11,20 @@
     </head>
 
 <body>
-	<div class="container">
+	<div class="container-admin">
 		<header>
-			<h1 class="header-text">{{PageTitle}} | Administration</h1>
+			<h1 id="header-text">{{PageTitle}} | Administration</h1>
+
+			<div id="header-actions">
+				<ul>
+					<li>
+						<a{{if .active}}{{if eq .active "profile"}} class="active" {{end}}{{end}} href="/admin/user/profile">My profile</a>
+					</li>
+
+					<li>
+						<a href="/admin/logout">Logout</a>
+					</li>
+				</ul>
+			</div>
 		</header>
 {{end}}

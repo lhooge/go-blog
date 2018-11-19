@@ -1,18 +1,7 @@
 Go-Blog
 ====
 
-Small sample open-source blog written in Go using markdown for formatting articles and additional sites.
-
-* Articles can be created by users or administrators
-  * Administrator can manage all articles; users can only manage personal articles
-
-* Files can be uploaded by users or administrators
-  * Administrator can manage all files; users can only manage personal files
-
-* Users can be created (by administrator)
-
-* Additional sites can be created (by administrator)
-
+Small sample open-source blog written in Go using markdown for writing articles and sites.
 
 Prerequisites
 --------
@@ -51,7 +40,7 @@ TODOs
  * Database update tasks / simple query builder (v0.3)
  * Order possibilities in admin panel (v0.3)
  * Revisit Makefile (v0.3)
- * Review async mails 
+ * Review async mails
  * Review preview of articles and sites / error handling
  * Roles?
 
