@@ -17,10 +17,7 @@ Configuration
 
 ### SQLite setup ###
 
-The configuration for sqlite is simple:
-
 ~~~
-  database_engine = sqlite
   sqlite_file = /path/to/your/sqlite/database
 ~~~
 

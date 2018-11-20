@@ -49,6 +49,8 @@ func InitRoutes(ctx *m.AppContext, cfg *settings.Settings) *mux.Router {
 	restrictedRoutes(ctx, ar, restrictedChain)
 
 	router.NotFoundHandler = chain.Then(useTemplateHandler(ctx, m.NotFound))
+	router.HandleFunc("/favicon.ico", faviconHandler)
+
 	http.Handle("/", router)
 
 	// File handler for static files
@@ -56,7 +58,9 @@ func InitRoutes(ctx *m.AppContext, cfg *settings.Settings) *mux.Router {
 
 	return router
 }
-
+func faviconHandler(w http.ResponseWriter, r *http.Request) {
+	http.ServeFile(w, r, "assets/favicon.ico")
+}
 func stdOutLoggingHandler(h http.Handler) http.Handler {
 	return handlers.CombinedLoggingHandler(os.Stdout, h)
 }
