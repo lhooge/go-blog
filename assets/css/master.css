@@ -30,15 +30,11 @@ html {
 								"footer";
 		grid-template-columns: 100%;
 		grid-template-rows:	
-							minmax(30px, auto)
+							minmax(80, auto)
 							auto
 							minmax(30px, auto)
 							auto
 							auto;
-	}
-	
-	footer {
-		display: none;
 	}
 }
 
