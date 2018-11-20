@@ -133,18 +133,6 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ================================================================================
-Go MySQL Driver is a MySQL driver for Go's (golang) database/sql package
-
-Github: https://github.com/go-sql-driver/mysql
-================================================================================
-
-Copyright 2012 The Go-MySQL-Driver Authors. All rights reserved.
-
-This Source Code Form is subject to the terms of the Mozilla Public
-License, v. 2.0. If a copy of the MPL was not distributed with this file,
-You can obtain one at http://mozilla.org/MPL/2.0/.
-
-================================================================================
 sqlite3 driver for go using database/sql 
 
 Github: https://github.com/mattn/go-sqlite3
@@ -171,14 +159,3 @@ All code (including SVG markup) is under the MIT License.
 Fonts
 All fonts are under the SIL Licensed.
 
-
-======================================================================================
-
-Bootstrap Build responsive, mobile-first projects on the web with the world's most popular front-end component library.
-
-Github: https://github.com/twbs/bootstrap
-
-======================================================================================
-
-Code and documentation copyright 2011-2018 the Bootstrap Authors and Twitter, Inc. Code released under the MIT License. 
-Docs released under Creative Commons.
