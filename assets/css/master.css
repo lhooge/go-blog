@@ -23,15 +23,22 @@ html {
 
 @media screen and (max-width: 32em) {
 	.container {
-		grid-template-areas: "nav"
-		                     "content"
-		                     "sidebar"
-		                     "footer";
+		grid-template-areas: 	"header"
+								"nav"
+								"content"
+								"sidebar"
+								"footer";
 		grid-template-columns: 100%;
-		grid-template-rows:	minmax(75px, auto)
-						   	1fr
-						   	minmax(75px, auto)
-						   	auto;
+		grid-template-rows:	
+							minmax(30px, auto)
+							auto
+							minmax(30px, auto)
+							auto
+							auto;
+	}
+	
+	footer {
+		display: none;
 	}
 }
 
@@ -49,14 +56,15 @@ html {
 
 @media screen and (max-width: 39em) {
 	.container-admin {
-		grid-template-areas: "header"
-							"nav"
-		                     "content"
-		                     "footer";
+		grid-template-areas: 	"header"
+								"nav"
+								"content"
+								"footer";
 		grid-template-columns: 100%;
+		justify-content: stretch;
 		grid-template-rows:	auto
 							auto
-						   	1fr
+						   	auto
 						   	auto;
 	}
 
@@ -159,11 +167,12 @@ aside {
 nav {
 	grid-area: nav;
 	background-color: #1f1f1f;
-	font-size: 1.5em;
+	font-size: 1.1em;
 }
 
 #header-text {
 	color: #fffaf0;
+	padding-left: 10px;
 }
 
 #header-actions {
