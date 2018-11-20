@@ -13,7 +13,7 @@ html {
 	height: 100vh;
 	display: grid;
 	grid-template-rows: 80px 1fr 30px;
-	grid-template-columns: 20% 30% 35% 15%;
+	grid-template-columns: minmax(250px, 20%) 30% 35% 15%;
 	grid-template-areas:
 		"header header header header"
 		"nav content content sidebar"
@@ -26,16 +26,16 @@ html {
 		grid-template-areas: 	"header"
 								"nav"
 								"content"
-								"sidebar"
-								"footer";
+								"sidebar";
 		grid-template-columns: 100%;
-		grid-template-rows:	
-							minmax(80, auto)
+		grid-template-rows:
+							auto
 							auto
 							minmax(30px, auto)
 							auto
-							auto;
+							;
 	}
+
 }
 
 .container-admin {
