@@ -352,16 +352,16 @@ func (us UserService) Authenticate(u *User, loginMethod settings.LoginMethod) (*
 		u, err = us.Datasource.GetByUsername(u.Username)
 	}
 
-	u.PlainPassword = password
-
 	if err != nil {
 		if err == sql.ErrNoRows {
 			//Do some extra work
-			bcrypt.CompareHashAndPassword([]byte("$2a$12$bQlRnXTNZMp6kCyoAlnf3uZW5vtmSj9CHP7pYplRUVK2n0C5xBHBa"), u.PlainPassword)
+			bcrypt.CompareHashAndPassword([]byte("$2a$12$bQlRnXTNZMp6kCyoAlnf3uZW5vtmSj9CHP7pYplRUVK2n0C5xBHBa"), password)
 			return nil, httperror.New(http.StatusUnauthorized, "Your username or password is invalid.", err)
 		}
 		return nil, err
 	}
+
+	u.PlainPassword = password
 
 	if err := u.comparePassword(); err != nil {
 		return u, httperror.New(http.StatusUnauthorized, "Your username or password is invalid.", err)
