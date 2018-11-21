@@ -29,19 +29,22 @@ func AdminProfileHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *h
 //AdminProfilePostHandler handles the updating of the user profile
 func AdminProfilePostHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
 	ctxUser, _ := middleware.User(r)
+	ctxUser.PlainPassword = []byte(r.FormValue("current_password"))
 
 	u := &models.User{
-		ID:          ctxUser.ID,
-		Username:    r.FormValue("username"),
-		Email:       r.FormValue("email"),
-		DisplayName: r.FormValue("displayname"),
-		Active:      true,
+		ID:            ctxUser.ID,
+		Username:      r.FormValue("username"),
+		Email:         r.FormValue("email"),
+		DisplayName:   r.FormValue("displayname"),
+		Active:        true,
+		IsAdmin:       ctxUser.IsAdmin,
+		PlainPassword: []byte(r.FormValue("password")),
 	}
 
-	if _, err := ctx.UserService.Authenticate(ctxUser, ctx.ConfigService.LoginMethod, []byte(r.PostFormValue("current_password"))); err != nil {
+	if _, err := ctx.UserService.Authenticate(ctxUser, ctx.ConfigService.LoginMethod); err != nil {
 		return &middleware.Template{
 			Name:   tplAdminProfile,
-			Err:    httperror.New(http.StatusUnauthorized, "Your password is invalid.", err),
+			Err:    httperror.New(http.StatusUnauthorized, "Your current password is invalid.", err),
 			Active: "profile",
 			Data: map[string]interface{}{
 				"user": u,
@@ -51,12 +54,12 @@ func AdminProfilePostHandler(ctx *middleware.AppContext, w http.ResponseWriter, 
 
 	changePassword := false
 
-	if len(r.FormValue("password")) > 0 {
+	if len(u.PlainPassword) > 0 {
 		changePassword = true
 		// Password change
-		u.Password = []byte(r.FormValue("password"))
+		u.PlainPassword = []byte(r.FormValue("password"))
 
-		if !bytes.Equal(u.Password, []byte(r.FormValue("retyped_password"))) {
+		if !bytes.Equal(u.PlainPassword, []byte(r.FormValue("retyped_password"))) {
 			return &middleware.Template{
 				Name:   tplAdminProfile,
 				Active: "profile",

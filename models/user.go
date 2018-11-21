@@ -6,6 +6,7 @@ package models
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"net/http"
 	"strings"
@@ -24,7 +25,7 @@ type UserDatasourceService interface {
 	List(p *Pagination) ([]User, error)
 	Get(userID int) (*User, error)
 	Update(u *User, changePassword bool) error
-	Count() (int, error)
+	Count(ac AdminCriteria) (int, error)
 	GetByMail(mail string) (*User, error)
 	GetByUsername(username string) (*User, error)
 	Remove(userID int) error
@@ -41,6 +42,7 @@ type User struct {
 	Salt          []byte
 	LastModified  time.Time
 	Active        bool
+	IsAdmin       bool
 }
 
 const (
@@ -161,8 +163,8 @@ func (us UserService) duplicateUsername(username string) error {
 }
 
 //Count returns the amount of users
-func (us UserService) Count() (int, error) {
-	return us.Datasource.Count()
+func (us UserService) Count(a AdminCriteria) (int, error) {
+	return us.Datasource.Count(a)
 }
 
 //List returns a list of users. Limits the amount based on the defined pagination
@@ -261,7 +263,14 @@ func (us UserService) Update(u *User, changePassword bool) error {
 		return err
 	}
 
+	if !oldUser.IsAdmin {
+		if oldUser.ID != u.ID {
+			return httperror.PermissionDenied("update", "user", fmt.Errorf("permission denied user %d is not granted to update user %d", oldUser.ID, u.ID))
+		}
+	}
+
 	if us.UserInterceptor != nil {
+
 		if err := us.UserInterceptor.PreUpdate(oldUser, u); err != nil {
 			return httperror.InternalServerError(fmt.Errorf("error while executing user interceptor 'PreUpdate' error %v", err))
 		}
@@ -285,17 +294,18 @@ func (us UserService) Update(u *User, changePassword bool) error {
 		return err
 	}
 
-	oneAdmin, err := us.OneUser()
+	oneAdmin, err := us.OneAdmin()
 
 	if err != nil {
 		return err
 	}
 
-	if oneAdmin && !u.Active {
-		return httperror.New(http.StatusUnprocessableEntity,
-			"Could not update user, because no user would remain",
-			fmt.Errorf("could not update user %s action, because no administrator would remain", oldUser.Username))
-
+	if oneAdmin {
+		if (oldUser.IsAdmin && !u.IsAdmin) || (oldUser.IsAdmin && !u.Active) {
+			return httperror.New(http.StatusUnprocessableEntity,
+				"Could not update user, because no administrator would remain",
+				fmt.Errorf("could not update user %s action, because no administrator would remain", oldUser.Username))
+		}
 	}
 
 	if changePassword {
@@ -327,8 +337,14 @@ func (us UserService) Update(u *User, changePassword bool) error {
 
 // Authenticate authenticates the user by the given login method (email or username)
 // if the user was found but the password is wrong the found user and an error will be returned
-func (us UserService) Authenticate(u *User, loginMethod settings.LoginMethod, password []byte) (*User, error) {
+func (us UserService) Authenticate(u *User, loginMethod settings.LoginMethod) (*User, error) {
 	var err error
+
+	if len(u.Username) == 0 || len(u.PlainPassword) == 0 {
+		return nil, httperror.New(http.StatusUnauthorized, "Your username or password is invalid.", errors.New("no username or password were given"))
+	}
+
+	var password = u.PlainPassword
 
 	if loginMethod == settings.EMail {
 		u, err = us.Datasource.GetByMail(u.Email)
@@ -336,16 +352,18 @@ func (us UserService) Authenticate(u *User, loginMethod settings.LoginMethod, pa
 		u, err = us.Datasource.GetByUsername(u.Username)
 	}
 
+	u.PlainPassword = password
+
 	if err != nil {
 		if err == sql.ErrNoRows {
 			//Do some extra work
-			bcrypt.CompareHashAndPassword([]byte("$2a$12$bQlRnXTNZMp6kCyoAlnf3uZW5vtmSj9CHP7pYplRUVK2n0C5xBHBa"), password)
+			bcrypt.CompareHashAndPassword([]byte("$2a$12$bQlRnXTNZMp6kCyoAlnf3uZW5vtmSj9CHP7pYplRUVK2n0C5xBHBa"), u.PlainPassword)
 			return nil, httperror.New(http.StatusUnauthorized, "Your username or password is invalid.", err)
 		}
 		return nil, err
 	}
 
-	if err := u.comparePassword(password); err != nil {
+	if err := u.comparePassword(); err != nil {
 		return u, httperror.New(http.StatusUnauthorized, "Your username or password is invalid.", err)
 	}
 
@@ -354,6 +372,10 @@ func (us UserService) Authenticate(u *User, loginMethod settings.LoginMethod, pa
 			"Your account is deactivated.",
 			fmt.Errorf("the user with id %d tried to logged in but the account is deactivated", u.ID))
 	}
+
+	u.PlainPassword = nil
+	u.Password = nil
+	u.Salt = nil
 
 	return u, nil
 }
@@ -366,16 +388,18 @@ func (us UserService) Remove(u *User) error {
 		}
 	}
 
-	oneAdmin, err := us.OneUser()
+	oneAdmin, err := us.OneAdmin()
 
 	if err != nil {
 		return err
 	}
 
 	if oneAdmin {
-		return httperror.New(http.StatusUnprocessableEntity,
-			"Could not remove administrator. No Administrator would remain.",
-			fmt.Errorf("could not remove administrator %s no administrator would remain", u.Username))
+		if u.IsAdmin {
+			return httperror.New(http.StatusUnprocessableEntity,
+				"Could not remove administrator. No Administrator would remain.",
+				fmt.Errorf("could not remove administrator %s no administrator would remain", u.Username))
+		}
 	}
 
 	err = us.Datasource.Remove(u.ID)
@@ -390,8 +414,8 @@ func (us UserService) Remove(u *User) error {
 }
 
 //OneAdmin returns true if there is only one admin
-func (us UserService) OneUser() (bool, error) {
-	c, err := us.Datasource.Count()
+func (us UserService) OneAdmin() (bool, error) {
+	c, err := us.Datasource.Count(OnlyAdmins)
 
 	if err != nil {
 		return true, err
@@ -404,6 +428,6 @@ func (us UserService) OneUser() (bool, error) {
 	return false, nil
 }
 
-func (u User) comparePassword(password []byte) error {
-	return bcrypt.CompareHashAndPassword(u.Password, utils.AppendBytes(password, u.Salt))
+func (u User) comparePassword() error {
+	return bcrypt.CompareHashAndPassword(u.Password, utils.AppendBytes(u.PlainPassword, u.Salt))
 }

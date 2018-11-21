@@ -11,15 +11,19 @@
 			<form action="/admin/user/edit/{{.ID}}" method="post">
 				<label for="username">Username</label>
 				<input type="username" name="username"  value="{{.Username}}" id="username" placeholder="Username..." required>
-
+				
 				<label for="email">Email</label>
 				<input type="email" name="email"  value="{{.Email}}" id="email" placeholder="Email..." required>
-
+				
 				<label for="displayname">Display name</label>
 				<input type="text" value="{{.DisplayName}}" id="displayname" name="displayname" placeholder="Display name..." required>
-
+				
 				<label for="password">New password</label>
 				<input type="password" id="password" name="password" placeholder="Password...">
+			
+				<div class="checkbox">
+					<label><input type="checkbox" id="admin" name="admin" value="on"{{if .IsAdmin}} checked{{end}}>Admin?</label>
+				</div>
 
 				<div class="checkbox">
 					<label><input type="checkbox" id="active" name="active" value="on"{{if .Active}} checked{{end}}>Is activated?</label>
