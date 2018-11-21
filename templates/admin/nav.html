@@ -4,11 +4,12 @@
 		<li>
 			<a{{if .active}}{{if eq .active "articles"}} class="active" {{end}}{{end}} href="/admin/articles">Articles</a>
 		</li>
-
+		
 		<li>
 			<a{{if .active}}{{if eq .active "categories"}} class="active" {{end}}{{end}} href="/admin/categories">Categories</a>
 		</li>
 
+	{{if .currentUser.IsAdmin}}
 		<li>
 			<a{{if .active}}{{if eq .active "users"}} class="active" {{end}}{{end}} href="/admin/users">Users</a>
 		</li>
@@ -16,6 +17,7 @@
 		<li>
 			<a{{if .active}}{{if eq .active "sites"}} class="active" {{end}}{{end}} href="/admin/sites">Sites</a>
 		</li>
+	{{end}}
 
 		<li>
 			<a{{if .active}}{{if eq .active "files"}} class="active" {{end}}{{end}} href="/admin/files">Files</a>

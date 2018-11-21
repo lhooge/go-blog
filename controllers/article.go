@@ -222,7 +222,6 @@ func IndexArticlesCategoryHandler(ctx *middleware.AppContext, w http.ResponseWri
 	c, err := ctx.CategoryService.GetBySlug(category)
 
 	if err != nil {
-		fmt.Println("test", category)
 		return &middleware.Template{
 			Name:   tplIndexArticles,
 			Active: "index",
@@ -434,11 +433,21 @@ func AdminArticleEditHandler(ctx *middleware.AppContext, w http.ResponseWriter, 
 		}
 	}
 
+	c, err := ctx.CategoryService.List(models.AllCategories)
+
+	if err != nil {
+		return &middleware.Template{
+			Name: tplAdminCategories,
+			Err:  err,
+		}
+	}
+
 	return &middleware.Template{
 		Name:   tplAdminArticleEdit,
 		Active: "articles",
 		Data: map[string]interface{}{
-			"article": a,
+			"article":    a,
+			"categories": c,
 		},
 	}
 }
@@ -466,6 +475,14 @@ func AdminArticleEditPostHandler(ctx *middleware.AppContext, w http.ResponseWrit
 		Content:  r.FormValue("content"),
 		Author:   u,
 	}
+
+	cid, err := parseInt(r.FormValue("categoryID"))
+
+	if err != nil {
+		cid = 0
+	}
+
+	a.CID = sql.NullInt64{Int64: int64(cid), Valid: true}
 
 	if r.FormValue("action") == "preview" {
 		return previewArticle(a)

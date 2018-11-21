@@ -4,14 +4,14 @@
 {{template "admin/navigation" .}}
 <main>
 	{{template "skel/flash" .}}
-
+	
 	<h2>User management</h2>
 
 	<p><a href="/admin/user/new">Add an user</a> | <a href="/admin/user-invite/new">Invite an user</a></p>
 
 	{{with .user_invites}}
 		<h3>Open Invites</h3>
-
+			
 		<table>
 			<thead>
 				<tr>
@@ -19,6 +19,7 @@
 				<th>Username</th>
 				<th>E-mail</th>
 				<th>Display name</th>
+				<th>Admin</th>
 				<th>Invited by</th>
 				<th>Actions</th>
 				</tr>
@@ -30,12 +31,13 @@
 						<td>{{.Username}}</td>
 						<td>{{.Email}}</td>
 						<td>{{.DisplayName}}</td>
+						<td>{{.IsAdmin | BoolToIcon}}</td>
 						<td>{{.CreatedBy.DisplayName}}</td>
 						<td class="action-data">
 							<form method="post" action="/admin/user-invite/resend/{{.ID}}">
 								<button type="submit" name="direction" value="resendinvite">
 									Resend invite link
-								</button>
+								</button>	
 								{{$.csrfField}}
 							</form>
 							<a href="/admin/user-invite/delete/{{.ID}}" title="Remove">Remove</a>
@@ -46,9 +48,9 @@
 		</table>
 		<br>
 	{{end}}
-
+	
 	<h3>Users</h3>
-
+	
 	<table>
 		<thead>
 			<tr>
@@ -57,6 +59,7 @@
 			<th>E-mail</th>
 			<th>Display name</th>
 			<th>Active</th>
+			<th>Admin</th>
 			<th>Actions</th>
 			</tr>
 		</thead>
@@ -68,6 +71,7 @@
 					<td>{{.Email}}</td>
 					<td>{{.DisplayName}}</td>
 					<td>{{.Active | BoolToIcon}}</td>
+					<td>{{.IsAdmin | BoolToIcon}}</td>
 					<td class="action-data">
 						<a href="/admin/user/edit/{{.ID}}" title="Edit">Edit</a>
 						<a href="/admin/user/delete/{{.ID}}" title="Remove">Remove</a>

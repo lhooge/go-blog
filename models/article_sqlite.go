@@ -56,7 +56,7 @@ func (rdb SQLiteArticleDatasource) List(u *User, c *Category, p *Pagination, pc 
 		var ru User
 
 		if err := rows.Scan(&a.ID, &a.Headline, &a.Teaser, &a.Content, &a.Published, &a.PublishedOn, &a.Slug, &a.LastModified, &ru.ID, &ru.DisplayName,
-			&ru.Email, &ru.Username, &a.CID, &a.CName); err != nil {
+			&ru.Email, &ru.Username, &ru.IsAdmin, &a.CID, &a.CName); err != nil {
 			return nil, err
 		}
 
@@ -95,6 +95,13 @@ func (rdb SQLiteArticleDatasource) Count(u *User, c *Category, pc PublishedCrite
 		args = append(args, c.Name)
 	}
 
+	if u != nil {
+		if !u.IsAdmin {
+			stmt.WriteString("a.user_id=? AND ")
+			args = append(args, u.ID)
+		}
+	}
+
 	if pc == NotPublished {
 		stmt.WriteString("a.published = '0' ")
 	} else if pc == All {
@@ -117,7 +124,7 @@ func (rdb SQLiteArticleDatasource) Get(articleID int, u *User, pc PublishedCrite
 	var ru User
 
 	if err := selectArticleStmt(rdb.SQLConn, articleID, "", u, pc).Scan(&a.ID, &a.Headline, &a.PublishedOn, &a.Published, &a.Slug, &a.Teaser, &a.Content,
-		&a.LastModified, &ru.ID, &ru.DisplayName, &ru.Email, &ru.Username); err != nil {
+		&a.LastModified, &ru.ID, &ru.DisplayName, &ru.Email, &ru.Username, &ru.IsAdmin, &a.CID, &a.CName); err != nil {
 		return nil, err
 	}
 
@@ -133,7 +140,7 @@ func (rdb SQLiteArticleDatasource) GetBySlug(slug string, u *User, pc PublishedC
 	var ru User
 
 	if err := selectArticleStmt(rdb.SQLConn, -1, slug, u, pc).Scan(&a.ID, &a.Headline, &a.PublishedOn, &a.Published, &a.Slug, &a.Teaser, &a.Content,
-		&a.LastModified, &ru.ID, &ru.DisplayName, &ru.Email, &ru.Username); err != nil {
+		&a.LastModified, &ru.ID, &ru.DisplayName, &ru.Email, &ru.Username, &ru.IsAdmin, &a.CID, &a.CName); err != nil {
 		return nil, err
 	}
 
@@ -144,8 +151,8 @@ func (rdb SQLiteArticleDatasource) GetBySlug(slug string, u *User, pc PublishedC
 
 // Update updates an aricle
 func (rdb SQLiteArticleDatasource) Update(a *Article) error {
-	if _, err := rdb.SQLConn.Exec("UPDATE article SET headline=?, teaser=?, content=?, last_modified=? WHERE id=? ", a.Headline, &a.Teaser, a.Content,
-		time.Now(), a.ID); err != nil {
+	if _, err := rdb.SQLConn.Exec("UPDATE article SET headline=?, teaser=?, content=?, last_modified=?, category_id=? WHERE id=? ", a.Headline, &a.Teaser, a.Content,
+		time.Now(), a.CID, a.ID); err != nil {
 		return err
 	}
 
@@ -182,9 +189,11 @@ func selectArticleStmt(db *sql.DB, articleID int, slug string, u *User, pc Publi
 	var args []interface{}
 
 	stmt.WriteString("SELECT a.id, a.headline, a.published_on, a.published, a.slug, a.teaser, a.content, a.last_modified, ")
-	stmt.WriteString("u.id, u.display_name, u.email, u.username ")
+	stmt.WriteString("u.id, u.display_name, u.email, u.username, u.is_admin, ")
+	stmt.WriteString("c.id, c.name ")
 	stmt.WriteString("FROM article a ")
 	stmt.WriteString("INNER JOIN user u ON (a.user_id = u.id) ")
+	stmt.WriteString("LEFT JOIN category c ON (c.id = a.category_id) ")
 	stmt.WriteString("WHERE ")
 
 	if pc == NotPublished {
@@ -202,7 +211,12 @@ func selectArticleStmt(db *sql.DB, articleID int, slug string, u *User, pc Publi
 		stmt.WriteString("AND a.id=? ")
 		args = append(args, articleID)
 	}
-
+	if u != nil {
+		if !u.IsAdmin {
+			stmt.WriteString("AND a.user_id=? ")
+			args = append(args, u.ID)
+		}
+	}
 	stmt.WriteString("LIMIT 1")
 	return db.QueryRow(stmt.String(), args...)
 }
@@ -213,7 +227,7 @@ func selectArticlesStmt(db *sql.DB, u *User, c *Category, p *Pagination, pc Publ
 	var args []interface{}
 
 	stmt.WriteString("SELECT a.id, a.headline, a.teaser, a.content, a.published, a.published_on, a.slug, a.last_modified, ")
-	stmt.WriteString("u.id, u.display_name, u.email, u.username, ")
+	stmt.WriteString("u.id, u.display_name, u.email, u.username, u.is_admin, ")
 	stmt.WriteString("c.id, c.name ")
 	stmt.WriteString("FROM article a ")
 	stmt.WriteString("INNER JOIN user u ON (a.user_id = u.id) ")
@@ -229,6 +243,13 @@ func selectArticlesStmt(db *sql.DB, u *User, c *Category, p *Pagination, pc Publ
 	if c != nil {
 		stmt.WriteString("c.name = ? AND ")
 		args = append(args, c.Name)
+	}
+
+	if u != nil {
+		if !u.IsAdmin {
+			stmt.WriteString("a.user_id=? AND ")
+			args = append(args, u.ID)
+		}
 	}
 
 	if pc == NotPublished {

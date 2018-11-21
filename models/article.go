@@ -128,9 +128,15 @@ func (as ArticleService) Update(a *Article, u *User) error {
 		return err
 	}
 
-	_, err := as.Datasource.Get(a.ID, a.Author, All)
+	art, err := as.Datasource.Get(a.ID, a.Author, All)
 	if err != nil {
 		return err
+	}
+
+	if !u.IsAdmin {
+		if art.Author.ID != u.ID {
+			return httperror.PermissionDenied("update", "article", fmt.Errorf("could not update article %d user %d has no permission", a.ID, u.ID))
+		}
 	}
 
 	return as.Datasource.Update(a)
@@ -144,6 +150,12 @@ func (as ArticleService) Publish(id int, u *User) error {
 		return err
 	}
 
+	if !u.IsAdmin {
+		if a.Author.ID != u.ID {
+			return httperror.PermissionDenied("publish", "article", fmt.Errorf("could not publish article %d user %d has no permission", a.ID, u.ID))
+		}
+	}
+
 	return as.Datasource.Publish(a)
 }
 
@@ -153,6 +165,12 @@ func (as ArticleService) Delete(id int, u *User) error {
 
 	if err != nil {
 		return err
+	}
+
+	if !u.IsAdmin {
+		if a.Author.ID != u.ID {
+			return httperror.PermissionDenied("delete", "article", fmt.Errorf("could not delete article %d user %d has no permission", a.ID, u.ID))
+		}
 	}
 
 	return as.Datasource.Delete(a.ID)
@@ -170,6 +188,14 @@ func (as ArticleService) GetBySlug(s string, u *User, pc PublishedCriteria) (*Ar
 		return nil, err
 	}
 
+	if u != nil {
+		if !u.IsAdmin {
+			if a.Author.ID != u.ID {
+				return nil, httperror.PermissionDenied("view", "article", fmt.Errorf("could not get article %s user %d has no permission", a.Slug, u.ID))
+			}
+		}
+	}
+
 	return a, nil
 }
 
@@ -183,6 +209,14 @@ func (as ArticleService) GetByID(id int, u *User, pc PublishedCriteria) (*Articl
 			return nil, httperror.NotFound("article", fmt.Errorf("the article with id %d was not found", id))
 		}
 		return nil, err
+	}
+
+	if u != nil {
+		if !u.IsAdmin {
+			if a.Author.ID != u.ID {
+				return nil, httperror.PermissionDenied("get", "article", fmt.Errorf("could not get article %d user %d has no permission", a.ID, u.ID))
+			}
+		}
 	}
 
 	return a, nil

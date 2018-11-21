@@ -10,6 +10,13 @@
 
 	{{with .article}}
 		<form action="/admin/article/edit/{{.ID}}" method="post">
+			<select name="categoryID">
+				<option></option>
+				{{range $.categories}}
+				<option{{if $.article.CID.Valid}}{{if eq $.article.CID.Int64 .ID}} selected="selected"{{end}}{{end}} value="{{.ID}}">{{.Name}}</option>
+				{{end}}
+			</select>
+
 			<label for="headline">Headline</label>
 			<input type="text" value="{{.Headline}}" id="headline" name="headline" placeholder="Headline..." required>
 

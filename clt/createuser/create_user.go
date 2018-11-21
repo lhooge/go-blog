@@ -40,6 +40,7 @@ func main() {
 	password := flag.String("password", "", "Password for the admin user ")
 	email := flag.String("email", "", "Email for the created user ")
 	displayName := flag.String("displayname", "", "Display name for the admin user ")
+	isAdmin := flag.Bool("admin", false, "If set a new administrator will be created; otherwise a non-admin is created")
 	file := flag.String("sqlite", "", "Location to the sqlite3 database file")
 
 	flag.Parse()
@@ -50,6 +51,7 @@ func main() {
 			password:    *password,
 			email:       *email,
 			displayName: *displayName,
+			admin:       *isAdmin,
 			sqlite:      *file,
 		}
 
@@ -102,6 +104,7 @@ func (userFlags createUserFlag) CreateUser() error {
 		DisplayName:   userFlags.displayName,
 		Email:         userFlags.email,
 		PlainPassword: []byte(userFlags.password),
+		IsAdmin:       userFlags.admin,
 		Active:        true,
 	}
 

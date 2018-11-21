@@ -47,11 +47,12 @@ func LoginPostHandler(ctx *middleware.AppContext, rw http.ResponseWriter, r *htt
 	}
 
 	u := &models.User{
-		Username: username,
-		Email:    username,
+		Username:      username,
+		Email:         username,
+		PlainPassword: password,
 	}
 
-	user, err := ctx.UserService.Authenticate(u, ctx.ConfigService.LoginMethod, password)
+	user, err := ctx.UserService.Authenticate(u, ctx.ConfigService.LoginMethod)
 
 	if err != nil {
 		return &middleware.Template{

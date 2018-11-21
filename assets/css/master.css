@@ -13,7 +13,7 @@ html {
 	height: 100vh;
 	display: grid;
 	grid-template-rows: 80px 1fr 30px;
-	grid-template-columns: minmax(250px, 20%) 30% 35% 15%;
+	grid-template-columns: minmax(250px, 20%) 30% 35% minmax(200px, 15%);
 	grid-template-areas:
 		"header header header header"
 		"nav content content sidebar"

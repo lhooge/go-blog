@@ -38,7 +38,7 @@ func (rdb SQLiteCategoryDatasource) List(fc FilterCriteria) ([]Category, error) 
 	var args []interface{}
 
 	stmt.WriteString("SELECT DISTINCT c.id, c.name, c.slug, c.last_modified, ")
-	stmt.WriteString("u.id, u.display_name, u.username, u.email ")
+	stmt.WriteString("u.id, u.display_name, u.username, u.email, u.is_admin ")
 	stmt.WriteString("FROM category as c ")
 	stmt.WriteString("INNER JOIN user as u ")
 	stmt.WriteString("ON c.user_id = u.id ")
@@ -53,7 +53,7 @@ func (rdb SQLiteCategoryDatasource) List(fc FilterCriteria) ([]Category, error) 
 		stmt.WriteString("WHERE a.categorie_id IS NULL ")
 	}
 
-	stmt.WriteString("ORDER BY c.name DESC ")
+	stmt.WriteString("ORDER BY c.last_modified DESC ")
 
 	rows, err := rdb.SQLConn.Query(stmt.String(), args...)
 
@@ -69,7 +69,7 @@ func (rdb SQLiteCategoryDatasource) List(fc FilterCriteria) ([]Category, error) 
 		var c Category
 		var ru User
 
-		if err := rows.Scan(&c.ID, &c.Name, &c.Slug, &c.LastModified, &ru.ID, &ru.DisplayName, &ru.Username, &ru.Email); err != nil {
+		if err := rows.Scan(&c.ID, &c.Name, &c.Slug, &c.LastModified, &ru.ID, &ru.DisplayName, &ru.Username, &ru.Email, &ru.IsAdmin); err != nil {
 			return nil, err
 		}
 
@@ -99,7 +99,7 @@ func (rdb SQLiteCategoryDatasource) Get(categoryID int) (*Category, error) {
 	var stmt bytes.Buffer
 
 	stmt.WriteString("SELECT c.id, c.name, c.slug, c.last_modified, ")
-	stmt.WriteString("u.id, u.display_name, u.username, u.email ")
+	stmt.WriteString("u.id, u.display_name, u.username, u.email, u.is_admin ")
 	stmt.WriteString("FROM category as c ")
 	stmt.WriteString("INNER JOIN user as u ")
 	stmt.WriteString("ON u.id = c.user_id ")
@@ -109,7 +109,7 @@ func (rdb SQLiteCategoryDatasource) Get(categoryID int) (*Category, error) {
 	var ru User
 
 	if err := rdb.SQLConn.QueryRow(stmt.String(), categoryID).Scan(&c.ID, &c.Name, &c.Slug, &c.LastModified, &ru.ID,
-		&ru.DisplayName, &ru.Username, &ru.Email); err != nil {
+		&ru.DisplayName, &ru.Username, &ru.Email, &ru.IsAdmin); err != nil {
 		return nil, err
 	}
 
@@ -122,7 +122,7 @@ func (rdb SQLiteCategoryDatasource) GetBySlug(slug string) (*Category, error) {
 	var stmt bytes.Buffer
 
 	stmt.WriteString("SELECT c.id, c.name, c.slug, c.last_modified, ")
-	stmt.WriteString("u.id, u.display_name, u.username, u.email ")
+	stmt.WriteString("u.id, u.display_name, u.username, u.email, u.is_admin ")
 	stmt.WriteString("FROM category as c ")
 	stmt.WriteString("INNER JOIN user as u ")
 	stmt.WriteString("ON u.id = c.user_id ")
@@ -132,7 +132,7 @@ func (rdb SQLiteCategoryDatasource) GetBySlug(slug string) (*Category, error) {
 	var ru User
 
 	if err := rdb.SQLConn.QueryRow(stmt.String(), slug).Scan(&c.ID, &c.Name, &c.Slug, &c.LastModified, &ru.ID,
-		&ru.DisplayName, &ru.Username, &ru.Email); err != nil {
+		&ru.DisplayName, &ru.Username, &ru.Email, &ru.IsAdmin); err != nil {
 		return nil, err
 	}
 
@@ -142,7 +142,7 @@ func (rdb SQLiteCategoryDatasource) GetBySlug(slug string) (*Category, error) {
 }
 
 func (rdb SQLiteCategoryDatasource) Update(c *Category) error {
-	_, err := rdb.SQLConn.Exec("UPDATE category SET name=?, slug=?, last_modified=?, user_id=? WHERE id=?"+
+	_, err := rdb.SQLConn.Exec("UPDATE category SET name=?, slug=?, last_modified=?, user_id=? WHERE id=?",
 		c.Name,
 		c.Slug,
 		time.Now(),

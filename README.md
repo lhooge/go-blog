@@ -26,7 +26,7 @@ Configuration
 
 Create your first administrator account with create_user:
 ~~~
-./createuser -admin -config {{BLOG_CONFIG}} -username test -email test@example.com -displayname "Hello World" -password secret1234
+./createuser -admin -sqlite path_to_sqlite -username test -email test@example.com -displayname "Hello World" -password secret1234
 ~~~
 
 Make sure -admin is set.
