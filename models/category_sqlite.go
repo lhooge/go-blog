@@ -142,7 +142,7 @@ func (rdb SQLiteCategoryDatasource) GetBySlug(slug string) (*Category, error) {
 }
 
 func (rdb SQLiteCategoryDatasource) Update(c *Category) error {
-	_, err := rdb.SQLConn.Exec("UPDATE category SET name=?, slug=?, last_modified=?, user_id=? WHERE id=?"+
+	_, err := rdb.SQLConn.Exec("UPDATE category SET name=?, slug=?, last_modified=?, user_id=? WHERE id=?",
 		c.Name,
 		c.Slug,
 		time.Now(),
