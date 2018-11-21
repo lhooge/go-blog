@@ -14,8 +14,8 @@
 			
 			<select name="categoryID">
 				<option></option>
-				{{range .categories}}
-				<option value="{{.ID}}">{{.Name}}</option>
+				{{range $.categories}}
+				<option{{if $.article.CID.Valid}}{{if eq $.article.CID.Int64 .ID}}} selected="selected"{{end}}{{end}} value="{{.ID}}">{{.Name}}</option>
 				{{end}}
 			</select>
 
