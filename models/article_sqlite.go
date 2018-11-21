@@ -124,7 +124,7 @@ func (rdb SQLiteArticleDatasource) Get(articleID int, u *User, pc PublishedCrite
 	var ru User
 
 	if err := selectArticleStmt(rdb.SQLConn, articleID, "", u, pc).Scan(&a.ID, &a.Headline, &a.PublishedOn, &a.Published, &a.Slug, &a.Teaser, &a.Content,
-		&a.LastModified, &ru.ID, &ru.DisplayName, &ru.Email, &ru.Username, &ru.IsAdmin); err != nil {
+		&a.LastModified, &ru.ID, &ru.DisplayName, &ru.Email, &ru.Username, &ru.IsAdmin, &a.CID, &a.CName); err != nil {
 		return nil, err
 	}
 
@@ -140,7 +140,7 @@ func (rdb SQLiteArticleDatasource) GetBySlug(slug string, u *User, pc PublishedC
 	var ru User
 
 	if err := selectArticleStmt(rdb.SQLConn, -1, slug, u, pc).Scan(&a.ID, &a.Headline, &a.PublishedOn, &a.Published, &a.Slug, &a.Teaser, &a.Content,
-		&a.LastModified, &ru.ID, &ru.DisplayName, &ru.Email, &ru.Username, &ru.IsAdmin); err != nil {
+		&a.LastModified, &ru.ID, &ru.DisplayName, &ru.Email, &ru.Username, &ru.IsAdmin, &a.CID, &a.CName); err != nil {
 		return nil, err
 	}
 
@@ -189,9 +189,11 @@ func selectArticleStmt(db *sql.DB, articleID int, slug string, u *User, pc Publi
 	var args []interface{}
 
 	stmt.WriteString("SELECT a.id, a.headline, a.published_on, a.published, a.slug, a.teaser, a.content, a.last_modified, ")
-	stmt.WriteString("u.id, u.display_name, u.email, u.username, u.is_admin ")
+	stmt.WriteString("u.id, u.display_name, u.email, u.username, u.is_admin, ")
+	stmt.WriteString("c.id, c.name ")
 	stmt.WriteString("FROM article a ")
 	stmt.WriteString("INNER JOIN user u ON (a.user_id = u.id) ")
+	stmt.WriteString("LEFT JOIN category c ON (c.id = a.category_id) ")
 	stmt.WriteString("WHERE ")
 
 	if pc == NotPublished {

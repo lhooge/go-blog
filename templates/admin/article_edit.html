@@ -10,12 +10,10 @@
 
 	{{with .article}}
 		<form action="/admin/article/edit/{{.ID}}" method="post">
-			<label for="category">Category</label>
-			
 			<select name="categoryID">
 				<option></option>
 				{{range $.categories}}
-				<option{{if $.article.CID.Valid}}{{if eq $.article.CID.Int64 .ID}}} selected="selected"{{end}}{{end}} value="{{.ID}}">{{.Name}}</option>
+				<option{{if $.article.CID.Valid}}{{if eq $.article.CID.Int64 .ID}} selected="selected"{{end}}{{end}} value="{{.ID}}">{{.Name}}</option>
 				{{end}}
 			</select>
 
