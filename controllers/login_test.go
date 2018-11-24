@@ -1,60 +1,59 @@
 package controllers_test
 
 import (
-	"net/http"
+	"fmt"
 	"net/http/httptest"
 	"net/url"
 	"testing"
 
-	"git.hoogi.eu/go-blog/components/httperror"
 	"git.hoogi.eu/go-blog/controllers"
 )
 
 func TestLogin(t *testing.T) {
-	resp, err := doLoginRequest(rGuest, "alice", "123456789012")
+	err := login("alice", "123456789012")
 
 	if err != nil {
-		t.Fatal(err)
+		t.Error(err)
+	}
+}
+
+func TestFailLogin(t *testing.T) {
+	err := login("alice", "test2")
+
+	if err == nil {
+		t.Error("expected a failed login, but error is nil")
+	}
+}
+
+func login(username, password string) error {
+	resp, err := doLoginRequest(rGuest, username, password)
+
+	if err != nil {
+		return err
 	}
 
 	if resp.getTemplateError() != nil {
-		t.Fatalf("an error is returned %v", resp.getTemplateError().Error())
+		return fmt.Errorf("an error is returned %v", resp.getTemplateError().Error())
 	}
 
 	if !resp.isCodeSuccess() {
-		t.Fatalf("got an invalid http response code %d", resp.getStatus())
+		return fmt.Errorf("got an invalid http response code %d", resp.getStatus())
 	}
 
 	c, err := resp.getCookie("test-session")
 
 	if err != nil {
-		t.Fatal(err)
+		return err
 	}
 
 	if c.HttpOnly == false {
-		t.Error("cookie with session id is missing http only flag")
+		return fmt.Errorf("cookie with session id is missing http only flag")
 	}
 	if c.Secure == false {
-		t.Error("cookie with session id is missing secure flag")
-	}
-}
-
-func TestFailLogin(t *testing.T) {
-	resp, err := doLoginRequest(rGuest, "alice", "test2")
-
-	if err == nil {
-		t.Fatalf("Expected an error when credentials are wrong. But error is nil %v", resp.template)
+		return fmt.Errorf("cookie with session id is missing secure flag")
 	}
 
-	if resp.getTemplateError().(*httperror.Error).HTTPStatus != http.StatusUnauthorized {
-		t.Errorf("Got an invalid status code. Should be %d, but was %d", http.StatusUnauthorized, resp.getStatus())
-	}
-
-	_, err = resp.getCookie("test-session")
-
-	if err == nil {
-		t.Fatal("the cookie test-session should not be set but is available")
-	}
+	return nil
 }
 
 func doLoginRequest(user reqUser, login, password string) (responseWrapper, error) {

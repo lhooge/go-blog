@@ -189,6 +189,7 @@ func post(path string, values url.Values) (*http.Request, error) {
 	b.WriteString(values.Encode())
 	req, err := http.NewRequest("POST", path, &b)
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
 	return req, err
 }
 
@@ -210,6 +211,9 @@ const (
 	rInactiveUser
 )
 
+//request used to build an http.Request with specified values
+//url will not really considered as the requests are not send, the *http.Request is just passed directly to the controllers
+//pathvar is an array of key/value pairs used as dynamic query parameters such as /article/{id}
 type request struct {
 	url     string
 	user    reqUser

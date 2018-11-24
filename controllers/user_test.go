@@ -17,11 +17,12 @@ import (
 
 func TestUserWorklfow(t *testing.T) {
 	expectedUser := &models.User{
-		DisplayName: "Homer Simpson",
-		Email:       "homer@example.com",
-		Username:    "homer",
-		Password:    []byte("123456789012"),
-		Active:      true,
+		DisplayName:   "Homer Simpson",
+		Email:         "homer@example.com",
+		Username:      "homer",
+		PlainPassword: []byte("123456789012"),
+		Active:        false,
+		IsAdmin:       false,
 	}
 
 	userID, err := doAdminCreateUserRequest(rAdminUser, expectedUser)
@@ -29,13 +30,29 @@ func TestUserWorklfow(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	user, err := doAdminGetUserRequest(rAdminUser, userID)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	err = checkUser(user, expectedUser)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	err = login(expectedUser.Username, string(expectedUser.Password))
+	if err == nil {
+		t.Fatal(err)
+	}
+
 	expectedUser = &models.User{
-		ID:          userID,
-		DisplayName: "Homer12 Simpson",
-		Email:       "homer@example.com",
-		Username:    "homer",
-		Password:    []byte("12345678901234"),
-		Active:      true,
+		ID:            userID,
+		DisplayName:   "Homer12 Simpson",
+		Email:         "homer@example.com",
+		Username:      "homer",
+		PlainPassword: []byte("12345678901234"),
+		Active:        true,
+		IsAdmin:       true,
 	}
 
 	err = doAdminEditUsersRequest(rAdminUser, expectedUser)
@@ -43,7 +60,12 @@ func TestUserWorklfow(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	user, err := doAdminGetUserRequest(rAdminUser, userID)
+	err = login(expectedUser.Username, string(expectedUser.Password))
+	if err == nil {
+		t.Fatal(err)
+	}
+
+	user, err = doAdminGetUserRequest(rAdminUser, userID)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -66,6 +88,9 @@ func checkUser(user, expectedUser *models.User) error {
 	}
 	if user.Active != expectedUser.Active {
 		return fmt.Errorf("got an unexpected active. expected: %t, actual: %t", expectedUser.Active, user.Active)
+	}
+	if user.IsAdmin != expectedUser.IsAdmin {
+		return fmt.Errorf("got an unexpected isAdmin. expected: %t, actual: %t", expectedUser.IsAdmin, user.IsAdmin)
 	}
 	return nil
 }
@@ -109,6 +134,12 @@ func doAdminEditUsersRequest(user reqUser, u *models.User) error {
 		s = "off"
 	}
 	addValue(values, "active", s)
+
+	s = "on"
+	if u.IsAdmin == false {
+		s = "off"
+	}
+	addValue(values, "admin", s)
 
 	r := request{
 		url:    "/admin/user/edit" + strconv.Itoa(u.ID),
