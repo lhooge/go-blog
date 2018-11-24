@@ -8,27 +8,10 @@ import (
 
 	"git.hoogi.eu/go-blog/components/httperror"
 	"git.hoogi.eu/go-blog/controllers"
-	"git.hoogi.eu/go-blog/models"
 )
 
 func TestLogin(t *testing.T) {
-	defer ctx.UserService.Datasource.(*inMemoryUser).Flush()
-
-	expectedUser := &models.User{
-		DisplayName: "Homer",
-		Email:       "homer@example.com",
-		Username:    "homer",
-		Password:    []byte("1234567890"),
-		Active:      true,
-	}
-
-	_, err := doCreateUserRequest(expectedUser)
-
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	resp, err := doLoginRequest()
+	resp, err := doLoginRequest(rGuest, "alice", "123456789012")
 
 	if err != nil {
 		t.Fatal(err)
@@ -57,23 +40,7 @@ func TestLogin(t *testing.T) {
 }
 
 func TestFailLogin(t *testing.T) {
-	defer ctx.UserService.Datasource.(*inMemoryUser).Flush()
-
-	expectedUser := &models.User{
-		DisplayName: "Homer",
-		Email:       "homer@example.com",
-		Username:    "homer",
-		Password:    []byte("12345678123"),
-		Active:      true,
-	}
-
-	_, err := doCreateUserRequest(expectedUser)
-
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	resp, err := doLoginRequest()
+	resp, err := doLoginRequest(rGuest, "alice", "test2")
 
 	if err == nil {
 		t.Fatalf("Expected an error when credentials are wrong. But error is nil %v", resp.template)
@@ -90,18 +57,20 @@ func TestFailLogin(t *testing.T) {
 	}
 }
 
-func doLoginRequest() (responseWrapper, error) {
+func doLoginRequest(user reqUser, login, password string) (responseWrapper, error) {
 	values := url.Values{}
-	addValue(values, "username", "homer")
-	addValue(values, "password", "1234567890")
+	addValue(values, "username", login)
+	addValue(values, "password", password)
 
-	req, err := postRequest("/admin/login", values)
-	if err != nil {
-		return responseWrapper{}, err
+	r := request{
+		url:    "/admin/login",
+		method: "POST",
+		user:   user,
+		values: values,
 	}
 
 	rr := httptest.NewRecorder()
-	tpl := controllers.LoginPostHandler(ctx, rr, req)
+	tpl := controllers.LoginPostHandler(ctx, rr, r.buildRequest())
 
 	if tpl.Err != nil {
 		return responseWrapper{response: rr, template: tpl}, tpl.Err

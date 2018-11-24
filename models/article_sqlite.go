@@ -3,6 +3,7 @@ package models
 import (
 	"bytes"
 	"database/sql"
+	"fmt"
 	"time"
 )
 
@@ -266,6 +267,8 @@ func selectArticlesStmt(db *sql.DB, u *User, c *Category, p *Pagination, pc Publ
 		stmt.WriteString("LIMIT ? OFFSET ? ")
 		args = append(args, p.Limit, p.Offset())
 	}
+
+	fmt.Print(stmt.String(), args)
 
 	return db.Query(stmt.String(), args...)
 }

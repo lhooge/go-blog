@@ -345,6 +345,46 @@ func AdminListArticlesHandler(ctx *middleware.AppContext, w http.ResponseWriter,
 		}}
 }
 
+//AdminGetArticleByIDHandler returns a specific article, renders it on the front page for the
+func AdminGetArticleByIDHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
+	u, _ := middleware.User(r)
+
+	id, err := parseInt(getVar(r, "articleID"))
+
+	if err != nil {
+		return &middleware.Template{
+			Name: tplAdminArticleEdit,
+			Err:  httperror.ParameterMissing("articleID", err),
+		}
+	}
+
+	a, err := ctx.ArticleService.GetByID(id, u, models.All)
+
+	if err != nil {
+		return &middleware.Template{
+			Name: tplArticle,
+			Err:  err,
+		}
+	}
+
+	c, err := ctx.CategoryService.List(models.CategoriesWithPublishedArticles)
+
+	if err != nil {
+		return &middleware.Template{
+			Name:   tplArticles,
+			Active: "articles",
+			Err:    err,
+		}
+	}
+
+	return &middleware.Template{
+		Name: tplArticle,
+		Data: map[string]interface{}{
+			"article":    a,
+			"categories": c,
+		}}
+}
+
 // AdminArticleNewHandler returns the template which shows the form to create a new article
 func AdminArticleNewHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
 	c, err := ctx.CategoryService.List(models.AllCategories)

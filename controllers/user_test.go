@@ -5,32 +5,26 @@
 package controllers_test
 
 import (
-	"context"
-	"database/sql"
 	"fmt"
 	"net/http/httptest"
 	"net/url"
 	"strconv"
-	"sync"
 	"testing"
 
 	"git.hoogi.eu/go-blog/controllers"
-	"git.hoogi.eu/go-blog/middleware"
 	"git.hoogi.eu/go-blog/models"
 )
 
-func TestCreateGetEditUser(t *testing.T) {
-	defer ctx.UserService.Datasource.(*inMemoryUser).Flush()
-
+func TestUserWorklfow(t *testing.T) {
 	expectedUser := &models.User{
 		DisplayName: "Homer Simpson",
 		Email:       "homer@example.com",
 		Username:    "homer",
-		Password:    []byte("1234567890"),
+		Password:    []byte("123456789012"),
 		Active:      true,
 	}
 
-	userID, err := doCreateUserRequest(expectedUser)
+	userID, err := doAdminCreateUserRequest(rAdminUser, expectedUser)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -40,16 +34,16 @@ func TestCreateGetEditUser(t *testing.T) {
 		DisplayName: "Homer12 Simpson",
 		Email:       "homer@example.com",
 		Username:    "homer",
-		Password:    []byte("1234567890"),
+		Password:    []byte("12345678901234"),
 		Active:      true,
 	}
 
-	err = doEditUsersRequest(expectedUser)
+	err = doAdminEditUsersRequest(rAdminUser, expectedUser)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	user, err := doGetUserRequest(userID)
+	user, err := doAdminGetUserRequest(rAdminUser, userID)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -76,16 +70,21 @@ func checkUser(user, expectedUser *models.User) error {
 	return nil
 }
 
-func doGetUserRequest(userid int) (*models.User, error) {
-	req, err := postRequest("/admin/user/", nil)
-	if err != nil {
-		return nil, err
+func doAdminGetUserRequest(user reqUser, userID int) (*models.User, error) {
+	r := request{
+		url:    "/admin/user/" + strconv.Itoa(userID),
+		method: "GET",
+		user:   user,
+		pathVar: []pathVar{
+			pathVar{
+				key:   "userID",
+				value: strconv.Itoa(userID),
+			},
+		},
 	}
 
-	setHeader(req, "userID", strconv.Itoa(userid))
-	reqCtx := context.WithValue(req.Context(), middleware.UserContextKey, dummyAdminUser())
 	rw := httptest.NewRecorder()
-	tpl := controllers.AdminUserEditHandler(ctx, rw, req.WithContext(reqCtx))
+	tpl := controllers.AdminUserEditHandler(ctx, rw, r.buildRequest())
 
 	if tpl.Err != nil {
 		return nil, tpl.Err
@@ -98,26 +97,34 @@ func doGetUserRequest(userid int) (*models.User, error) {
 	return nil, fmt.Errorf("no user were returned %v", tpl.Err)
 }
 
-func doEditUsersRequest(user *models.User) error {
+func doAdminEditUsersRequest(user reqUser, u *models.User) error {
 	values := url.Values{}
-	addValue(values, "displayname", user.DisplayName)
-	addValue(values, "username", user.Username)
-	addValue(values, "email", user.Email)
+	addValue(values, "displayname", u.DisplayName)
+	addValue(values, "username", u.Username)
+	addValue(values, "email", u.Email)
+
 	s := "on"
 
-	if user.Active == false {
+	if u.Active == false {
 		s = "off"
 	}
 	addValue(values, "active", s)
 
-	req, err := postRequest("/admin/user/edit", values)
-	if err != nil {
-		return err
+	r := request{
+		url:    "/admin/user/edit" + strconv.Itoa(u.ID),
+		method: "POST",
+		user:   user,
+		values: values,
+		pathVar: []pathVar{
+			pathVar{
+				key:   "userID",
+				value: strconv.Itoa(u.ID),
+			},
+		},
 	}
-	setHeader(req, "userID", strconv.Itoa(user.ID))
-	reqCtx := context.WithValue(req.Context(), middleware.UserContextKey, dummyAdminUser())
+
 	rw := httptest.NewRecorder()
-	tpl := controllers.AdminUserEditPostHandler(ctx, rw, req.WithContext(reqCtx))
+	tpl := controllers.AdminUserEditPostHandler(ctx, rw, r.buildRequest())
 
 	if tpl.Err != nil {
 		return tpl.Err
@@ -129,15 +136,15 @@ func doEditUsersRequest(user *models.User) error {
 	return nil
 }
 
-func doListUsersRequest() ([]models.User, error) {
-	req, err := postRequest("/admin/users", nil)
-	if err != nil {
-		return nil, err
+func doAdminListUsersRequest(user reqUser) ([]models.User, error) {
+	r := request{
+		url:    "/admin/users",
+		method: "GET",
+		user:   user,
 	}
 
-	reqCtx := context.WithValue(req.Context(), middleware.UserContextKey, dummyAdminUser())
 	rw := httptest.NewRecorder()
-	tpl := controllers.AdminUsersHandler(ctx, rw, req.WithContext(reqCtx))
+	tpl := controllers.AdminUsersHandler(ctx, rw, r.buildRequest())
 
 	if tpl.Err != nil {
 		return nil, tpl.Err
@@ -146,22 +153,23 @@ func doListUsersRequest() ([]models.User, error) {
 	return tpl.Data["users"].([]models.User), nil
 }
 
-func doCreateUserRequest(user *models.User) (int, error) {
+func doAdminCreateUserRequest(user reqUser, u *models.User) (int, error) {
 	values := url.Values{}
-	addValue(values, "displayname", user.DisplayName)
-	addValue(values, "username", user.Username)
-	addValue(values, "email", user.Email)
-	addValue(values, "password", string(user.Password))
-	addCheckboxValue(values, "active", user.Active)
+	addValue(values, "displayname", u.DisplayName)
+	addValue(values, "username", u.Username)
+	addValue(values, "email", u.Email)
+	addValue(values, "password", string(u.Password))
+	addCheckboxValue(values, "active", u.Active)
 
-	req, err := postRequest("/admin/user/new", values)
-	if err != nil {
-		return 0, err
+	r := request{
+		url:    "/admin/user/edit",
+		method: "POST",
+		user:   user,
+		values: values,
 	}
 
-	reqCtx := context.WithValue(req.Context(), middleware.UserContextKey, dummyAdminUser())
 	rw := httptest.NewRecorder()
-	tpl := controllers.AdminUserNewPostHandler(ctx, rw, req.WithContext(reqCtx))
+	tpl := controllers.AdminUserNewPostHandler(ctx, rw, r.buildRequest())
 
 	if tpl.Err != nil {
 		return 0, tpl.Err
@@ -172,78 +180,4 @@ func doCreateUserRequest(user *models.User) (int, error) {
 	}
 
 	return tpl.Data["userID"].(int), nil
-}
-
-type inMemoryUser struct {
-	users map[int]*models.User
-	mutex sync.RWMutex
-}
-
-func (imu *inMemoryUser) Create(u *models.User) (int, error) {
-	userID := len(imu.users) + 1
-	u.ID = userID
-	imu.users[userID] = u
-	return userID, nil
-}
-
-func (imu *inMemoryUser) List(*models.Pagination) ([]models.User, error) {
-	var u []models.User
-
-	for _, v := range imu.users {
-		u = append(u, *v)
-	}
-
-	return u, nil
-}
-
-func (imu *inMemoryUser) Get(userID int) (*models.User, error) {
-	if _, ok := imu.users[userID]; ok {
-		return imu.users[userID], nil
-	}
-	return nil, sql.ErrNoRows
-
-}
-
-func (imu *inMemoryUser) Update(u *models.User, changePassword bool) error {
-	if _, ok := imu.users[u.ID]; ok {
-
-		imu.users[u.ID] = u
-		return nil
-	}
-	return sql.ErrNoRows
-}
-
-func (imu *inMemoryUser) Count() (int, error) {
-	//TODO() evaluate admin criteria
-	return len(imu.users), nil
-}
-
-func (imu *inMemoryUser) Flush() {
-	for k := range imu.users {
-		delete(imu.users, k)
-	}
-}
-
-func (imu *inMemoryUser) GetByMail(mail string) (*models.User, error) {
-	for _, v := range imu.users {
-		if v.Email == mail {
-			return v, nil
-		}
-	}
-	return nil, sql.ErrNoRows
-}
-
-func (imu *inMemoryUser) GetByUsername(username string) (*models.User, error) {
-	for _, v := range imu.users {
-		if v.Username == username {
-			return v, nil
-		}
-	}
-
-	return nil, sql.ErrNoRows
-}
-
-func (imu *inMemoryUser) Remove(userID int) error {
-	delete(imu.users, userID)
-	return nil
 }
