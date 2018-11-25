@@ -20,6 +20,8 @@ import (
 func TestArticleWorkflow(t *testing.T) {
 	setup(t)
 
+	defer teardown()
+
 	artID, err := doAdminCreateArticleRequest(rAdminUser, getSampleArticle())
 
 	if err != nil {

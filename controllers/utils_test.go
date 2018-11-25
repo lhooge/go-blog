@@ -27,6 +27,7 @@ import (
 )
 
 var ctx *middleware.AppContext
+var db *sql.DB
 
 func setup(t *testing.T) {
 	logger.InitLogger(ioutil.Discard, "Debug")
@@ -119,6 +120,12 @@ func setup(t *testing.T) {
 		TokenService:      tokenService,
 		SessionService:    &sessionService,
 		ConfigService:     cfg,
+	}
+}
+
+func teardown() {
+	if db != nil {
+		db.Close()
 	}
 }
 

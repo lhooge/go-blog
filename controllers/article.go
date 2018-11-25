@@ -146,7 +146,7 @@ func ListArticlesCategoryHandler(ctx *middleware.AppContext, w http.ResponseWrit
 
 	category := getVar(r, "categorySlug")
 
-	c, err := ctx.CategoryService.GetBySlug(category)
+	c, err := ctx.CategoryService.GetBySlug(category, models.CategoriesWithPublishedArticles)
 
 	if err != nil {
 		return &middleware.Template{
@@ -219,7 +219,7 @@ func IndexArticlesCategoryHandler(ctx *middleware.AppContext, w http.ResponseWri
 
 	category := getVar(r, "categorySlug")
 
-	c, err := ctx.CategoryService.GetBySlug(category)
+	c, err := ctx.CategoryService.GetBySlug(category, models.CategoriesWithPublishedArticles)
 
 	if err != nil {
 		return &middleware.Template{

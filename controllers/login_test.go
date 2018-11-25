@@ -10,15 +10,17 @@ import (
 )
 
 func TestLogin(t *testing.T) {
+	setup(t)
+
+	defer teardown()
+
 	err := login("alice", "123456789012")
 
 	if err != nil {
 		t.Error(err)
 	}
-}
 
-func TestFailLogin(t *testing.T) {
-	err := login("alice", "test2")
+	err = login("alice", "test2")
 
 	if err == nil {
 		t.Error("expected a failed login, but error is nil")

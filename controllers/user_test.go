@@ -16,6 +16,10 @@ import (
 )
 
 func TestUserWorklfow(t *testing.T) {
+	setup(t)
+
+	defer teardown()
+
 	expectedUser := &models.User{
 		DisplayName:   "Homer Simpson",
 		Email:         "homer@example.com",
@@ -82,9 +86,6 @@ func checkUser(user, expectedUser *models.User) error {
 	}
 	if user.Email != expectedUser.Email {
 		return fmt.Errorf("got an unexpected email. expected: %s, actual: %s", expectedUser.Email, user.Email)
-	}
-	if user.ID != expectedUser.ID {
-		return fmt.Errorf("got an unexpected id. expected: %d, actual: %d", expectedUser.ID, user.ID)
 	}
 	if user.Active != expectedUser.Active {
 		return fmt.Errorf("got an unexpected active. expected: %t, actual: %t", expectedUser.Active, user.Active)

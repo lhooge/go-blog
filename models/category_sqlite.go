@@ -95,7 +95,7 @@ func (rdb SQLiteCategoryDatasource) Count(fc FilterCriteria) (int, error) {
 	return total, nil
 }
 
-func (rdb SQLiteCategoryDatasource) Get(categoryID int) (*Category, error) {
+func (rdb SQLiteCategoryDatasource) Get(categoryID int, fc FilterCriteria) (*Category, error) {
 	var stmt bytes.Buffer
 
 	stmt.WriteString("SELECT c.id, c.name, c.slug, c.last_modified, ")
@@ -103,7 +103,20 @@ func (rdb SQLiteCategoryDatasource) Get(categoryID int) (*Category, error) {
 	stmt.WriteString("FROM category as c ")
 	stmt.WriteString("INNER JOIN user as u ")
 	stmt.WriteString("ON u.id = c.user_id ")
-	stmt.WriteString("WHERE c.id=? ")
+
+	if fc == CategoriesWithPublishedArticles {
+		stmt.WriteString("INNER JOIN article as a ")
+		stmt.WriteString("ON c.id = a.category_id ")
+		stmt.WriteString("WHERE a.published = true ")
+		stmt.WriteString("AND c.id=? ")
+	} else if fc == CategoriesWithoutArticles {
+		stmt.WriteString("LEFT JOIN article as a ")
+		stmt.WriteString("ON c.id = a.category_id ")
+		stmt.WriteString("WHERE a.categorie_id IS NULL ")
+		stmt.WriteString("AND c.id=? ")
+	} else {
+		stmt.WriteString("WHERE c.id=? ")
+	}
 
 	var c Category
 	var ru User
@@ -118,7 +131,7 @@ func (rdb SQLiteCategoryDatasource) Get(categoryID int) (*Category, error) {
 	return &c, nil
 }
 
-func (rdb SQLiteCategoryDatasource) GetBySlug(slug string) (*Category, error) {
+func (rdb SQLiteCategoryDatasource) GetBySlug(slug string, fc FilterCriteria) (*Category, error) {
 	var stmt bytes.Buffer
 
 	stmt.WriteString("SELECT c.id, c.name, c.slug, c.last_modified, ")
@@ -126,7 +139,19 @@ func (rdb SQLiteCategoryDatasource) GetBySlug(slug string) (*Category, error) {
 	stmt.WriteString("FROM category as c ")
 	stmt.WriteString("INNER JOIN user as u ")
 	stmt.WriteString("ON u.id = c.user_id ")
-	stmt.WriteString("WHERE c.slug=? ")
+	if fc == CategoriesWithPublishedArticles {
+		stmt.WriteString("INNER JOIN article as a ")
+		stmt.WriteString("ON c.id = a.category_id ")
+		stmt.WriteString("WHERE a.published = true ")
+		stmt.WriteString("WHERE c.slug=? ")
+	} else if fc == CategoriesWithoutArticles {
+		stmt.WriteString("LEFT JOIN article as a ")
+		stmt.WriteString("ON c.id = a.category_id ")
+		stmt.WriteString("WHERE a.categorie_id IS NULL ")
+		stmt.WriteString("WHERE c.slug=? ")
+	} else {
+		stmt.WriteString("WHERE c.slug=? ")
+	}
 
 	var c Category
 	var ru User
