@@ -79,6 +79,18 @@ func TestArticleWorkflow(t *testing.T) {
 	if err = checkArticle(rcvArticle, updatedArticle); err != nil {
 		t.Fatal(err)
 	}
+
+	err = doAdminRemoveArticleRequest(rAdminUser, artID)
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	rcvArticle, err = doGetArticleByIDRequest(rAdminUser, artID)
+
+	if err == nil {
+		t.Fatalf("removed article, but got a category %v", rcvArticle)
+	}
 }
 
 func checkArticle(article *models.Article, expectedArticle *models.Article) error {
@@ -278,6 +290,29 @@ func doAdminPublishArticleRequest(user reqUser, articleID int) error {
 
 	rw := httptest.NewRecorder()
 	tpl := controllers.AdminArticlePublishPostHandler(ctx, rw, r.buildRequest())
+
+	if tpl.Err != nil {
+		return tpl.Err
+	}
+
+	return nil
+}
+
+func doAdminRemoveArticleRequest(user reqUser, articleID int) error {
+	r := request{
+		url:    "/admin/article/remove/" + strconv.Itoa(articleID),
+		user:   user,
+		method: "POST",
+		pathVar: []pathVar{
+			pathVar{
+				key:   "articleID",
+				value: strconv.Itoa(articleID),
+			},
+		},
+	}
+
+	rw := httptest.NewRecorder()
+	tpl := controllers.AdminArticleDeletePostHandler(ctx, rw, r.buildRequest())
 
 	if tpl.Err != nil {
 		return tpl.Err

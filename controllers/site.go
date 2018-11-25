@@ -16,8 +16,44 @@ import (
 )
 
 //SiteHandler returns the site template only published sites are considered
-func SiteHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
+func GetSiteHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
 	site, err := ctx.SiteService.GetByLink(getVar(r, "site"), models.OnlyPublished)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return &middleware.Template{
+				Name: tplSite,
+				Err:  httperror.NotFound("site", err),
+			}
+		}
+		return &middleware.Template{
+			Name: tplSite,
+			Err:  err,
+		}
+	}
+
+	return &middleware.Template{
+		Name: tplSite,
+		Data: map[string]interface{}{
+			"site": site,
+		},
+	}
+}
+
+//SiteHandler returns the site template only published sites are considered
+func AdminGetSiteHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
+	reqVar := getVar(r, "siteID")
+
+	id, err := parseInt(reqVar)
+
+	if err != nil {
+		return &middleware.Template{
+			Name: tplSite,
+			Err:  err,
+		}
+	}
+
+	site, err := ctx.SiteService.GetByID(id, models.All)
 
 	if err != nil {
 		if err == sql.ErrNoRows {

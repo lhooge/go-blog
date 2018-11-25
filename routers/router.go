@@ -121,6 +121,7 @@ func restrictedRoutes(ctx *m.AppContext, router *mux.Router, chain alice.Chain) 
 	router.Handle("/site/delete/{siteID}", chain.Append(ctx.RequireAdmin).Then(useTemplateHandler(ctx, c.AdminSiteDeleteHandler))).Methods("GET")
 	router.Handle("/site/delete/{siteID}", chain.Append(ctx.RequireAdmin).Then(useTemplateHandler(ctx, c.AdminSiteDeletePostHandler))).Methods("POST")
 	router.Handle("/site/order/{siteID}", chain.Append(ctx.RequireAdmin).Then(useTemplateHandler(ctx, c.AdminSiteOrderHandler))).Methods("POST")
+	router.Handle("/site/{siteID}", chain.Then(useTemplateHandler(ctx, c.AdminGetSiteHandler))).Methods("GET")
 
 	//article
 	router.Handle("/categories", chain.Then(useTemplateHandler(ctx, c.AdminListCategoriesHandler))).Methods("GET")
@@ -158,7 +159,7 @@ func publicRoutes(ctx *m.AppContext, router *mux.Router, chain alice.Chain) {
 
 	router.Handle("/rss.xml", chain.Then(useXMLHandler(ctx, c.RSSFeed))).Methods("GET")
 
-	router.Handle("/site/{site}", chain.Then(useTemplateHandler(ctx, c.SiteHandler))).Methods("GET")
+	router.Handle("/site/{site}", chain.Then(useTemplateHandler(ctx, c.GetSiteHandler))).Methods("GET")
 
 	router.Handle("/file/{filename}", chain.Then(c.FileGetHandler(ctx))).Methods("GET")
 	router.Handle("/admin", chain.Then(useTemplateHandler(ctx, c.LoginHandler))).Methods("GET")

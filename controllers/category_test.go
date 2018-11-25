@@ -63,7 +63,7 @@ func TestCategoryWorkflow(t *testing.T) {
 	rcvCategory, err = doAdminGetCategoryRequest(rAdminUser, id)
 
 	if err == nil {
-		t.Fatalf("removed cateogry, but got a category %v", rcvCategory)
+		t.Fatalf("removed category, but got a category %v", rcvCategory)
 	}
 
 }
