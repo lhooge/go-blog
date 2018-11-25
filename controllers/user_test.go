@@ -190,8 +190,9 @@ func doAdminCreateUserRequest(user reqUser, u *models.User) (int, error) {
 	addValue(values, "displayname", u.DisplayName)
 	addValue(values, "username", u.Username)
 	addValue(values, "email", u.Email)
-	addValue(values, "password", string(u.Password))
+	addValue(values, "password", string(u.PlainPassword))
 	addCheckboxValue(values, "active", u.Active)
+	addCheckboxValue(values, "is_admin", u.IsAdmin)
 
 	r := request{
 		url:    "/admin/user/edit",

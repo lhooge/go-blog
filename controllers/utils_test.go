@@ -251,16 +251,10 @@ func (r request) buildRequest() *http.Request {
 
 	var user *models.User
 
-	if r.user == rAdminUser {
-		user, _ = ctx.UserService.GetByID(1)
-	} else if r.user == rUser {
-		user, _ = ctx.UserService.GetByID(2)
-	} else if r.user == rInactiveAdminUser {
-		user, _ = ctx.UserService.GetByID(3)
-	} else if r.user == rInactiveUser {
-		user, _ = ctx.UserService.GetByID(4)
-	} else {
+	if r.user == rGuest {
 		return req
+	} else {
+		user, _ = ctx.UserService.GetByID(int(r.user))
 	}
 
 	reqCtx := context.WithValue(req.Context(), middleware.UserContextKey, user)
