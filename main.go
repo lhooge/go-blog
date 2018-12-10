@@ -202,11 +202,11 @@ func context(db *sql.DB, cfg *settings.Settings) (*m.AppContext, error) {
 		Password: []byte(cfg.Mail.Password),
 	}
 
-	mailService := mail.NewMailService(cfg.Mail.SubjectPrefix, cfg.Mail.SenderAddress, smtpConfig)
+	sender := mail.NewMailService(cfg.Mail.SubjectPrefix, cfg.Mail.SenderAddress, smtpConfig)
 
 	mailer := models.Mailer{
-		MailService: &mailService,
-		AppConfig:   &cfg.Application,
+		Sender:    &sender,
+		AppConfig: &cfg.Application,
 	}
 
 	templates := m.Templates{
@@ -248,7 +248,6 @@ func context(db *sql.DB, cfg *settings.Settings) (*m.AppContext, error) {
 }
 
 func loadUserInterceptor(pluginFile string) models.UserInterceptor {
-
 	if len(pluginFile) == 0 {
 		return nil
 	}

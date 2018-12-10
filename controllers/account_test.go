@@ -9,6 +9,37 @@ import (
 	"git.hoogi.eu/go-blog/models"
 )
 
+func TestAccountActivation(t *testing.T) {
+	setup(t)
+
+	defer teardown()
+
+	ui := &models.UserInvite{
+		DisplayName: "Homer Simpson",
+		Email:       "homer@example.com",
+		Username:    "homer",
+		IsAdmin:     false,
+	}
+
+	_, hash, err := doAdminCreateUserInviteRequest(rAdminUser, ui)
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	err = doActivateAccountRequest(rGuest, "1234567890123", "1234567890123", hash)
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	err = login("homer", "1234567890123")
+
+	if err != nil {
+		t.Error(err)
+	}
+}
+
 func TestProfileUpdate(t *testing.T) {
 	setup(t)
 
@@ -25,7 +56,7 @@ func TestProfileUpdate(t *testing.T) {
 
 	userID, err := doAdminCreateUserRequest(rAdminUser, user)
 	if err != nil {
-		t.Fatal(err)
+		t.Error(err)
 	}
 
 	user.Username = "marge"
@@ -36,12 +67,12 @@ func TestProfileUpdate(t *testing.T) {
 
 	err = doAdminProfileRequest(reqUser(userID), user, "123456789012")
 	if err != nil {
-		t.Fatal(err)
+		t.Error(err)
 	}
 
 	err = login(user.Username, string(user.PlainPassword))
 	if err != nil {
-		t.Fatal(err)
+		t.Error(err)
 	}
 }
 
@@ -53,6 +84,7 @@ func doAdminProfileRequest(user reqUser, u *models.User, currentPassword string)
 	addValue(values, "password", string(u.PlainPassword))
 	addValue(values, "retyped_password", string(u.PlainPassword))
 	addValue(values, "current_password", string(currentPassword))
+
 	r := request{
 		url:    "/admin/profile",
 		user:   user,
@@ -89,7 +121,7 @@ func doActivateAccountRequest(user reqUser, password, passwordRepeat, hash strin
 	}
 
 	rw := httptest.NewRecorder()
-	tpl := controllers.AdminSiteEditPostHandler(ctx, rw, r.buildRequest())
+	tpl := controllers.ActivateAccountPostHandler(ctx, rw, r.buildRequest())
 
 	if tpl.Err != nil {
 		return tpl.Err

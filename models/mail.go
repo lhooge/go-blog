@@ -9,8 +9,8 @@ import (
 )
 
 type Mailer struct {
-	AppConfig   *settings.Application
-	MailService *mail.Service
+	AppConfig *settings.Application
+	Sender    mail.Sender
 }
 
 func (m Mailer) SendActivationLink(ui *UserInvite) error {
@@ -22,7 +22,7 @@ func (m Mailer) SendActivationLink(ui *UserInvite) error {
 		Body:    fmt.Sprintf("Hi %s, \n\n you are invited join %s. To activate your account click the following link and enter a password %s", ui.DisplayName, m.AppConfig.Title, activation),
 	}
 
-	return m.MailService.SendAsync(mail)
+	return m.Sender.SendAsync(mail)
 }
 
 func (m Mailer) SendPasswordChangeConfirmation(u *User) error {
@@ -32,7 +32,7 @@ func (m Mailer) SendPasswordChangeConfirmation(u *User) error {
 		Body:    fmt.Sprintf("Hi %s, \n\n your password change was sucessfully.", u.DisplayName),
 	}
 
-	return m.MailService.SendAsync(mail)
+	return m.Sender.SendAsync(mail)
 }
 
 func (m Mailer) SendPasswordResetLink(u *User, t *Token) error {
@@ -44,5 +44,5 @@ func (m Mailer) SendPasswordResetLink(u *User, t *Token) error {
 		Body:    fmt.Sprintf("Hi %s, \n\n use the following link to reset your password: \n\n. %s", u.DisplayName, resetLink),
 	}
 
-	return m.MailService.SendAsync(mail)
+	return m.Sender.SendAsync(mail)
 }

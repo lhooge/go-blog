@@ -18,6 +18,7 @@ func AdminUsersHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *htt
 	page := getPageParam(r)
 
 	total, err := ctx.UserService.Count(models.All)
+
 	if err != nil {
 		return &middleware.Template{
 			Name:   tplAdminUsers,

@@ -17,6 +17,7 @@ import (
 
 	"git.hoogi.eu/go-blog/components/database"
 	"git.hoogi.eu/go-blog/components/logger"
+	"git.hoogi.eu/go-blog/components/mail"
 	"git.hoogi.eu/go-blog/middleware"
 	"git.hoogi.eu/go-blog/models"
 	"git.hoogi.eu/go-blog/settings"
@@ -101,6 +102,11 @@ func setup(t *testing.T) {
 		},
 	}
 
+	mailer := models.Mailer{
+		Sender:    MockSMTP{},
+		AppConfig: &cfg.Application,
+	}
+
 	sessionService := session.SessionService{
 		Path:            "/admin",
 		Name:            "test-session",
@@ -119,6 +125,7 @@ func setup(t *testing.T) {
 		FileService:       fileService,
 		TokenService:      tokenService,
 		SessionService:    &sessionService,
+		Mailer:            mailer,
 		ConfigService:     cfg,
 	}
 }
@@ -182,6 +189,16 @@ func setHeader(r *http.Request, key, value string) {
 
 func addValue(m url.Values, key, value string) {
 	m.Add(key, value)
+}
+
+type MockSMTP struct{}
+
+func (sm MockSMTP) Send(m mail.Mail) error {
+	return nil
+}
+
+func (sm MockSMTP) SendAsync(m mail.Mail) error {
+	return nil
 }
 
 func addCheckboxValue(m url.Values, key string, value bool) {

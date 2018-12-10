@@ -28,6 +28,11 @@ func NewMailService(subjectPrefix, from string, smtpConfig SMTPConfig) Service {
 
 }
 
+type Sender interface {
+	Send(m Mail) error
+	SendAsync(m Mail) error
+}
+
 //SMTPConfig holds the configuration for the SMTP server
 type SMTPConfig struct {
 	Address  string
@@ -56,7 +61,7 @@ func (m Mail) buildMessage(s Service) []byte {
 	buf.WriteString("Subject: ")
 
 	if len(s.SubjectPrefix) > 0 {
-		buf.WriteString(fmt.Sprintf("%s%s%s", "[", s.SubjectPrefix, "] "))
+		buf.WriteString(s.SubjectPrefix)
 	}
 
 	buf.WriteString(m.Subject)
@@ -66,12 +71,12 @@ func (m Mail) buildMessage(s Service) []byte {
 	return buf.Bytes()
 }
 
-func (m Mail) validate() error {
-	if len(m.To) == 0 {
-		return errors.New("no recipient specified")
-	}
+func (s Service) SendAsync(m Mail) error {
+	go func() {
+		buffer <- m
+	}()
 
-	return nil
+	return <-errc
 }
 
 //Send sends a mail over the configured SMTP server
@@ -129,6 +134,14 @@ func (s Service) Send(m Mail) error {
 	}
 }
 
+func (m Mail) validate() error {
+	if len(m.To) == 0 {
+		return errors.New("no recipient specified")
+	}
+
+	return nil
+}
+
 var buffer = make(chan Mail, 10)
 var errc = make(chan error, 1)
 
@@ -144,12 +157,4 @@ func (s Service) readBuffer() <-chan error {
 
 		return errc
 	}
-}
-
-func (s Service) SendAsync(m Mail) error {
-	go func() {
-		buffer <- m
-	}()
-
-	return <-errc
 }
