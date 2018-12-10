@@ -147,6 +147,10 @@ func restrictedRoutes(ctx *m.AppContext, router *mux.Router, chain alice.Chain) 
 }
 
 func publicRoutes(ctx *m.AppContext, router *mux.Router, chain alice.Chain) {
+	fh := c.FileHandler{
+		Context: ctx,
+	}
+
 	router.Handle("/", chain.Then(useTemplateHandler(ctx, c.ListArticlesHandler))).Methods("GET")
 	router.Handle("/articles/category/{categorySlug}", chain.Then(useTemplateHandler(ctx, c.ListArticlesCategoryHandler))).Methods("GET")
 	router.Handle("/articles/category/{categorySlug}/{page}", chain.Then(useTemplateHandler(ctx, c.ListArticlesCategoryHandler))).Methods("GET")
@@ -161,7 +165,8 @@ func publicRoutes(ctx *m.AppContext, router *mux.Router, chain alice.Chain) {
 
 	router.Handle("/site/{site}", chain.Then(useTemplateHandler(ctx, c.GetSiteHandler))).Methods("GET")
 
-	router.Handle("/file/{filename}", chain.Then(c.FileGetHandler(ctx))).Methods("GET")
+	router.Handle("/file/{filename}", chain.ThenFunc(fh.FileGetHandler)).Methods("GET")
+
 	router.Handle("/admin", chain.Then(useTemplateHandler(ctx, c.LoginHandler))).Methods("GET")
 	router.Handle("/admin", chain.Then(useTemplateHandler(ctx, c.LoginPostHandler))).Methods("POST")
 

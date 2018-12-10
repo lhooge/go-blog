@@ -9,10 +9,15 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"io"
 	"io/ioutil"
+	"log"
+	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"os"
+	"path/filepath"
 	"testing"
 
 	"git.hoogi.eu/go-blog/components/database"
@@ -56,6 +61,8 @@ func setup(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+
+	cfg.File.Location = os.TempDir()
 
 	userService := models.UserService{
 		Datasource: models.SQLiteUserDatasource{
@@ -187,10 +194,6 @@ func setHeader(r *http.Request, key, value string) {
 	r.Header.Set("X-Unit-Testing-Value-"+key, value)
 }
 
-func addValue(m url.Values, key, value string) {
-	m.Add(key, value)
-}
-
 type MockSMTP struct{}
 
 func (sm MockSMTP) Send(m mail.Mail) error {
@@ -201,6 +204,10 @@ func (sm MockSMTP) SendAsync(m mail.Mail) error {
 	return nil
 }
 
+func addValue(m url.Values, key, value string) {
+	m.Add(key, value)
+}
+
 func addCheckboxValue(m url.Values, key string, value bool) {
 	if value {
 		m.Add(key, "on")
@@ -208,20 +215,69 @@ func addCheckboxValue(m url.Values, key string, value bool) {
 	m.Add(key, "off")
 }
 
+func postMultipart(path string, mp []multipartRequest) (*http.Request, error) {
+	buf := &bytes.Buffer{}
+	mw := multipart.NewWriter(buf)
+
+	defer mw.Close()
+
+	for _, v := range mp {
+		fh, err := os.Open(v.file)
+
+		if err != nil {
+			return nil, err
+		}
+
+		defer fh.Close()
+
+		fw, err := mw.CreateFormFile(v.key, filepath.Base(fh.Name()))
+
+		if err != nil {
+			return nil, err
+		}
+
+		_, err = io.Copy(fw, fh)
+
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	req, err := http.NewRequest("POST", path, buf)
+
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Set("Content-Type", mw.FormDataContentType())
+
+	return req, nil
+}
+
 func post(path string, values url.Values) (*http.Request, error) {
 	var b bytes.Buffer
 	b.WriteString(values.Encode())
 	req, err := http.NewRequest("POST", path, &b)
+
+	if err != nil {
+		return nil, err
+	}
+
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
-	return req, err
+	return req, nil
 }
 
 func get(path string, values url.Values) (*http.Request, error) {
 	var b bytes.Buffer
 	b.WriteString(values.Encode())
 	req, err := http.NewRequest("GET", path, &b)
-	return req, err
+
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
 }
 
 //reqUser the user which should be added to the context
@@ -239,11 +295,17 @@ const (
 //url will not really considered as the requests are not send, the *http.Request is just passed directly to the controllers
 //pathvar is an array of key/value pairs used as dynamic query parameters such as /article/{id}
 type request struct {
-	url     string
-	user    reqUser
-	method  string
-	values  url.Values
-	pathVar []pathVar
+	url          string
+	user         reqUser
+	method       string
+	values       url.Values
+	pathVar      []pathVar
+	multipartReq []multipartRequest
+}
+
+type multipartRequest struct {
+	key  string
+	file string
 }
 
 type pathVar struct {
@@ -253,11 +315,18 @@ type pathVar struct {
 
 func (r request) buildRequest() *http.Request {
 	var req *http.Request
+	var err error
 
-	if r.method == http.MethodPost {
-		req, _ = post(r.url, r.values)
+	if len(r.multipartReq) > 0 {
+		req, err = postMultipart(r.url, r.multipartReq)
+	} else if r.method == http.MethodPost {
+		req, err = post(r.url, r.values)
 	} else {
-		req, _ = get(r.url, r.values)
+		req, err = get(r.url, r.values)
+	}
+
+	if err != nil {
+		log.Print(err)
 	}
 
 	if r.pathVar != nil {
