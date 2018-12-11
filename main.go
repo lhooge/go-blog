@@ -141,7 +141,7 @@ func main() {
 
 	if err != nil {
 		exitCode = 1
-		logger.Log.Errorf("failed to start TLS server: %v", err)
+		logger.Log.Errorf("failed to start server: %v", err)
 		return
 	}
 }

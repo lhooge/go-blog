@@ -165,7 +165,7 @@ func publicRoutes(ctx *m.AppContext, router *mux.Router, chain alice.Chain) {
 
 	router.Handle("/site/{site}", chain.Then(useTemplateHandler(ctx, c.GetSiteHandler))).Methods("GET")
 
-	router.Handle("/file/{filename}", chain.ThenFunc(fh.FileGetHandler)).Methods("GET")
+	router.Handle("/file/{uniquename}", chain.ThenFunc(fh.FileGetHandler)).Methods("GET")
 
 	router.Handle("/admin", chain.Then(useTemplateHandler(ctx, c.LoginHandler))).Methods("GET")
 	router.Handle("/admin", chain.Then(useTemplateHandler(ctx, c.LoginPostHandler))).Methods("POST")

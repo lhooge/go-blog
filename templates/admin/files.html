@@ -25,12 +25,12 @@
 			{{range .files}}
 				<tr>
 					<td>{{.LastModified | FormatDateTime}}</td>
-					<td>{{ApplicationURL}}/file/{{.FullFilename}}</td>
+					<td>{{ApplicationURL}}/file/{{.UniqueName}}</td>
 					<td>{{.ContentType}}</td>
 					<td>{{.Size}}</td>
 					<td>{{.Author.Username}}</td>
 					<td class="action-data">
-						<a href="/file/{{.FullFilename}}" title="Show file">Show file</a>
+						<a href="/file/{{.UniqueName}}" title="Show file">Show file</a>
 						<a href="/admin/file/delete/{{.ID}}" title="Remove">Remove</a>
 					</td>
 				</tr>

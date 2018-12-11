@@ -21,16 +21,16 @@ type FileHandler struct {
 
 //FileGetHandler serves the file based on the url filename
 func (fh FileHandler) FileGetHandler(w http.ResponseWriter, r *http.Request) {
-	rv := getVar(r, "filename")
+	rv := getVar(r, "uniquename")
 
-	f, err := fh.Context.FileService.GetByName(rv, nil)
+	f, err := fh.Context.FileService.GetByUniqueName(rv, nil)
 
 	if err != nil {
 		http.Error(w, "the file was not found", http.StatusNotFound)
 		return
 	}
 
-	loc := filepath.Join(fh.Context.ConfigService.Location, f.FullFilename)
+	loc := filepath.Join(fh.Context.ConfigService.Location, f.UniqueName)
 
 	w.Header().Set("Content-Type", f.ContentType)
 	w.Header().Set("Content-Disposition", "inline")
@@ -153,25 +153,12 @@ func AdminUploadFilePostHandler(ctx *middleware.AppContext, w http.ResponseWrite
 	ct := http.DetectContentType(data)
 
 	file := &models.File{
-		ContentType: ct,
-		Location:    ctx.ConfigService.File.Location,
-		Author:      u,
-		Size:        int64(len(data)),
+		ContentType:  ct,
+		Location:     ctx.ConfigService.File.Location,
+		Author:       u,
+		Size:         int64(len(data)),
+		FullFilename: h.Filename,
 	}
-
-	var filename string
-	var ext string
-
-	ext = filepath.Ext(h.Filename[1:])
-
-	if ext != "" {
-		filename = h.Filename[0 : len(h.Filename)-len(ext)]
-	} else {
-		filename = h.Filename
-	}
-
-	file.Filename = filename
-	file.Extension = ext
 
 	_, err = ctx.FileService.Upload(file, data)
 

@@ -25,21 +25,18 @@ Configuration
 ### Create user with administration rights ###
 
 Create your first administrator account with create_user:
+
 ~~~
-./createuser -admin -sqlite path_to_sqlite -username test -email test@example.com -displayname "Hello World" -password secret1234
+./createuser -admin -sqlite /path/to/your/sqlite/database -username test -email test@example.com -displayname "Hello World" -password secret1234
 ~~~
 
 Make sure -admin is set.
 
 TODOs
 -----
- * Add and fix test
- * Database update tasks / simple query builder (v0.3)
- * Order possibilities in admin panel (v0.3)
- * Revisit Makefile (v0.3)
+ * Order possibilities in admin panel (v0.4)
+ * Revisit Makefile (v0.4)
  * Review async mails
- * Review preview of articles and sites / error handling
- * Roles?
 
 Licence
 -------

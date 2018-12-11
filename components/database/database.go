@@ -107,6 +107,7 @@ func InitTables(db *sql.DB) error {
 		"(" +
 		"id INTEGER PRIMARY KEY, " +
 		"filename VARCHAR(191) NOT NULL, " +
+		"unique_name VARCHAR(191) NOT NULL, " +
 		"size BIGINT NOT NULL, " +
 		"content_type VARCHAR(150) NOT NULL, " +
 		"last_modified datetime NOT NULL, " +
@@ -114,7 +115,7 @@ func InitTables(db *sql.DB) error {
 		"CONSTRAINT `fk_file_user` " +
 		"FOREIGN KEY (user_id) REFERENCES user(id) " +
 		"ON DELETE CASCADE, " +
-		"CONSTRAINT file_filename_key UNIQUE (filename) " +
+		"CONSTRAINT file_unique_name_key UNIQUE (unique_name) " +
 		");"); err != nil {
 		return err
 	}

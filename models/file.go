@@ -1,6 +1,7 @@
 package models
 
 import (
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -10,7 +11,6 @@ import (
 
 	"git.hoogi.eu/go-blog/components/httperror"
 	"git.hoogi.eu/go-blog/components/logger"
-	"git.hoogi.eu/go-blog/utils"
 )
 
 //File represents a file
@@ -19,6 +19,7 @@ type File struct {
 	Location     string
 	Filename     string
 	Extension    string
+	UniqueName   string
 	FullFilename string
 	ContentType  string
 	Size         int64
@@ -30,7 +31,7 @@ type File struct {
 type FileDatasourceService interface {
 	Create(f *File) (int, error)
 	Get(fileID int, u *User) (*File, error)
-	GetByFilename(filename string, u *User) (*File, error)
+	GetByUniqueName(uniqueName string, u *User) (*File, error)
 	List(u *User, p *Pagination) ([]File, error)
 	Count(u *User) (int, error)
 	Delete(fileID int) error
@@ -39,19 +40,19 @@ type FileDatasourceService interface {
 // validate validates if mandatory file fields are set
 // sanitizes the filename
 func (f *File) validate() error {
-	if len(f.Filename) == 0 {
+	if len(f.FullFilename) == 0 {
 		return httperror.ValueRequired("filename")
 	}
 
-	if len(f.Filename) > 255 {
+	if len(f.FullFilename) > 255 {
 		return httperror.ValueTooLong("filename", 255)
 	}
 
 	return nil
 }
 
-func (f File) buildSanitizedFilename() string {
-	return utils.SanitizeFilename(f.Filename) + "_" + strconv.Itoa(int(time.Now().Unix())) + f.Extension
+func (f File) randomFilename() string {
+	return strconv.Itoa(int(time.Now().Unix())) + "." + f.Extension
 }
 
 //FileService containing the service to interact with files
@@ -67,8 +68,8 @@ func (fs FileService) GetByID(fileID int, u *User) (*File, error) {
 
 //GetByName returns the file based on the filename; it the user is given and it is a non admin
 //only file specific to this user is returned
-func (fs FileService) GetByName(filename string, u *User) (*File, error) {
-	return fs.Datasource.GetByFilename(filename, u)
+func (fs FileService) GetByUniqueName(uniqueName string, u *User) (*File, error) {
+	return fs.Datasource.GetByUniqueName(uniqueName, u)
 }
 
 //List returns a list of files based on the filename; it the user is given and it is a non admin
@@ -103,7 +104,7 @@ func (fs FileService) Delete(fileID int, location string, u *User) error {
 		return err
 	}
 
-	return os.Remove(filepath.Join(location, file.FullFilename))
+	return os.Remove(filepath.Join(location, file.UniqueName))
 }
 
 //Upload uploaded files will be saved at the configured file location, filename is saved in the database
@@ -112,9 +113,18 @@ func (fs FileService) Upload(f *File, data []byte) (int, error) {
 		return -1, err
 	}
 
-	f.FullFilename = f.buildSanitizedFilename()
+	if len(filepath.Ext(f.FullFilename)) > 0 {
+		f.Extension = filepath.Ext(f.FullFilename)[1:]
+	}
 
-	fi := filepath.Join(f.Location, f.FullFilename)
+	if len(f.Extension) == 0 {
+		//?
+		return -1, errors.New("not a valid file extension")
+	}
+
+	f.UniqueName = f.randomFilename()
+
+	fi := filepath.Join(f.Location, f.UniqueName)
 
 	err := ioutil.WriteFile(fi, data, 0640)
 
