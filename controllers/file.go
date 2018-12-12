@@ -154,7 +154,6 @@ func AdminUploadFilePostHandler(ctx *middleware.AppContext, w http.ResponseWrite
 
 	file := &models.File{
 		ContentType:  ct,
-		Location:     ctx.ConfigService.File.Location,
 		Author:       u,
 		Size:         int64(len(data)),
 		FullFilename: h.Filename,
@@ -206,7 +205,7 @@ func AdminUploadDeleteHandler(ctx *middleware.AppContext, w http.ResponseWriter,
 	action := models.Action{
 		ID:          "deleteFile",
 		ActionURL:   fmt.Sprintf("/admin/file/delete/%d", f.ID),
-		Description: fmt.Sprintf("%s %s?", "Do you want to delete the file ", f.Filename),
+		Description: fmt.Sprintf("%s %s?", "Do you want to delete the file ", f.UniqueName),
 		Title:       "Confirm removal of file",
 	}
 

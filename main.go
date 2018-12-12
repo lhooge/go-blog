@@ -178,6 +178,7 @@ func context(db *sql.DB, cfg *settings.Settings) (*m.AppContext, error) {
 	}
 
 	fileService := models.FileService{
+		Config: cfg.File,
 		Datasource: models.SQLiteFileDatasource{
 			SQLConn: db,
 		},

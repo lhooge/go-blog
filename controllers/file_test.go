@@ -28,7 +28,7 @@ func TestFileWorkflow(t *testing.T) {
 		t.Errorf("one file is uploaded; but list files returns %d file(s)", len(files))
 	}
 
-	rr, err := doAdminGetFileRequest(rGuest, files[0].FullFilename)
+	rr, err := doAdminGetFileRequest(rGuest, files[0].UniqueName)
 
 	if err != nil {
 		t.Error(err)
@@ -48,10 +48,10 @@ func TestFileWorkflow(t *testing.T) {
 		t.Error(err)
 	}
 
-	_, err = doAdminGetFileRequest(rGuest, files[0].FullFilename)
+	_, err = doAdminGetFileRequest(rGuest, files[0].UniqueName)
 
 	if err == nil {
-		t.Errorf("file should be removed, but file is there %s", files[0].FullFilename)
+		t.Errorf("file should be removed, but file is there %s", files[0].UniqueName)
 	}
 }
 
@@ -72,15 +72,15 @@ func doAdminListFilesRequest(user reqUser) ([]models.File, error) {
 	return tpl.Data["files"].([]models.File), nil
 }
 
-func doAdminGetFileRequest(user reqUser, filename string) (*httptest.ResponseRecorder, error) {
+func doAdminGetFileRequest(user reqUser, uniquename string) (*httptest.ResponseRecorder, error) {
 	r := request{
-		url:    "/file/" + filename,
+		url:    "/file/" + uniquename,
 		user:   user,
 		method: "GET",
 		pathVar: []pathVar{
 			pathVar{
-				key:   "filename",
-				value: filename,
+				key:   "uniquename",
+				value: uniquename,
 			},
 		},
 	}
@@ -94,7 +94,7 @@ func doAdminGetFileRequest(user reqUser, filename string) (*httptest.ResponseRec
 	fh.FileGetHandler(rw, r.buildRequest())
 
 	if rw.Result().StatusCode != http.StatusOK {
-		return rw, fmt.Errorf("got an invalid status code during file request /file/%s , code: %d, message %s", filename, rw.Result().StatusCode, rw.Result().Status)
+		return rw, fmt.Errorf("got an invalid status code during file request /file/%s , code: %d, message %s", uniquename, rw.Result().StatusCode, rw.Result().Status)
 	}
 
 	return rw, nil

@@ -37,23 +37,28 @@ func (lm *LoginMethod) Unmarshal(value string) error {
 	return fmt.Errorf("unexpected config value for login method %s", value)
 }
 
-type DatabaseEngine int
+type AllowedFileExts map[string]string
 
-const (
-	MySQL = iota
-	SQLite
-)
+func (afe *AllowedFileExts) Unmarshal(value string) error {
+	kv := make(map[string]string)
 
-func (de *DatabaseEngine) Unmarshal(value string) error {
-	if strings.ToLower(value) == "mysql" {
-		*de = DatabaseEngine(MySQL)
-		return nil
-	} else if strings.ToLower(value) == "sqlite" {
-		*de = DatabaseEngine(SQLite)
-		return nil
+	splitted := strings.Split(value, ",")
+
+	for _, v := range splitted {
+		trimmed := strings.TrimSpace(v)
+
+		if len(trimmed) > 0 {
+			if trimmed[0] != '.' {
+				trimmed = "." + trimmed
+			}
+		}
+
+		kv[trimmed] = trimmed
+
+		*afe = AllowedFileExts(kv)
 	}
 
-	return fmt.Errorf("unexpected config value for database engine %s", value)
+	return nil
 }
 
 type Settings struct {
@@ -94,8 +99,9 @@ type Database struct {
 }
 
 type File struct {
-	Location      string       `cfg:"file_location" default:"/srv/goblog/files/"`
-	MaxUploadSize cfg.FileSize `cfg:"file_max_upload_size" default:"20MB"`
+	Location              string          `cfg:"file_location" default:"/srv/goblog/files/"`
+	MaxUploadSize         cfg.FileSize    `cfg:"file_max_upload_size" default:"10MB"`
+	AllowedFileExtensions AllowedFileExts `cfg:"file_allowed_extensions"`
 }
 
 type Blog struct {

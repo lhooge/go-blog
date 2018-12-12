@@ -1,30 +1,40 @@
 package models
 
 import (
-	"errors"
+	"bytes"
 	"fmt"
 	"io/ioutil"
+	"net/http"
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"time"
 
 	"git.hoogi.eu/go-blog/components/httperror"
 	"git.hoogi.eu/go-blog/components/logger"
+	"git.hoogi.eu/go-blog/settings"
+	"git.hoogi.eu/go-blog/utils"
 )
 
 //File represents a file
 type File struct {
 	ID           int
-	Location     string
-	Filename     string
-	Extension    string
 	UniqueName   string
 	FullFilename string
+	FileInfo     FileInfo
 	ContentType  string
 	Size         int64
 	LastModified time.Time
 	Author       *User
+}
+
+//FileInfo contains Path, Name and Extension of a file.
+//Use SplitFilename to split the information from a filename
+type FileInfo struct {
+	Path      string
+	Name      string
+	Extension string
 }
 
 //FileDatasourceService defines an interface for CRUD operations of files
@@ -38,7 +48,6 @@ type FileDatasourceService interface {
 }
 
 // validate validates if mandatory file fields are set
-// sanitizes the filename
 func (f *File) validate() error {
 	if len(f.FullFilename) == 0 {
 		return httperror.ValueRequired("filename")
@@ -52,12 +61,48 @@ func (f *File) validate() error {
 }
 
 func (f File) randomFilename() string {
-	return strconv.Itoa(int(time.Now().Unix())) + "." + f.Extension
+	var buf bytes.Buffer
+	sanFilename := utils.SanitizeFilename(f.FileInfo.Name)
+	if len(sanFilename) == 0 {
+		sanFilename = "unnamed"
+	}
+	buf.WriteString(sanFilename)
+	buf.WriteString("-")
+	buf.WriteString(f.Author.Username)
+	buf.WriteString("-")
+	buf.WriteString(strconv.Itoa(int(time.Now().Unix())))
+	buf.WriteString(f.FileInfo.Extension)
+	return buf.String()
+}
+
+func SplitFilename(filename string) FileInfo {
+	base := filepath.Base(filename)
+	base = strings.TrimLeft(base, ".")
+
+	ext := filepath.Ext(base)
+
+	idx := strings.LastIndex(base, ".")
+
+	var name string
+	if idx > 0 {
+		name = base[:idx]
+	} else {
+		name = base
+	}
+
+	path := filepath.Dir(filename)
+
+	return FileInfo{
+		Name:      name,
+		Extension: ext,
+		Path:      path,
+	}
 }
 
 //FileService containing the service to interact with files
 type FileService struct {
 	Datasource FileDatasourceService
+	Config     settings.File
 }
 
 //GetByID returns the file based on the fileID; it the user is given and it is a non admin
@@ -66,7 +111,7 @@ func (fs FileService) GetByID(fileID int, u *User) (*File, error) {
 	return fs.Datasource.Get(fileID, u)
 }
 
-//GetByName returns the file based on the filename; it the user is given and it is a non admin
+//GetByUniqueName returns the file based on the unique name; it the user is given and it is a non admin
 //only file specific to this user is returned
 func (fs FileService) GetByUniqueName(uniqueName string, u *User) (*File, error) {
 	return fs.Datasource.GetByUniqueName(uniqueName, u)
@@ -113,18 +158,27 @@ func (fs FileService) Upload(f *File, data []byte) (int, error) {
 		return -1, err
 	}
 
-	if len(filepath.Ext(f.FullFilename)) > 0 {
-		f.Extension = filepath.Ext(f.FullFilename)[1:]
+	f.FileInfo = SplitFilename(f.FullFilename)
+
+	if len(f.FileInfo.Extension) == 0 && !strings.HasPrefix("text/plain", f.ContentType) {
+		return -1, httperror.New(
+			http.StatusUnprocessableEntity,
+			"The file has no extension and does not contain plain text.",
+			fmt.Errorf("the file %s has no extension and does not contain plain text, content type is: %s", f.FullFilename, f.ContentType))
 	}
 
-	if len(f.Extension) == 0 {
-		//?
-		return -1, errors.New("not a valid file extension")
+	if len(f.FileInfo.Extension) > 0 {
+		if _, ok := fs.Config.AllowedFileExtensions[f.FileInfo.Extension]; !ok {
+			return -1, httperror.New(
+				http.StatusUnprocessableEntity,
+				"The file type is not supported.",
+				fmt.Errorf("error during upload, the file type %s is not supported", f.FileInfo.Extension))
+		}
 	}
 
 	f.UniqueName = f.randomFilename()
 
-	fi := filepath.Join(f.Location, f.UniqueName)
+	fi := filepath.Join(fs.Config.Location, f.UniqueName)
 
 	err := ioutil.WriteFile(fi, data, 0640)
 
