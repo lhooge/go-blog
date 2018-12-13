@@ -185,10 +185,10 @@ func LoadConfig(filename string) (*Settings, error) {
 func (cfg *Settings) CheckConfig() error {
 	//check log file is rw in production mode
 	if cfg.Environment != "dev" {
-		if _, err := os.OpenFile(cfg.Log.File, os.O_RDONLY|os.O_CREATE, 0644); err != nil {
+		if _, err := os.OpenFile(cfg.Log.File, os.O_RDONLY|os.O_CREATE, 0640); err != nil {
 			return fmt.Errorf("config 'log_file': could not open log file %s error %v", cfg.Log.File, err)
 		}
-		if _, err := os.OpenFile(cfg.Log.AccessFile, os.O_RDONLY|os.O_CREATE, 0644); err != nil {
+		if _, err := os.OpenFile(cfg.Log.AccessFile, os.O_RDONLY|os.O_CREATE, 0640); err != nil {
 			return fmt.Errorf("config 'log_access_file': could not open access log file %s error %v", cfg.Log.AccessFile, err)
 		}
 	}
