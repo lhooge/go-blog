@@ -42,6 +42,7 @@ func InitRoutes(ctx *m.AppContext, cfg *settings.Settings) *mux.Router {
 	}
 
 	publicRoutes(ctx, sr, chain)
+
 	ar := router.PathPrefix("/admin").Subrouter()
 
 	restrictedChain := chain.Append(csrf).Append(ctx.AuthHandler)
@@ -49,7 +50,22 @@ func InitRoutes(ctx *m.AppContext, cfg *settings.Settings) *mux.Router {
 	restrictedRoutes(ctx, ar, restrictedChain)
 
 	router.NotFoundHandler = chain.Then(useTemplateHandler(ctx, m.NotFound))
-	router.HandleFunc("/favicon.ico", faviconHandler)
+
+	router.HandleFunc("/favicon.ico", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, cfg.Application.Favicon)
+	})
+
+	if len(cfg.Application.RobotsTxt) > 0 {
+		router.HandleFunc("/robots.txt", func(w http.ResponseWriter, r *http.Request) {
+			http.ServeFile(w, r, cfg.Application.RobotsTxt)
+		})
+	}
+
+	if len(cfg.Application.CustomCSS) > 0 {
+		router.HandleFunc("/assets/css/custom.css", func(w http.ResponseWriter, r *http.Request) {
+			http.ServeFile(w, r, cfg.Application.CustomCSS)
+		})
+	}
 
 	http.Handle("/", router)
 
@@ -57,10 +73,6 @@ func InitRoutes(ctx *m.AppContext, cfg *settings.Settings) *mux.Router {
 	router.PathPrefix("/assets/").Handler(http.StripPrefix("/assets/", http.FileServer(http.Dir("assets"))))
 
 	return router
-}
-
-func faviconHandler(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, "assets/favicon.ico")
 }
 
 func stdOutLoggingHandler(h http.Handler) http.Handler {
