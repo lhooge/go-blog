@@ -230,11 +230,11 @@ func (cfg *Settings) CheckConfig() error {
 		fi, err := f.Stat()
 
 		if err != nil {
-			return fmt.Errorf("config 'application_robots_txt': could not open specified custom css file %s error %v", cfg.Application.CustomCSS, err)
+			return fmt.Errorf("config 'application_robots_txt': could not open specified robots txt file %s error %v", cfg.Application.RobotsTxt, err)
 		}
 
 		if fi.IsDir() {
-			return fmt.Errorf("config 'application_robots_txt': the robots txt file '%s' is a directory", cfg.Application.CustomCSS)
+			return fmt.Errorf("config 'application_robots_txt': the robots txt file '%s' is a directory", cfg.Application.RobotsTxt)
 		}
 	}
 
@@ -248,11 +248,11 @@ func (cfg *Settings) CheckConfig() error {
 		fi, err := f.Stat()
 
 		if err != nil {
-			return fmt.Errorf("config 'application_favicon': could not open specified custom css file %s error %v", cfg.Application.Favicon, err)
+			return fmt.Errorf("config 'application_favicon': could not open specified favicon file %s error %v", cfg.Application.Favicon, err)
 		}
 
 		if fi.IsDir() {
-			return fmt.Errorf("config 'application_favicon': the favicon file '%s' is a directory", cfg.Application.CuFaviconstomCSS)
+			return fmt.Errorf("config 'application_favicon': the favicon file '%s' is a directory", cfg.Application.Favicon)
 		}
 	}
 
