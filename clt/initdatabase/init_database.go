@@ -32,11 +32,7 @@ func main() {
 	flag.Parse()
 
 	if flag.Parsed() {
-		initDB := initDatabaseFlags{
-			file: *file,
-		}
-
-		if err := initDB.initSQLite(); err != nil {
+		if err := initSQLite(*file); err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
@@ -45,7 +41,7 @@ func main() {
 	}
 }
 
-func (sqlitefile string) initSQLite() error {
+func initSQLite(sqlitefile string) error {
 	if len(sqlitefile) == 0 {
 		return fmt.Errorf("the argument -sqlite is empty. Please specify the location of the sqlite3 database file")
 	}
@@ -62,7 +58,7 @@ func (sqlitefile string) initSQLite() error {
 	}
 
 	dbConfig := database.SQLiteConfig{
-		File: dbFlags.file,
+		File: sqlitefile,
 	}
 
 	db, err := dbConfig.Open()
