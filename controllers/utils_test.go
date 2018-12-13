@@ -92,6 +92,7 @@ func setup(t *testing.T) {
 	}
 
 	fileService := models.FileService{
+		Config: cfg.File,
 		Datasource: models.SQLiteFileDatasource{
 			SQLConn: db,
 		},

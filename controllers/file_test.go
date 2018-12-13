@@ -15,17 +15,17 @@ func TestFileWorkflow(t *testing.T) {
 	err := doAdminUploadFileRequest(rAdminUser, "testdata/color.png")
 
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 
 	files, err := doAdminListFilesRequest(rAdminUser)
 
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 
 	if len(files) != 1 {
-		t.Errorf("one file is uploaded; but list files returns %d file(s)", len(files))
+		t.Fatalf("one file is uploaded; but list files returns %d file(s)", len(files))
 	}
 
 	rr, err := doAdminGetFileRequest(rGuest, files[0].UniqueName)
