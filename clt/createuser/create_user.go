@@ -78,7 +78,7 @@ func (userFlags createUserFlag) CreateUser() error {
 		return fmt.Errorf("the display name (-displayname) must be specified")
 	}
 	if utils.TrimmedStringIsEmpty(userFlags.sqlite) {
-		return fmt.Errorf("please specify the location of the sqlite3 database file")
+		return fmt.Errorf("the argument -sqlite is empty. Please specify the location of the sqlite3 database file")
 	}
 
 	var userService models.UserService

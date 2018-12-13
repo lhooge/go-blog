@@ -17,16 +17,6 @@ import (
 	"git.hoogi.eu/go-blog/components/logger"
 )
 
-type initDatabaseFlags struct {
-	engine       string
-	databaseName string
-	host         string
-	port         int
-	user         string
-	password     string
-	file         string
-}
-
 var (
 	BuildVersion = "develop"
 	GitHash      = ""
@@ -55,7 +45,11 @@ func main() {
 	}
 }
 
-func (dbFlags initDatabaseFlags) initSQLite() error {
+func (sqlitefile string) initSQLite() error {
+	if len(sqlitefile) == 0 {
+		return fmt.Errorf("the argument -sqlite is empty. Please specify the location of the sqlite3 database file")
+	}
+
 	fmt.Print(">> Do you want to create the tables now? (y|N): ")
 
 	reader := bufio.NewReader(os.Stdin)
