@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"io/ioutil"
+	"mime"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -173,6 +174,13 @@ func (fs FileService) Upload(f *File, data []byte) (int, error) {
 				http.StatusUnprocessableEntity,
 				"The file type is not supported.",
 				fmt.Errorf("error during upload, the file type %s is not supported", f.FileInfo.Extension))
+		} else {
+			if !strings.HasPrefix(mime.TypeByExtension(f.FileInfo.Extension), f.ContentType) {
+				return -1, httperror.New(
+					http.StatusUnprocessableEntity,
+					"The file type does not contain the expected content.",
+					fmt.Errorf("error during upload, the file type %s is not related to the mime type %s", f.FileInfo.Extension, f.ContentType))
+			}
 		}
 	}
 
