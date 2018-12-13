@@ -85,7 +85,7 @@ html {
 
 h1, h2, h3, h4, h5, h6 {
 	color: #285e8e;
-	font-family: 'dosis', sans-serif;
+	font-family: 'dosis', arial, sans-serif;
 	font-weight: 600;
 }
 
@@ -435,7 +435,7 @@ input:not([type='submit']), textarea, select {
 	font-size: 1.1em;
 	margin: 0 0 10px 0;
 	padding: 0.5em;
-	font-family: 'dosis', sans-serif;
+	font-family: 'dosis', 'arial', sans-serif;
 	-webkit-box-sizing: border-box; /* For legacy WebKit based browsers */
 	-moz-box-sizing: border-box; /* For legacy (Firefox <29) Gecko based browsers */
 	box-sizing: border-box;
@@ -525,7 +525,7 @@ input[type='submit']:hover, input[type='submit']:focus {
 	text-decoration: underline;
 	cursor: pointer;
 	font-size: 1em;
-	font-family: serif;
+	font-family: dosis, arial, sans-serif; ;
 	margin: 0;
 	padding: 0 5px;
 }
