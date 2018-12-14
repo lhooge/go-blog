@@ -6,7 +6,15 @@
 		<meta charset="UTF-8">
 		<title>{{PageTitle}} {{if .actual}} | {{.actual}} {{end}}{{if $.site}}{{if $.site.Link}} | {{$.site.Link}}{{end}}{{end}}</title>
 		<meta name="viewport" content="width=device-width,initial-scale=1.0">
-		<link rel="stylesheet" href="/assets/css/master.css">
+		
+		{{if not OverwriteCSS}}
+			<link rel="stylesheet" href="/assets/css/master.css">
+		{{end}}
+		
+		{{if CustomCSS}}
+			<link rel="stylesheet" href="/assets/css/custom.css">
+		{{end}}
+		
 		<link rel="icon" href="/favicon.ico" type="image/vnd.microsoft.icon">
 
 		{{GetMetadata .}}

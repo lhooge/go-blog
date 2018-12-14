@@ -141,7 +141,7 @@ func main() {
 
 	if err != nil {
 		exitCode = 1
-		logger.Log.Errorf("failed to start TLS server: %v", err)
+		logger.Log.Errorf("failed to start server: %v", err)
 		return
 	}
 }
@@ -178,6 +178,7 @@ func context(db *sql.DB, cfg *settings.Settings) (*m.AppContext, error) {
 	}
 
 	fileService := models.FileService{
+		Config: cfg.File,
 		Datasource: models.SQLiteFileDatasource{
 			SQLConn: db,
 		},
@@ -202,11 +203,11 @@ func context(db *sql.DB, cfg *settings.Settings) (*m.AppContext, error) {
 		Password: []byte(cfg.Mail.Password),
 	}
 
-	mailService := mail.NewMailService(cfg.Mail.SubjectPrefix, cfg.Mail.SenderAddress, smtpConfig)
+	sender := mail.NewMailService(cfg.Mail.SubjectPrefix, cfg.Mail.SenderAddress, smtpConfig)
 
 	mailer := models.Mailer{
-		MailService: &mailService,
-		AppConfig:   &cfg.Application,
+		Sender:    &sender,
+		AppConfig: &cfg.Application,
 	}
 
 	templates := m.Templates{
@@ -248,7 +249,6 @@ func context(db *sql.DB, cfg *settings.Settings) (*m.AppContext, error) {
 }
 
 func loadUserInterceptor(pluginFile string) models.UserInterceptor {
-
 	if len(pluginFile) == 0 {
 		return nil
 	}

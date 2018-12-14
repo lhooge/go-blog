@@ -15,43 +15,44 @@ import (
 	"git.hoogi.eu/go-blog/models"
 )
 
+type FileHandler struct {
+	Context *middleware.AppContext
+}
+
 //FileGetHandler serves the file based on the url filename
-func FileGetHandler(ctx *middleware.AppContext) http.Handler {
-	fn := func(w http.ResponseWriter, r *http.Request) {
-		rv := getVar(r, "filename")
+func (fh FileHandler) FileGetHandler(w http.ResponseWriter, r *http.Request) {
+	rv := getVar(r, "uniquename")
 
-		f, err := ctx.FileService.GetByName(rv, nil)
+	f, err := fh.Context.FileService.GetByUniqueName(rv, nil)
 
-		if err != nil {
-			http.Error(w, "the file was not found", http.StatusNotFound)
-			return
-		}
-
-		loc := filepath.Join(ctx.ConfigService.Location, f.FullFilename)
-
-		w.Header().Set("Content-Type", f.ContentType)
-		w.Header().Set("Content-Disposition", "inline")
-
-		rf, err := os.Open(loc)
-
-		if err != nil {
-			if os.IsNotExist(err) {
-				logger.Log.Errorf("the file %s was not found - %v", loc, err)
-				http.Error(w, "404 page not found", http.StatusNotFound)
-			}
-			if os.IsPermission(err) {
-				logger.Log.Errorf("not permitted to read file %s - %v", loc, err)
-				http.Error(w, "404 page not found", http.StatusForbidden)
-			}
-			logger.Log.Errorf("an internal error while reading file %s - %v", loc, err)
-			http.Error(w, "500 Internal Server Error", http.StatusInternalServerError)
-		}
-
-		defer rf.Close()
-
-		http.ServeContent(w, r, loc, f.LastModified, rf)
+	if err != nil {
+		http.Error(w, "the file was not found", http.StatusNotFound)
+		return
 	}
-	return http.HandlerFunc(fn)
+
+	loc := filepath.Join(fh.Context.ConfigService.Location, f.UniqueName)
+
+	w.Header().Set("Content-Type", f.ContentType)
+	w.Header().Set("Content-Disposition", "inline")
+
+	rf, err := os.Open(loc)
+
+	if err != nil {
+		if os.IsNotExist(err) {
+			logger.Log.Errorf("the file %s was not found - %v", loc, err)
+			http.Error(w, "404 page not found", http.StatusNotFound)
+		}
+		if os.IsPermission(err) {
+			logger.Log.Errorf("not permitted to read file %s - %v", loc, err)
+			http.Error(w, "404 page not found", http.StatusForbidden)
+		}
+		logger.Log.Errorf("an internal error while reading file %s - %v", loc, err)
+		http.Error(w, "500 Internal Server Error", http.StatusInternalServerError)
+	}
+
+	defer rf.Close()
+
+	http.ServeContent(w, r, loc, f.LastModified, rf)
 }
 
 //AdminListFilesHandler returns the template which lists alle uploaded files belonging to a user, admins will see all files
@@ -152,25 +153,11 @@ func AdminUploadFilePostHandler(ctx *middleware.AppContext, w http.ResponseWrite
 	ct := http.DetectContentType(data)
 
 	file := &models.File{
-		ContentType: ct,
-		Location:    ctx.ConfigService.File.Location,
-		Author:      u,
-		Size:        int64(len(data)),
+		ContentType:  ct,
+		Author:       u,
+		Size:         int64(len(data)),
+		FullFilename: h.Filename,
 	}
-
-	var filename string
-	var ext string
-
-	ext = filepath.Ext(h.Filename[1:])
-
-	if ext != "" {
-		filename = h.Filename[0 : len(h.Filename)-len(ext)]
-	} else {
-		filename = h.Filename
-	}
-
-	file.Filename = filename
-	file.Extension = ext
 
 	_, err = ctx.FileService.Upload(file, data)
 
@@ -218,7 +205,7 @@ func AdminUploadDeleteHandler(ctx *middleware.AppContext, w http.ResponseWriter,
 	action := models.Action{
 		ID:          "deleteFile",
 		ActionURL:   fmt.Sprintf("/admin/file/delete/%d", f.ID),
-		Description: fmt.Sprintf("%s %s?", "Do you want to delete the file ", f.Filename),
+		Description: fmt.Sprintf("%s %s?", "Do you want to delete the file ", f.UniqueName),
 		Title:       "Confirm removal of file",
 	}
 

@@ -42,6 +42,7 @@ func InitRoutes(ctx *m.AppContext, cfg *settings.Settings) *mux.Router {
 	}
 
 	publicRoutes(ctx, sr, chain)
+
 	ar := router.PathPrefix("/admin").Subrouter()
 
 	restrictedChain := chain.Append(csrf).Append(ctx.AuthHandler)
@@ -49,7 +50,22 @@ func InitRoutes(ctx *m.AppContext, cfg *settings.Settings) *mux.Router {
 	restrictedRoutes(ctx, ar, restrictedChain)
 
 	router.NotFoundHandler = chain.Then(useTemplateHandler(ctx, m.NotFound))
-	router.HandleFunc("/favicon.ico", faviconHandler)
+
+	router.HandleFunc("/favicon.ico", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, cfg.Application.Favicon)
+	})
+
+	if len(cfg.Application.RobotsTxt) > 0 {
+		router.HandleFunc("/robots.txt", func(w http.ResponseWriter, r *http.Request) {
+			http.ServeFile(w, r, cfg.Application.RobotsTxt)
+		})
+	}
+
+	if len(cfg.Application.CustomCSS) > 0 {
+		router.HandleFunc("/assets/css/custom.css", func(w http.ResponseWriter, r *http.Request) {
+			http.ServeFile(w, r, cfg.Application.CustomCSS)
+		})
+	}
 
 	http.Handle("/", router)
 
@@ -58,9 +74,7 @@ func InitRoutes(ctx *m.AppContext, cfg *settings.Settings) *mux.Router {
 
 	return router
 }
-func faviconHandler(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, "assets/favicon.ico")
-}
+
 func stdOutLoggingHandler(h http.Handler) http.Handler {
 	return handlers.CombinedLoggingHandler(os.Stdout, h)
 }
@@ -86,6 +100,7 @@ func restrictedRoutes(ctx *m.AppContext, router *mux.Router, chain alice.Chain) 
 	router.Handle("/article/publish/{articleID}", chain.Then(useTemplateHandler(ctx, c.AdminArticlePublishPostHandler))).Methods("POST")
 	router.Handle("/article/delete/{articleID}", chain.Then(useTemplateHandler(ctx, c.AdminArticleDeleteHandler))).Methods("GET")
 	router.Handle("/article/delete/{articleID}", chain.Then(useTemplateHandler(ctx, c.AdminArticleDeletePostHandler))).Methods("POST")
+	router.Handle("/article/{articleID}", chain.Then(useTemplateHandler(ctx, c.AdminGetArticleByIDHandler))).Methods("GET")
 
 	//user
 	router.Handle("/user/profile", chain.Then(useTemplateHandler(ctx, c.AdminProfileHandler))).Methods("GET")
@@ -118,9 +133,11 @@ func restrictedRoutes(ctx *m.AppContext, router *mux.Router, chain alice.Chain) 
 	router.Handle("/site/delete/{siteID}", chain.Append(ctx.RequireAdmin).Then(useTemplateHandler(ctx, c.AdminSiteDeleteHandler))).Methods("GET")
 	router.Handle("/site/delete/{siteID}", chain.Append(ctx.RequireAdmin).Then(useTemplateHandler(ctx, c.AdminSiteDeletePostHandler))).Methods("POST")
 	router.Handle("/site/order/{siteID}", chain.Append(ctx.RequireAdmin).Then(useTemplateHandler(ctx, c.AdminSiteOrderHandler))).Methods("POST")
+	router.Handle("/site/{siteID}", chain.Then(useTemplateHandler(ctx, c.AdminGetSiteHandler))).Methods("GET")
 
 	//article
 	router.Handle("/categories", chain.Then(useTemplateHandler(ctx, c.AdminListCategoriesHandler))).Methods("GET")
+	router.Handle("/category/{categoryID}", chain.Then(useTemplateHandler(ctx, c.AdminGetCategoryHandler))).Methods("POST")
 	router.Handle("/category/new", chain.Then(useTemplateHandler(ctx, c.AdminCategoryNewHandler))).Methods("GET")
 	router.Handle("/category/new", chain.Then(useTemplateHandler(ctx, c.AdminCategoryNewPostHandler))).Methods("POST")
 	router.Handle("/category/edit/{categoryID}", chain.Then(useTemplateHandler(ctx, c.AdminCategoryEditHandler))).Methods("GET")
@@ -142,6 +159,10 @@ func restrictedRoutes(ctx *m.AppContext, router *mux.Router, chain alice.Chain) 
 }
 
 func publicRoutes(ctx *m.AppContext, router *mux.Router, chain alice.Chain) {
+	fh := c.FileHandler{
+		Context: ctx,
+	}
+
 	router.Handle("/", chain.Then(useTemplateHandler(ctx, c.ListArticlesHandler))).Methods("GET")
 	router.Handle("/articles/category/{categorySlug}", chain.Then(useTemplateHandler(ctx, c.ListArticlesCategoryHandler))).Methods("GET")
 	router.Handle("/articles/category/{categorySlug}/{page}", chain.Then(useTemplateHandler(ctx, c.ListArticlesCategoryHandler))).Methods("GET")
@@ -154,9 +175,10 @@ func publicRoutes(ctx *m.AppContext, router *mux.Router, chain alice.Chain) {
 
 	router.Handle("/rss.xml", chain.Then(useXMLHandler(ctx, c.RSSFeed))).Methods("GET")
 
-	router.Handle("/site/{site}", chain.Then(useTemplateHandler(ctx, c.SiteHandler))).Methods("GET")
+	router.Handle("/site/{site}", chain.Then(useTemplateHandler(ctx, c.GetSiteHandler))).Methods("GET")
 
-	router.Handle("/file/{filename}", chain.Then(c.FileGetHandler(ctx))).Methods("GET")
+	router.Handle("/file/{uniquename}", chain.ThenFunc(fh.FileGetHandler)).Methods("GET")
+
 	router.Handle("/admin", chain.Then(useTemplateHandler(ctx, c.LoginHandler))).Methods("GET")
 	router.Handle("/admin", chain.Then(useTemplateHandler(ctx, c.LoginPostHandler))).Methods("POST")
 

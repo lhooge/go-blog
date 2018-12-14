@@ -43,6 +43,8 @@
 
 					{{if .Published}}
 						<a href="/article/{{.Slug}}" target="_blank" title="Show">Show</a>
+					{{else}}
+						<a href="/admin/article/{{.ID}}" target="_blank" title="Show preview">Show preview</a>
 					{{end}}
 				</td>
 			</tr>

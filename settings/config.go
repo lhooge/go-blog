@@ -37,23 +37,28 @@ func (lm *LoginMethod) Unmarshal(value string) error {
 	return fmt.Errorf("unexpected config value for login method %s", value)
 }
 
-type DatabaseEngine int
+type AllowedFileExts map[string]string
 
-const (
-	MySQL = iota
-	SQLite
-)
+func (afe *AllowedFileExts) Unmarshal(value string) error {
+	kv := make(map[string]string)
 
-func (de *DatabaseEngine) Unmarshal(value string) error {
-	if strings.ToLower(value) == "mysql" {
-		*de = DatabaseEngine(MySQL)
-		return nil
-	} else if strings.ToLower(value) == "sqlite" {
-		*de = DatabaseEngine(SQLite)
-		return nil
+	splitted := strings.Split(value, ",")
+
+	for _, v := range splitted {
+		trimmed := strings.TrimSpace(v)
+
+		if len(trimmed) > 0 {
+			if trimmed[0] != '.' {
+				trimmed = "." + trimmed
+			}
+		}
+
+		kv[trimmed] = trimmed
+
+		*afe = AllowedFileExts(kv)
 	}
 
-	return fmt.Errorf("unexpected config value for database engine %s", value)
+	return nil
 }
 
 type Settings struct {
@@ -83,10 +88,14 @@ type Server struct {
 }
 
 type Application struct {
-	Title       string `cfg:"application_title"`
-	Language    string `cfg:"application_language"`
-	Description string `cfg:"application_description"`
-	Domain      string `cfg:"application_domain"`
+	Title        string `cfg:"application_title"`
+	Language     string `cfg:"application_language"`
+	Description  string `cfg:"application_description"`
+	Domain       string `cfg:"application_domain"`
+	Favicon      string `cfg:"application_favicon" default:"assets/favicon.ico"`
+	RobotsTxt    string `cfg:"application_robots_txt"`
+	CustomCSS    string `cfg:"application_custom_css"`
+	OverwriteCSS bool   `cfg:"application_overwrite_default_css" default:"false"`
 }
 
 type Database struct {
@@ -94,8 +103,9 @@ type Database struct {
 }
 
 type File struct {
-	Location      string       `cfg:"file_location" default:"/srv/goblog/files/"`
-	MaxUploadSize cfg.FileSize `cfg:"file_max_upload_size" default:"20MB"`
+	Location              string          `cfg:"file_location" default:"/srv/goblog/files/"`
+	MaxUploadSize         cfg.FileSize    `cfg:"file_max_upload_size" default:"10MB"`
+	AllowedFileExtensions AllowedFileExts `cfg:"file_allowed_extensions"`
 }
 
 type Blog struct {
@@ -175,21 +185,75 @@ func LoadConfig(filename string) (*Settings, error) {
 func (cfg *Settings) CheckConfig() error {
 	//check log file is rw in production mode
 	if cfg.Environment != "dev" {
-		if _, err := os.OpenFile(cfg.Log.File, os.O_RDONLY|os.O_CREATE, 0644); err != nil {
-			return fmt.Errorf("config: could not open log file %s error %v", cfg.Log.File, err)
+		if _, err := os.OpenFile(cfg.Log.File, os.O_RDONLY|os.O_CREATE, 0640); err != nil {
+			return fmt.Errorf("config 'log_file': could not open log file %s error %v", cfg.Log.File, err)
 		}
-		if _, err := os.OpenFile(cfg.Log.AccessFile, os.O_RDONLY|os.O_CREATE, 0644); err != nil {
-			return fmt.Errorf("config: could not open access log file %s error %v", cfg.Log.AccessFile, err)
+		if _, err := os.OpenFile(cfg.Log.AccessFile, os.O_RDONLY|os.O_CREATE, 0640); err != nil {
+			return fmt.Errorf("config 'log_access_file': could not open access log file %s error %v", cfg.Log.AccessFile, err)
 		}
 	}
 
 	if len(cfg.Application.Domain) == 0 {
-		return errors.New("config: please specify a domain name 'application_domain'")
+		return errors.New("config 'application_domain': please specify a domain name")
 	}
 
 	_, err := url.ParseRequestURI(cfg.Application.Domain)
 	if err != nil {
-		return fmt.Errorf("config: invalid url setting for key 'application_domain' value '%s'", cfg.Application.Domain)
+		return fmt.Errorf("config 'application_domain': invalid url setting for key 'application_domain' value '%s'", cfg.Application.Domain)
+	}
+
+	if len(cfg.Application.CustomCSS) > 0 {
+		f, err := os.Open(cfg.Application.CustomCSS)
+
+		if err != nil {
+			return fmt.Errorf("config 'application_custom_css': could not open specified custom css file %s error %v", cfg.Application.CustomCSS, err)
+		}
+
+		fi, err := f.Stat()
+
+		if err != nil {
+			return fmt.Errorf("config 'application_custom_css': could not open specified custom css file %s error %v", cfg.Application.CustomCSS, err)
+		}
+
+		if fi.IsDir() {
+			return fmt.Errorf("config 'application_custom_css': the custom css file '%s' is a directory", cfg.Application.CustomCSS)
+		}
+	}
+
+	if len(cfg.Application.RobotsTxt) > 0 {
+		f, err := os.Open(cfg.Application.RobotsTxt)
+
+		if err != nil {
+			return fmt.Errorf("config 'application_robots_txt': could not open specified robots txt file %s error %v", cfg.Application.RobotsTxt, err)
+		}
+
+		fi, err := f.Stat()
+
+		if err != nil {
+			return fmt.Errorf("config 'application_robots_txt': could not open specified robots txt file %s error %v", cfg.Application.RobotsTxt, err)
+		}
+
+		if fi.IsDir() {
+			return fmt.Errorf("config 'application_robots_txt': the robots txt file '%s' is a directory", cfg.Application.RobotsTxt)
+		}
+	}
+
+	if len(cfg.Application.Favicon) > 0 {
+		f, err := os.Open(cfg.Application.Favicon)
+
+		if err != nil {
+			return fmt.Errorf("config 'application_favicon': could not open specified favicon file %s error %v", cfg.Application.Favicon, err)
+		}
+
+		fi, err := f.Stat()
+
+		if err != nil {
+			return fmt.Errorf("config 'application_favicon': could not open specified favicon file %s error %v", cfg.Application.Favicon, err)
+		}
+
+		if fi.IsDir() {
+			return fmt.Errorf("config 'application_favicon': the favicon file '%s' is a directory", cfg.Application.Favicon)
+		}
 	}
 
 	//server settings

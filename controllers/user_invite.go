@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net/http"
 
-	"git.hoogi.eu/go-blog/components/logger"
 	"git.hoogi.eu/go-blog/middleware"
 	"git.hoogi.eu/go-blog/models"
 )
@@ -43,7 +42,14 @@ func AdminUserInviteNewPostHandler(ctx *middleware.AppContext, w http.ResponseWr
 	err = ctx.Mailer.SendActivationLink(ui)
 
 	if err != nil {
-		logger.Log.Error(err)
+		return &middleware.Template{
+			Name:   tplAdminUserInviteNew,
+			Active: "users",
+			Err:    err,
+			Data: map[string]interface{}{
+				"user_invite": ui,
+			},
+		}
 	}
 
 	return &middleware.Template{
@@ -51,7 +57,8 @@ func AdminUserInviteNewPostHandler(ctx *middleware.AppContext, w http.ResponseWr
 		Active:       "users",
 		SuccessMsg:   "Successfully invited user " + ui.Email,
 		Data: map[string]interface{}{
-			"userID": inviteID,
+			"inviteID": inviteID,
+			"hash":     ui.Hash,
 		},
 	}
 }
@@ -80,7 +87,11 @@ func AdminUserInviteResendPostHandler(ctx *middleware.AppContext, w http.Respons
 	err = ctx.Mailer.SendActivationLink(ui)
 
 	if err != nil {
-		logger.Log.Error(err)
+		return &middleware.Template{
+			RedirectPath: "admin/user-invite",
+			Active:       "users",
+			Err:          err,
+		}
 	}
 
 	return &middleware.Template{
@@ -88,7 +99,8 @@ func AdminUserInviteResendPostHandler(ctx *middleware.AppContext, w http.Respons
 		Active:       "users",
 		SuccessMsg:   "Successfully invited user " + ui.Email,
 		Data: map[string]interface{}{
-			"userID": inviteID,
+			"inviteID": inviteID,
+			"hash":     ui.Hash,
 		},
 	}
 }

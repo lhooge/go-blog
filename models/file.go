@@ -1,62 +1,109 @@
 package models
 
 import (
+	"bytes"
 	"fmt"
 	"io/ioutil"
+	"mime"
+	"net/http"
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"time"
 
 	"git.hoogi.eu/go-blog/components/httperror"
 	"git.hoogi.eu/go-blog/components/logger"
+	"git.hoogi.eu/go-blog/settings"
 	"git.hoogi.eu/go-blog/utils"
 )
 
 //File represents a file
 type File struct {
 	ID           int
-	Location     string
-	Filename     string
-	Extension    string
+	UniqueName   string
 	FullFilename string
+	FileInfo     FileInfo
 	ContentType  string
 	Size         int64
 	LastModified time.Time
 	Author       *User
 }
 
+//FileInfo contains Path, Name and Extension of a file.
+//Use SplitFilename to split the information from a filename
+type FileInfo struct {
+	Path      string
+	Name      string
+	Extension string
+}
+
 //FileDatasourceService defines an interface for CRUD operations of files
 type FileDatasourceService interface {
 	Create(f *File) (int, error)
 	Get(fileID int, u *User) (*File, error)
-	GetByFilename(filename string, u *User) (*File, error)
+	GetByUniqueName(uniqueName string, u *User) (*File, error)
 	List(u *User, p *Pagination) ([]File, error)
 	Count(u *User) (int, error)
 	Delete(fileID int) error
 }
 
 // validate validates if mandatory file fields are set
-// sanitizes the filename
 func (f *File) validate() error {
-	if len(f.Filename) == 0 {
+	if len(f.FullFilename) == 0 {
 		return httperror.ValueRequired("filename")
 	}
 
-	if len(f.Filename) > 255 {
+	if len(f.FullFilename) > 255 {
 		return httperror.ValueTooLong("filename", 255)
 	}
 
 	return nil
 }
 
-func (f File) buildSanitizedFilename() string {
-	return utils.SanitizeFilename(f.Filename) + "_" + strconv.Itoa(int(time.Now().Unix())) + f.Extension
+func (f File) randomFilename() string {
+	var buf bytes.Buffer
+	sanFilename := utils.SanitizeFilename(f.FileInfo.Name)
+	if len(sanFilename) == 0 {
+		sanFilename = "unnamed"
+	}
+	buf.WriteString(sanFilename)
+	buf.WriteString("-")
+	buf.WriteString(f.Author.Username)
+	buf.WriteString("-")
+	buf.WriteString(strconv.Itoa(int(time.Now().Unix())))
+	buf.WriteString(f.FileInfo.Extension)
+	return buf.String()
+}
+
+func SplitFilename(filename string) FileInfo {
+	base := filepath.Base(filename)
+	base = strings.TrimLeft(base, ".")
+
+	ext := filepath.Ext(base)
+
+	idx := strings.LastIndex(base, ".")
+
+	var name string
+	if idx > 0 {
+		name = base[:idx]
+	} else {
+		name = base
+	}
+
+	path := filepath.Dir(filename)
+
+	return FileInfo{
+		Name:      name,
+		Extension: ext,
+		Path:      path,
+	}
 }
 
 //FileService containing the service to interact with files
 type FileService struct {
 	Datasource FileDatasourceService
+	Config     settings.File
 }
 
 //GetByID returns the file based on the fileID; it the user is given and it is a non admin
@@ -65,10 +112,10 @@ func (fs FileService) GetByID(fileID int, u *User) (*File, error) {
 	return fs.Datasource.Get(fileID, u)
 }
 
-//GetByName returns the file based on the filename; it the user is given and it is a non admin
+//GetByUniqueName returns the file based on the unique name; it the user is given and it is a non admin
 //only file specific to this user is returned
-func (fs FileService) GetByName(filename string, u *User) (*File, error) {
-	return fs.Datasource.GetByFilename(filename, u)
+func (fs FileService) GetByUniqueName(uniqueName string, u *User) (*File, error) {
+	return fs.Datasource.GetByUniqueName(uniqueName, u)
 }
 
 //List returns a list of files based on the filename; it the user is given and it is a non admin
@@ -103,7 +150,7 @@ func (fs FileService) Delete(fileID int, location string, u *User) error {
 		return err
 	}
 
-	return os.Remove(filepath.Join(location, file.FullFilename))
+	return os.Remove(filepath.Join(location, file.UniqueName))
 }
 
 //Upload uploaded files will be saved at the configured file location, filename is saved in the database
@@ -112,9 +159,34 @@ func (fs FileService) Upload(f *File, data []byte) (int, error) {
 		return -1, err
 	}
 
-	f.FullFilename = f.buildSanitizedFilename()
+	f.FileInfo = SplitFilename(f.FullFilename)
 
-	fi := filepath.Join(f.Location, f.FullFilename)
+	if len(f.FileInfo.Extension) == 0 && !strings.HasPrefix("text/plain", f.ContentType) {
+		return -1, httperror.New(
+			http.StatusUnprocessableEntity,
+			"The file has no extension and does not contain plain text.",
+			fmt.Errorf("the file %s has no extension and does not contain plain text, content type is: %s", f.FullFilename, f.ContentType))
+	}
+
+	if len(f.FileInfo.Extension) > 0 {
+		if _, ok := fs.Config.AllowedFileExtensions[f.FileInfo.Extension]; !ok {
+			return -1, httperror.New(
+				http.StatusUnprocessableEntity,
+				"The file type is not supported.",
+				fmt.Errorf("error during upload, the file type %s is not supported", f.FileInfo.Extension))
+		} else {
+			if !strings.HasPrefix(mime.TypeByExtension(f.FileInfo.Extension), f.ContentType) {
+				return -1, httperror.New(
+					http.StatusUnprocessableEntity,
+					"The file type does not contain the expected content.",
+					fmt.Errorf("error during upload, the file type %s is not related to the mime type %s", f.FileInfo.Extension, f.ContentType))
+			}
+		}
+	}
+
+	f.UniqueName = f.randomFilename()
+
+	fi := filepath.Join(fs.Config.Location, f.UniqueName)
 
 	err := ioutil.WriteFile(fi, data, 0640)
 

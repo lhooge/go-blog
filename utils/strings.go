@@ -65,6 +65,7 @@ func isDot(r rune) bool {
 //SanitizeFilename sanitizes a filename for safe use when serving file
 func SanitizeFilename(s string) string {
 	s = strings.TrimFunc(s, unicode.IsSpace)
+	s = removeControlCharacters(s)
 	s = substitute(s, filenameSubs)
 	s = strings.TrimFunc(s, isDot)
 	return s
@@ -87,13 +88,14 @@ var slugSubs = map[rune]string{
 	'(':  "",
 	')':  "",
 	'*':  "",
+	'%':  "",
 }
 
 var multipleDashes = regexp.MustCompile(`[-]{2,}`)
 
 //CreateURLSafeSlug creates a url safe slug to use in urls
 func CreateURLSafeSlug(input string, suffix int) string {
-	input = removeNonPrintables(input)
+	input = removeControlCharacters(input)
 	input = substitute(input, slugSubs)
 	input = strings.TrimSpace(input)
 
@@ -123,7 +125,7 @@ func substitute(input string, subs map[rune]string) string {
 	return b.String()
 }
 
-func removeNonPrintables(input string) string {
+func removeControlCharacters(input string) string {
 	var b bytes.Buffer
 	for _, c := range input {
 		if c > 31 {

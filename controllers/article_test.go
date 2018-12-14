@@ -5,50 +5,40 @@
 package controllers_test
 
 import (
-	"context"
-	"database/sql"
 	"fmt"
 	"net/http/httptest"
 	"net/url"
-	"strconv"
 	"strings"
-	"sync"
+
+	"strconv"
 	"testing"
 
 	"git.hoogi.eu/go-blog/controllers"
-	"git.hoogi.eu/go-blog/middleware"
 	"git.hoogi.eu/go-blog/models"
 )
 
-func TestCreateGetArticle(t *testing.T) {
-	expectedArticle := getSampleArticle()
+func TestArticleWorkflow(t *testing.T) {
+	setup(t)
 
-	artID, err := doCreateArticleRequest(expectedArticle)
+	defer teardown()
+
+	artID, err := doAdminCreateArticleRequest(rAdminUser, getSampleArticle())
 
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	rcvArticle, err2 := ctx.ArticleService.GetByID(artID, dummyUser(), models.All)
+	rcvArticle, err2 := doAdminGetArticleByIDRequest(rAdminUser, artID)
+
 	if err2 != nil {
 		t.Fatal(err)
 	}
 
-	if err = checkArticle(rcvArticle, expectedArticle); err != nil {
+	if err = checkArticle(rcvArticle, getSampleArticle()); err != nil {
 		t.Fatal(err)
 	}
 
-	rcvArticle, err = doGetArticleRequest(rcvArticle)
-
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if err = checkArticle(rcvArticle, expectedArticle); err != nil {
-		t.Fatal(err)
-	}
-
-	expectedArticle = &models.Article{
+	updatedArticle := &models.Article{
 		ID:       artID,
 		Slug:     rcvArticle.Slug,
 		Headline: "a new headline",
@@ -56,18 +46,50 @@ func TestCreateGetArticle(t *testing.T) {
 		Content:  "A new h1 header\n============\nthis is sample new content...",
 	}
 
-	if err := doEditArticleRequest(artID, expectedArticle); err != nil {
+	if err := doAdminEditArticleRequest(rAdminUser, artID, updatedArticle); err != nil {
 		t.Fatal(err)
 	}
 
-	rcvArticle, err = doGetArticleRequest(expectedArticle)
+	rcvArticle, err = doAdminGetArticleByIDRequest(rAdminUser, artID)
 
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	if err = checkArticle(rcvArticle, expectedArticle); err != nil {
+	//Guest user should not see unpublished articles
+	rcvArticle, err = doGetArticleByIDRequest(rGuest, artID)
+	if err == nil {
 		t.Fatal(err)
+	}
+
+	err = doAdminPublishArticleRequest(rAdminUser, artID)
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	rcvArticle, err = doGetArticleByIDRequest(rAdminUser, artID)
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	updatedArticle.Published = true
+
+	if err = checkArticle(rcvArticle, updatedArticle); err != nil {
+		t.Fatal(err)
+	}
+
+	err = doAdminRemoveArticleRequest(rAdminUser, artID)
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	rcvArticle, err = doGetArticleByIDRequest(rAdminUser, artID)
+
+	if err == nil {
+		t.Fatalf("removed article, but got a category %v", rcvArticle)
 	}
 }
 
@@ -81,7 +103,7 @@ func checkArticle(article *models.Article, expectedArticle *models.Article) erro
 	if article.Published != expectedArticle.Published {
 		return fmt.Errorf("the article published differs. expected: %t, actual: %t", expectedArticle.Published, article.Published)
 	}
-	if article.Author.ID != dummyUser().ID {
+	if article.Author.ID != dummyAdminUser().ID {
 		return fmt.Errorf("the author id is wrong. expected: %d, actual: %d", expectedArticle.Author.ID, article.Author.ID)
 	}
 	return nil
@@ -92,28 +114,89 @@ func getSampleArticle() *models.Article {
 		Headline: "a sample headline",
 		Teaser:   "A sample teaser",
 		Content:  "An h1 header\n============\nthis is sample content...",
+		Author:   dummyAdminUser(),
 	}
 }
 
-func doEditArticleRequest(articleID int, article *models.Article) error {
+func doGetArticleBySlugRequest(user reqUser, article *models.Article) (*models.Article, error) {
+	split := strings.Split(article.Slug, "/")
+
+	if len(split) != 3 {
+		return nil, fmt.Errorf("invalid slug length %v", article.Slug)
+	}
+
+	r := request{
+		url:    "/articles/" + split[0] + "/" + split[1] + "/" + split[2] + "/",
+		method: "GET",
+		pathVar: []pathVar{
+			pathVar{
+				key:   "year",
+				value: split[0],
+			}, pathVar{
+				key:   "month",
+				value: split[1],
+			}, pathVar{
+				key:   "slug",
+				value: split[2],
+			},
+		},
+	}
+
+	rw := httptest.NewRecorder()
+	tpl := controllers.GetArticleHandler(ctx, rw, r.buildRequest())
+
+	if tpl.Err != nil {
+		return nil, tpl.Err
+	}
+
+	return tpl.Data["article"].(*models.Article), nil
+}
+
+func doGetArticleByIDRequest(user reqUser, articleID int) (*models.Article, error) {
+	r := request{
+		url:    "/article/by-id/" + strconv.Itoa(articleID),
+		method: "GET",
+		user:   user,
+		pathVar: []pathVar{
+			pathVar{
+				key:   "articleID",
+				value: strconv.Itoa(articleID),
+			},
+		},
+	}
+
+	rw := httptest.NewRecorder()
+	tpl := controllers.GetArticleByIDHandler(ctx, rw, r.buildRequest())
+
+	if tpl.Err != nil {
+		return nil, tpl.Err
+	}
+
+	return tpl.Data["article"].(*models.Article), nil
+}
+
+func doAdminEditArticleRequest(user reqUser, articleID int, article *models.Article) error {
 	values := url.Values{}
 	addValue(values, "headline", article.Headline)
 	addValue(values, "teaser", article.Teaser)
 	addValue(values, "content", article.Content)
 
-	req, err := postRequest("/admin/article/edit", values)
-	if err != nil {
-		return err
+	r := request{
+		url:    "/admin/article/edit/" + strconv.Itoa(articleID),
+		user:   user,
+		method: "POST",
+		values: values,
+		pathVar: []pathVar{
+			pathVar{
+				key:   "articleID",
+				value: strconv.Itoa(articleID),
+			},
+		},
 	}
-
-	setHeader(req, "articleID", strconv.Itoa(articleID))
-
-	parent := req.Context()
-	reqCtx := context.WithValue(parent, middleware.UserContextKey, dummyUser())
 
 	rw := httptest.NewRecorder()
 
-	tpl := controllers.AdminArticleEditPostHandler(ctx, rw, req.WithContext(reqCtx))
+	tpl := controllers.AdminArticleEditPostHandler(ctx, rw, r.buildRequest())
 
 	if tpl.Err != nil {
 		return tpl.Err
@@ -125,20 +208,21 @@ func doEditArticleRequest(articleID int, article *models.Article) error {
 	return nil
 }
 
-func doCreateArticleRequest(article *models.Article) (int, error) {
+func doAdminCreateArticleRequest(user reqUser, article *models.Article) (int, error) {
 	values := url.Values{}
 	addValue(values, "headline", article.Headline)
 	addValue(values, "teaser", article.Teaser)
 	addValue(values, "content", article.Content)
 
-	req, err := postRequest("/admin/article/new", values)
-	if err != nil {
-		return 0, err
+	r := request{
+		url:    "/admin/article/new",
+		user:   user,
+		method: "POST",
+		values: values,
 	}
 
-	reqCtx := context.WithValue(req.Context(), middleware.UserContextKey, dummyUser())
 	rw := httptest.NewRecorder()
-	tpl := controllers.AdminArticleNewPostHandler(ctx, rw, req.WithContext(reqCtx))
+	tpl := controllers.AdminArticleNewPostHandler(ctx, rw, r.buildRequest())
 
 	if tpl.Err != nil {
 		return 0, tpl.Err
@@ -147,22 +231,25 @@ func doCreateArticleRequest(article *models.Article) (int, error) {
 	if len(tpl.SuccessMsg) == 0 {
 		return -1, fmt.Errorf("there is no success message returned")
 	}
+
 	return tpl.Data["articleID"].(int), nil
 }
 
-func doGetArticleRequest(article *models.Article) (*models.Article, error) {
-	split := strings.Split(article.Slug, "/")
-	req, err := getRequest("/article", nil)
-	setHeader(req, "year", split[0])
-	setHeader(req, "month", split[1])
-	setHeader(req, "slug", split[2])
-
-	if err != nil {
-		return nil, err
+func doAdminGetArticleByIDRequest(user reqUser, articleID int) (*models.Article, error) {
+	r := request{
+		url:    "/admin/article" + strconv.Itoa(articleID),
+		method: "GET",
+		user:   user,
+		pathVar: []pathVar{
+			pathVar{
+				key:   "articleID",
+				value: strconv.Itoa(articleID),
+			},
+		},
 	}
 
 	rw := httptest.NewRecorder()
-	tpl := controllers.GetArticleHandler(ctx, rw, req)
+	tpl := controllers.AdminGetArticleByIDHandler(ctx, rw, r.buildRequest())
 
 	if tpl.Err != nil {
 		return nil, tpl.Err
@@ -171,77 +258,65 @@ func doGetArticleRequest(article *models.Article) (*models.Article, error) {
 	return tpl.Data["article"].(*models.Article), nil
 }
 
-type inMemoryArticle struct {
-	sync.RWMutex
-	articles map[int]*models.Article
-}
-
-func (ima *inMemoryArticle) Create(a *models.Article) (int, error) {
-	ima.Lock()
-	defer ima.Unlock()
-	artID := len(ima.articles) + 1
-	ima.articles[artID] = a
-	return artID, nil
-}
-
-func (ima *inMemoryArticle) List(user *models.User, c *models.Category, pg *models.Pagination, pc models.PublishedCriteria) ([]models.Article, error) {
-	ima.RLock()
-	defer ima.RUnlock()
-
-	arts := make([]models.Article, 0, len(ima.articles))
-
-	for _, a := range ima.articles {
-		arts = append(arts, *a)
+func doAdminListArticleRequest(user reqUser) ([]models.Article, error) {
+	r := request{
+		url:    "/admin/articles",
+		user:   user,
+		method: "GET",
 	}
-	return arts, nil
+
+	rw := httptest.NewRecorder()
+	tpl := controllers.AdminListArticlesHandler(ctx, rw, r.buildRequest())
+
+	if tpl.Err != nil {
+		return nil, tpl.Err
+	}
+
+	return tpl.Data["articles"].([]models.Article), nil
 }
 
-func (ima *inMemoryArticle) Count(user *models.User, c *models.Category, publishedCriteria models.PublishedCriteria) (int, error) {
-	return -1, nil
-}
+func doAdminPublishArticleRequest(user reqUser, articleID int) error {
+	r := request{
+		url:    "/admin/article/publish/" + strconv.Itoa(articleID),
+		user:   user,
+		method: "GET",
+		pathVar: []pathVar{
+			pathVar{
+				key:   "articleID",
+				value: strconv.Itoa(articleID),
+			},
+		},
+	}
 
-func (ima *inMemoryArticle) Publish(a *models.Article) error {
+	rw := httptest.NewRecorder()
+	tpl := controllers.AdminArticlePublishPostHandler(ctx, rw, r.buildRequest())
+
+	if tpl.Err != nil {
+		return tpl.Err
+	}
+
 	return nil
 }
 
-func (ima *inMemoryArticle) Get(articleID int, user *models.User, pc models.PublishedCriteria) (*models.Article, error) {
-	ima.RLock()
-	defer ima.RUnlock()
-
-	if k, ok := ima.articles[articleID]; ok {
-		return k, nil
+func doAdminRemoveArticleRequest(user reqUser, articleID int) error {
+	r := request{
+		url:    "/admin/article/remove/" + strconv.Itoa(articleID),
+		user:   user,
+		method: "POST",
+		pathVar: []pathVar{
+			pathVar{
+				key:   "articleID",
+				value: strconv.Itoa(articleID),
+			},
+		},
 	}
 
-	return nil, sql.ErrNoRows
-}
+	rw := httptest.NewRecorder()
+	tpl := controllers.AdminArticleDeletePostHandler(ctx, rw, r.buildRequest())
 
-func (ima *inMemoryArticle) GetBySlug(slug string, user *models.User, pc models.PublishedCriteria) (*models.Article, error) {
-	ima.RLock()
-	defer ima.RUnlock()
-
-	for _, m := range ima.articles {
-		if m.Slug == slug {
-			return m, nil
-		}
+	if tpl.Err != nil {
+		return tpl.Err
 	}
 
-	return nil, sql.ErrNoRows
-}
-func (ima *inMemoryArticle) Update(a *models.Article) error {
-	ima.RLock()
-	if k, ok := ima.articles[a.ID]; ok {
-		ima.RUnlock()
-		ima.Lock()
-		a.Slug = k.Slug
-		ima.articles[a.ID] = a
-		ima.Unlock()
-		return nil
-	}
-	return sql.ErrNoRows
-}
-func (ima *inMemoryArticle) Delete(articleID int) error {
-	ima.Lock()
-	defer ima.Unlock()
-	delete(ima.articles, articleID)
 	return nil
 }

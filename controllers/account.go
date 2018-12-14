@@ -93,7 +93,6 @@ func AdminProfilePostHandler(ctx *middleware.AppContext, w http.ResponseWriter, 
 }
 
 func ActivateAccountHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
-
 	hash := getVar(r, "hash")
 
 	_, err := ctx.UserInviteService.GetByHash(hash)
@@ -156,7 +155,7 @@ func ActivateAccountPostHandler(ctx *middleware.AppContext, w http.ResponseWrite
 
 	user := ui.Copy()
 
-	user.Password = []byte(password)
+	user.PlainPassword = []byte(password)
 	user.Active = true
 
 	if _, err := ctx.UserService.Create(user); err != nil {

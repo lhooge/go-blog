@@ -31,6 +31,34 @@ func AdminListCategoriesHandler(ctx *middleware.AppContext, w http.ResponseWrite
 		}}
 }
 
+func AdminGetCategoryHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
+	reqVar := getVar(r, "categoryID")
+	id, err := parseInt(reqVar)
+
+	if err != nil {
+		return &middleware.Template{
+			Name: tplAdminCategories,
+			Err:  err,
+		}
+	}
+
+	c, err := ctx.CategoryService.GetByID(id, models.AllCategories)
+
+	if err != nil {
+		return &middleware.Template{
+			Name: tplAdminCategories,
+			Err:  err,
+		}
+	}
+
+	return &middleware.Template{
+		Name:   tplAdminCategories,
+		Active: "categories",
+		Data: map[string]interface{}{
+			"category": c,
+		}}
+}
+
 // AdminCategoryNewHandler returns the template which shows the form to create a new article
 func AdminCategoryNewHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
 	return &middleware.Template{
@@ -82,7 +110,7 @@ func AdminCategoryEditHandler(ctx *middleware.AppContext, w http.ResponseWriter,
 		}
 	}
 
-	c, err := ctx.CategoryService.GetByID(id)
+	c, err := ctx.CategoryService.GetByID(id, models.AllCategories)
 
 	if err != nil {
 		return &middleware.Template{
@@ -154,7 +182,7 @@ func AdminCategoryDeleteHandler(ctx *middleware.AppContext, w http.ResponseWrite
 		}
 	}
 
-	c, err := ctx.CategoryService.GetByID(id)
+	c, err := ctx.CategoryService.GetByID(id, models.AllCategories)
 
 	if err != nil {
 		return &middleware.Template{

@@ -89,6 +89,12 @@ func FuncMap(ss models.SiteService, cfg *settings.Settings) template.FuncMap {
 		"ApplicationURL": func() string {
 			return cfg.Application.Domain
 		},
+		"CustomCSS": func() string {
+			return cfg.Application.CustomCSS
+		},
+		"OverwriteCSS": func() bool {
+			return cfg.Application.OverwriteCSS
+		},
 		"KeepAliveInterval": func() int64 {
 			return (cfg.Session.TTL.Nanoseconds() / 1e9) - 5
 		},
