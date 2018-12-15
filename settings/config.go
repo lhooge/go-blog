@@ -254,6 +254,8 @@ func (cfg *Settings) CheckConfig() error {
 		if fi.IsDir() {
 			return fmt.Errorf("config 'application_favicon': the favicon file '%s' is a directory", cfg.Application.Favicon)
 		}
+	} else {
+		cfg.Application.Favicon = "assets/favicon.ico"
 	}
 
 	//server settings
