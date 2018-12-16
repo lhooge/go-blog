@@ -14,7 +14,7 @@ import (
 //HTTPStatus is returned as response code in the middleware.AppHandler
 //Error the error if available which is logged internally
 type Error struct {
-	DisplayMsg string `json:"displayMsg"`
+	DisplayMsg string `json:"display_message"`
 	HTTPStatus int    `json:"status"`
 	Err        error  `json:"-"`
 }

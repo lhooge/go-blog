@@ -23,7 +23,7 @@ install:
 	cd clt/initdatabase && go install ${LDFLAGS}
 
 package:
-	-rm -r ${TMP} 
+	-rm -r ${TMP}
 	mkdir -p ${TMP}/clt
 	cp ${GOPATH}/bin/go-blog ${TMP}/
 	cp ${GOPATH}/bin/create_user  ${TMP}/clt
@@ -32,7 +32,6 @@ package:
 	cp -r examples/ ${TMP}/
 	cp -r templates/ ${TMP}/
 	cp -r assets/ ${TMP}/
-	
 	tar czf releases/$(BINARYNAME)_$(BUILD_VERSION).tar.gz ${TMP}/  --transform s/tmp/goblog/
 
 vet:

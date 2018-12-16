@@ -5,20 +5,79 @@
 	</footer>
 
 	<script type="text/javascript">
-	
-		var ajax_call = function() {
-			var request = new XMLHttpRequest();
-			request.open("GET", "/admin/json/session/keep-alive", true);
-			request.send();
+		document.getElementById('direct-upload').addEventListener("submit", function(e) {
+			e.preventDefault();
+
+			let file = document.querySelector('input[type=file]').files[0];
+			let csrf = document.querySelector('input[name=csrfToken]');
+
+		    let formData = new FormData();
+
+		    formData.append('file', file);
+
+			fetch('/admin/json/file/upload', {
+				method: 'POST',
+				headers: {
+					"X-CSRF-Token": csrf.value
+				},
+				body: formData
+			}).then(resp => {
+				const json = resp.json();
+				if(resp.ok) {
+					return json;
+				}
+  				return json.then(Promise.reject.bind(Promise));
+			}).then(json => {
+				let table = document.querySelector("#uploaded-files")
+
+				table.style.display = "table";
+
+				let tableBody = table.tBodies[0]
+
+				let row = tableBody.insertRow(-1);
+
+				let cell = row.insertCell(0);
+				let text = document.createTextNode(json.data.full_name);
+				cell.appendChild(text);
+
+				cell = row.insertCell(1);
+				text = document.createTextNode(json.data.link + "/file/" + json.data.unique_name);
+				cell.appendChild(text);
+
+				cell = row.insertCell(2);
+				text = document.createTextNode(json.data.content_type);
+				cell.appendChild(text);
+
+				cell = row.insertCell(3);
+				text = document.createTextNode(json.data.size);
+				cell.appendChild(text);
+
+			}).catch(err => {
+				let uplError = document.querySelector("#upload-error");
+				uplError.style.display = "block";
+				let text = document.createTextNode(err.display_message);
+				uplError.appendChild(text);
+			});
+		})
+
+		var doKeepAliveRequest = function() {
+			fetch('/admin/json/session/keep-alive',
+			{
+			    method: 'POST',
+			    headers: {
+					"X-CSRF-Token": csrf.value
+			    },
+			    body: formData
+			})
 		};
-	
+
 		var interval={{KeepAliveInterval}}*1000;
 		var curPath = window.location.pathname;
-	
+
 		if (curPath === "/admin/article/new" || curPath.includes("/admin/article/edit")
 			|| curPath === "/admin/site/new" || curPath.includes("/admin/site/edit")) {
-	
-			setInterval(ajax_call, interval);
+
+			setInterval(doKeepAliveRequest, interval);
 		}
 	</script>
 </div>
