@@ -26,15 +26,15 @@
 		<label for="content">Content</label>
 		<textarea rows="25" id="content" name="content" placeholder="Content...">{{.article.Content}}</textarea>
 
-	    {{ .csrfField }}
+		{{ .csrfField }}
 
-	    <div class="button-group">
+		<div class="button-group">
 			<button name="action" value="save">Save</button>
 			<button name="action" formtarget="_blank" value="preview">Preview</button>
 		</div>
-    </form>
+	</form>
 
-	<div id="upload-error" style="margin-top: 10px; display:none" class="alert alert-danger" role="status">{{.ErrorMsg}}</div>
+	<div id="upload-error" style="margin-top: 10px; display:none" class="alert alert-danger" role="status"></div>
 
 	<form enctype="multipart/form-data" method="post" id="direct-upload">
 		<label for="file">Upload file</label>

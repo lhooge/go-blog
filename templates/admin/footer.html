@@ -8,12 +8,19 @@
 		document.getElementById('direct-upload').addEventListener("submit", function(e) {
 			e.preventDefault();
 
+			let form = document.querySelector('#direct-upload');
 			let file = document.querySelector('input[type=file]').files[0];
 			let csrf = document.querySelector('input[name=csrfToken]');
+			let uplError = document.querySelector("#upload-error");
+			uplError.style.display = 'none';
+			
+			let formData = new FormData();
 
-		    let formData = new FormData();
+			while (uplError.firstChild) {
+				uplError.removeChild(uplError.firstChild);
+			}
 
-		    formData.append('file', file);
+			formData.append('file', file);
 
 			fetch('/admin/json/file/upload', {
 				method: 'POST',
@@ -51,7 +58,8 @@
 				cell = row.insertCell(3);
 				text = document.createTextNode(json.data.size);
 				cell.appendChild(text);
-
+				
+				form.reset();
 			}).catch(err => {
 				let uplError = document.querySelector("#upload-error");
 				uplError.style.display = "block";
