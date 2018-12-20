@@ -53,6 +53,8 @@ func (fn TemplateHandler) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	successMsg = t.SuccessMsg
 	warnMsg = t.WarnMsg
 
+	t.Data["CSRFToken"] = csrf.Token(r)
+
 	if t.Err != nil {
 
 		switch e := t.Err.(type) {

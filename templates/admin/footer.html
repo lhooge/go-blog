@@ -73,9 +73,8 @@
 			{
 			    method: 'POST',
 			    headers: {
-					"X-CSRF-Token": csrf.value
+					"X-CSRF-Token": document.head.querySelector("[name=csrfToken]").content,
 			    },
-			    body: formData
 			})
 		};
 
