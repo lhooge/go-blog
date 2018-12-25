@@ -167,7 +167,7 @@ func AdminUserEditPostHandler(ctx *middleware.AppContext, w http.ResponseWriter,
 
 	changePassword := false
 
-	if len(u.Password) > 0 {
+	if len(u.PlainPassword) > 0 {
 		changePassword = true
 	}
 
@@ -179,6 +179,29 @@ func AdminUserEditPostHandler(ctx *middleware.AppContext, w http.ResponseWriter,
 			Data: map[string]interface{}{
 				"user": u,
 			},
+		}
+	}
+
+	if changePassword {
+		session, err := ctx.SessionService.Get(w, r)
+
+		if err != nil {
+			return &middleware.Template{
+				Name:   tplAdminUserEdit,
+				Err:    err,
+				Active: "users",
+				Data: map[string]interface{}{
+					"user": u,
+				},
+			}
+		}
+
+		sessions := ctx.SessionService.SessionProvider.SessionsFromValues("userid", u.ID)
+
+		for _, s := range sessions {
+			if s.SessionID() != session.SessionID() {
+				ctx.SessionService.SessionProvider.Remove(s.SessionID())
+			}
 		}
 	}
 
