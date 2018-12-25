@@ -25,6 +25,7 @@ install:
 package:
 	-rm -r ${TMP}
 	mkdir -p ${TMP}/clt
+	-mkdir -p releases
 	cp ${GOPATH}/bin/go-blog ${TMP}/
 	cp ${GOPATH}/bin/create_user  ${TMP}/clt
 	cp ${GOPATH}/bin/init_database ${TMP}/clt

@@ -34,8 +34,8 @@ Make sure -admin is set.
 
 TODOs
 -----
- * Direct file upload over article add
- * Revisit Makefile 
+ * Autosave ariticles
+ * Code comments etc.
  * Review async mails
 
 Licence
