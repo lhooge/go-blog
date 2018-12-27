@@ -255,7 +255,7 @@ func ResetPasswordPostHandler(ctx *middleware.AppContext, w http.ResponseWriter,
 		}
 	}
 
-	u.Password = []byte(password)
+	u.PlainPassword = []byte(password)
 
 	err = ctx.UserService.Update(u, true)
 
