@@ -8,7 +8,7 @@
 
 	<h2>Add a new site</h2>
 
-	<form action="/admin/site/new" method="post">
+	<form id="autosave-form" action="/admin/site/new" method="post">
 		<label for="title">Title</label>
 		<input type="text" id="title" name="title" placeholder="Title..." {{if .site.Title}}value="{{.site.Title}}"{{end}} required>
 

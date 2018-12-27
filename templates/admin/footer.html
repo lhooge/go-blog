@@ -5,7 +5,9 @@
 	</footer>
 
 	<script type="text/javascript">
-		document.getElementById('direct-upload').addEventListener("submit", function(e) {
+		var directUpload = document.getElementById('direct-upload');
+		
+		directUpload && directUpload.addEventListener("submit", function(e) {
 			e.preventDefault();
 
 			let form = document.querySelector('#direct-upload');
@@ -66,7 +68,72 @@
 				let text = document.createTextNode(err.display_message);
 				uplError.appendChild(text);
 			});
-		})
+		});
+		
+		var persistForm = function() {
+			let form = document.getElementById("autosave-form");
+			
+			if(form === undefined) {
+				return
+			}
+			
+			let data = {};
+			
+			let action = form.getAttribute("action");
+			
+			for(let i=0; i<form.elements.length; i++) {
+				let type = form.elements[i].type
+				switch(type) {
+					case "text":
+					case "textarea":
+					case "select-one":
+						let name = form.elements[i].name;
+						let value = form.elements[i].value;
+
+						if (value != "") {
+							data[name] = value;
+						}
+				}
+			}
+
+			localStorage.setItem('AUTOSAVE'+action.split('/').join('_'), JSON.stringify(data));
+		}
+		
+		document.getElementById('autosave-form').addEventListener("submit", function(e) {	
+			let form = document.getElementById("autosave-form");
+			let action = form.getAttribute("action");
+			localStorage.removeItem('AUTOSAVE'+action.split('/').join('_'));
+		});
+		
+		var loadForm = function() {
+			let form = document.getElementById("autosave-form");
+			
+			if(form === undefined) {
+				return
+			}
+			
+			let action = form.getAttribute("action");
+			
+			let json = localStorage.getItem('AUTOSAVE'+action.split('/').join('_'));
+			
+			if (json != "") {
+				let obj = JSON.parse(json);
+
+				for (let key in obj) {
+					if(key != "action") {
+						form.elements[key].value = obj[key]
+					}
+				}
+				
+				let div = document.createElement('div');
+				let main = document.querySelector('main');
+				div.innerHTML = '<div style="margin-top: 10px" class="alert alert-info" role="status">Unsaved changes were loaded.</div>';
+				main.prepend(div);
+			}
+		}
+		
+		var autoSaveInterval=5*1000;
+		setInterval(persistForm, autoSaveInterval);
 
 		var doKeepAliveRequest = function() {
 			fetch('/admin/json/session/keep-alive',
@@ -86,6 +153,8 @@
 
 			setInterval(doKeepAliveRequest, interval);
 		}
+
+		loadForm();
 	</script>
 </div>
 </body>

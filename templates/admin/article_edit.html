@@ -9,7 +9,7 @@
 	<h2>Update article</h2>
 
 	{{with .article}}
-	<form action="/admin/article/edit/{{.ID}}" method="post">
+	<form id="autosave-form" action="/admin/article/edit/{{.ID}}" method="post">
 		<select name="categoryID">
 			<option></option>
 			{{range $.categories}}
@@ -40,7 +40,7 @@
 		<label for="file">Upload file</label>
 		<input type="file" id="file" name="file" placeholder="Choose a file" required>
 
-		{{ .csrfField }}
+		{{ $.csrfField }}
 
 		<div class="button-group">
 			<button name="action" value="upload">Upload</button>
