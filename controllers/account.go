@@ -71,6 +71,24 @@ func AdminProfilePostHandler(ctx *middleware.AppContext, w http.ResponseWriter, 
 		}
 	}
 
+	if changePassword {
+		session, err := ctx.SessionService.Renew(w, r)
+
+		if err != nil {
+			logger.Log.Error(err)
+		}
+
+		session.SetValue("userid", u.ID)
+
+		sessions := ctx.SessionService.SessionProvider.SessionsFromValues("userid", u.ID)
+
+		for _, s := range sessions {
+			if s.SessionID() != session.SessionID() {
+				ctx.SessionService.SessionProvider.Remove(s.SessionID())
+			}
+		}
+	}
+
 	if err := ctx.UserService.Update(u, changePassword); err != nil {
 		return &middleware.Template{
 			Name:   tplAdminProfile,

@@ -5,20 +5,154 @@
 	</footer>
 
 	<script type="text/javascript">
-	
-		var ajax_call = function() {
-			var request = new XMLHttpRequest();
-			request.open("GET", "/admin/json/session/keep-alive", true);
-			request.send();
+		var directUpload = document.getElementById('direct-upload');
+		
+		directUpload && directUpload.addEventListener("submit", function(e) {
+			e.preventDefault();
+
+			let form = document.querySelector('#direct-upload');
+			let file = document.querySelector('input[type=file]').files[0];
+			let csrf = document.querySelector('input[name=csrfToken]');
+			let uplError = document.querySelector("#upload-error");
+			uplError.style.display = 'none';
+			
+			let formData = new FormData();
+
+			while (uplError.firstChild) {
+				uplError.removeChild(uplError.firstChild);
+			}
+
+			formData.append('file', file);
+
+			fetch('/admin/json/file/upload', {
+				method: 'POST',
+				headers: {
+					"X-CSRF-Token": csrf.value
+				},
+				body: formData
+			}).then(resp => {
+				const json = resp.json();
+				if(resp.ok) {
+					return json;
+				}
+  				return json.then(Promise.reject.bind(Promise));
+			}).then(json => {
+				let table = document.querySelector("#uploaded-files")
+
+				table.style.display = "table";
+
+				let tableBody = table.tBodies[0]
+
+				let row = tableBody.insertRow(-1);
+
+				let cell = row.insertCell(0);
+				let text = document.createTextNode(json.data.full_name);
+				cell.appendChild(text);
+
+				cell = row.insertCell(1);
+				text = document.createTextNode(json.data.link + "/file/" + json.data.unique_name);
+				cell.appendChild(text);
+
+				cell = row.insertCell(2);
+				text = document.createTextNode(json.data.content_type);
+				cell.appendChild(text);
+
+				cell = row.insertCell(3);
+				text = document.createTextNode(json.data.size);
+				cell.appendChild(text);
+				
+				form.reset();
+			}).catch(err => {
+				let uplError = document.querySelector("#upload-error");
+				uplError.style.display = "block";
+				let text = document.createTextNode(err.display_message);
+				uplError.appendChild(text);
+			});
+		});
+		
+		var persistForm = function() {
+			let form = document.getElementById("autosave-form");
+			
+			if(form === undefined) {
+				return
+			}
+			
+			let data = {};
+			
+			let action = form.getAttribute("action");
+			
+			for(let i=0; i<form.elements.length; i++) {
+				let type = form.elements[i].type
+				switch(type) {
+					case "text":
+					case "textarea":
+					case "select-one":
+						let name = form.elements[i].name;
+						let value = form.elements[i].value;
+
+						if (value != "") {
+							data[name] = value;
+						}
+				}
+			}
+
+			localStorage.setItem('AUTOSAVE'+action.split('/').join('_'), JSON.stringify(data));
+		}
+
+		var autoSaveForm = document.getElementById('autosave-form');
+
+		autoSaveForm && autoSaveForm.addEventListener("submit", function(e) {	
+			let form = document.getElementById("autosave-form");
+			let action = form.getAttribute("action");
+			localStorage.removeItem('AUTOSAVE'+action.split('/').join('_'));
+		});
+
+		var loadForm = function() {
+			let form = document.getElementById("autosave-form");
+			
+			if(form === undefined) {
+				return
+			}
+			
+			let action = form.getAttribute("action");
+			
+			let json = localStorage.getItem('AUTOSAVE'+action.split('/').join('_'));
+			let obj = JSON.parse(json);
+
+			if (Object.keys(obj).length > 0) {
+				for (let key in obj) {
+					if(key != "action") {
+						form.elements[key].value = obj[key]
+					}
+				}
+				
+				let div = document.createElement('div');
+				let main = document.querySelector('main');
+				div.innerHTML = '<div style="margin-top: 10px" class="alert alert-info" role="status">Unsaved changes were loaded.</div>';
+				main.prepend(div);
+			}
+		}
+
+		var doKeepAliveRequest = function() {
+			fetch('/admin/json/session/keep-alive',
+			{
+				method: 'POST',
+				headers: {
+					"X-CSRF-Token": document.head.querySelector("[name=csrfToken]").content,
+				},
+			})
 		};
-	
-		var interval={{KeepAliveInterval}}*1000;
-		var curPath = window.location.pathname;
-	
+
+		let curPath = window.location.pathname;
+		let autoSaveInterval=5*1000;
+		let keepAliveInterval={{KeepAliveInterval}}*1000;
+
 		if (curPath === "/admin/article/new" || curPath.includes("/admin/article/edit")
 			|| curPath === "/admin/site/new" || curPath.includes("/admin/site/edit")) {
-	
-			setInterval(ajax_call, interval);
+			loadForm();
+				
+			setInterval(doKeepAliveRequest, keepAliveInterval);
+			setInterval(persistForm, autoSaveInterval);
 		}
 	</script>
 </div>

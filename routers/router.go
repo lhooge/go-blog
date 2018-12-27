@@ -155,7 +155,8 @@ func restrictedRoutes(ctx *m.AppContext, router *mux.Router, chain alice.Chain) 
 
 	router.Handle("/logout", chain.Then(useTemplateHandler(ctx, c.LogoutHandler))).Methods("GET")
 
-	router.Handle("/json/session/keep-alive", chain.Then(useJSONHandler(ctx, c.KeepAliveSessionHandler))).Methods("GET")
+	router.Handle("/json/session/keep-alive", chain.Then(useJSONHandler(ctx, c.KeepAliveSessionHandler))).Methods("POST")
+	router.Handle("/json/file/upload", chain.Then(useJSONHandler(ctx, c.AdminUploadJSONFilePostHandler))).Methods("POST")
 }
 
 func publicRoutes(ctx *m.AppContext, router *mux.Router, chain alice.Chain) {

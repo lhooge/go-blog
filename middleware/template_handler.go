@@ -35,6 +35,9 @@ func (fn TemplateHandler) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	var errorMsg, warnMsg, successMsg string
 	statusCode := 200
 
+	ip := getIP(r)
+	en := logger.Log.WithField("ip", ip)
+
 	t := fn.Handler(fn.AppCtx, rw, r)
 
 	if t.Data == nil {
@@ -50,16 +53,17 @@ func (fn TemplateHandler) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	successMsg = t.SuccessMsg
 	warnMsg = t.WarnMsg
 
+	t.Data["CSRFToken"] = csrf.Token(r)
+
 	if t.Err != nil {
+
 		switch e := t.Err.(type) {
 		case *httperror.Error:
 			statusCode = e.HTTPStatus
-			ip := getIP(r)
-			en := logger.Log.WithField("ip", ip)
 			en.Error(e)
 			errorMsg = e.DisplayMsg
 		default:
-			logger.Log.Error(e)
+			en.Error(e)
 			errorMsg = "Sorry, an internal server error occured"
 		}
 
@@ -78,7 +82,7 @@ func (fn TemplateHandler) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 		fl, err = getFlash(rw, r, "ErrorMsg")
 
 		if err != nil {
-			logger.Log.Error(err)
+			en.Error(err)
 		} else if len(fl) > 0 {
 			t.Data["ErrorMsg"] = fl
 		}
@@ -86,7 +90,7 @@ func (fn TemplateHandler) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 		fl, err = getFlash(rw, r, "WarnMsg")
 
 		if err != nil {
-			logger.Log.Error(err)
+			en.Error(err)
 		} else if len(fl) > 0 {
 			t.Data["WarnMsg"] = fl
 		}
@@ -97,7 +101,7 @@ func (fn TemplateHandler) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 		rw.WriteHeader(statusCode)
 
 		if err := fn.AppCtx.Templates.ExecuteTemplate(rw, t.Name, t.Data); err != nil {
-			logger.Log.Error(err)
+			en.Error(err)
 			http.Error(rw, err.Error(), http.StatusInternalServerError)
 		}
 	} else {
