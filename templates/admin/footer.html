@@ -98,13 +98,15 @@
 
 			localStorage.setItem('AUTOSAVE'+action.split('/').join('_'), JSON.stringify(data));
 		}
-		
-		document.getElementById('autosave-form').addEventListener("submit", function(e) {	
+
+		var autoSaveForm = document.getElementById('autosave-form');
+
+		autoSaveForm && autoSaveForm.addEventListener("submit", function(e) {	
 			let form = document.getElementById("autosave-form");
 			let action = form.getAttribute("action");
 			localStorage.removeItem('AUTOSAVE'+action.split('/').join('_'));
 		});
-		
+
 		var loadForm = function() {
 			let form = document.getElementById("autosave-form");
 			
@@ -115,10 +117,9 @@
 			let action = form.getAttribute("action");
 			
 			let json = localStorage.getItem('AUTOSAVE'+action.split('/').join('_'));
-			
-			if (json != "") {
-				let obj = JSON.parse(json);
+			let obj = JSON.parse(json);
 
+			if (Object.keys(obj).length > 0) {
 				for (let key in obj) {
 					if(key != "action") {
 						form.elements[key].value = obj[key]
@@ -131,30 +132,28 @@
 				main.prepend(div);
 			}
 		}
-		
-		var autoSaveInterval=5*1000;
-		setInterval(persistForm, autoSaveInterval);
 
 		var doKeepAliveRequest = function() {
 			fetch('/admin/json/session/keep-alive',
 			{
-			    method: 'POST',
-			    headers: {
+				method: 'POST',
+				headers: {
 					"X-CSRF-Token": document.head.querySelector("[name=csrfToken]").content,
-			    },
+				},
 			})
 		};
 
-		var interval={{KeepAliveInterval}}*1000;
-		var curPath = window.location.pathname;
+		let curPath = window.location.pathname;
+		let autoSaveInterval=5*1000;
+		let keepAliveInterval={{KeepAliveInterval}}*1000;
 
 		if (curPath === "/admin/article/new" || curPath.includes("/admin/article/edit")
 			|| curPath === "/admin/site/new" || curPath.includes("/admin/site/edit")) {
-
-			setInterval(doKeepAliveRequest, interval);
+			loadForm();
+				
+			setInterval(doKeepAliveRequest, keepAliveInterval);
+			setInterval(persistForm, autoSaveInterval);
 		}
-
-		loadForm();
 	</script>
 </div>
 </body>
