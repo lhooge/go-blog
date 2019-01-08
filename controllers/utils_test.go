@@ -342,6 +342,13 @@ func (r request) buildRequest() *http.Request {
 		return req
 	} else {
 		user, _ = ctx.UserService.GetByID(int(r.user))
+
+		recorder := httptest.NewRecorder()
+		session := ctx.SessionService.Create(recorder, req)
+		session.SetValue("userid", user.ID)
+
+		cookie := recorder.Result().Cookies()[0]
+		req.AddCookie(cookie)
 	}
 
 	reqCtx := context.WithValue(req.Context(), middleware.UserContextKey, user)
