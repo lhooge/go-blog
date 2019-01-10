@@ -30,7 +30,7 @@ func NewMailService(subjectPrefix, from string, smtpConfig SMTPConfig) Service {
 
 type Sender interface {
 	Send(m Mail) error
-	SendAsync(m Mail) error
+	SendAsync(m Mail)
 }
 
 //SMTPConfig holds the configuration for the SMTP server
@@ -71,12 +71,10 @@ func (m Mail) buildMessage(s Service) []byte {
 	return buf.Bytes()
 }
 
-func (s Service) SendAsync(m Mail) error {
+func (s Service) SendAsync(m Mail) {
 	go func() {
 		buffer <- m
 	}()
-
-	return <-errc
 }
 
 //Send sends a mail over the configured SMTP server
@@ -143,18 +141,21 @@ func (m Mail) validate() error {
 }
 
 var buffer = make(chan Mail, 10)
-var errc = make(chan error, 1)
+var errc = make(chan error)
 
 func (s Service) readBuffer() <-chan error {
 	for {
-		mail := <-buffer
+		fmt.Println("reading")
+		select {
+		case mail := <-buffer:
+			if err := s.Send(mail); err != nil {
+				errc <- err
+				return errc
+			}
 
-		if err := s.Send(mail); err != nil {
-			errc <- err
+			close(errc)
+
+			return errc
 		}
-
-		close(errc)
-
-		return errc
 	}
 }

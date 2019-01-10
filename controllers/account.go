@@ -301,6 +301,7 @@ func ForgotPasswordPostHandler(ctx *middleware.AppContext, w http.ResponseWriter
 
 	if err != nil {
 		if httperror.Equals(err, sql.ErrNoRows) {
+			logger.Log.Error(err)
 			return &middleware.Template{
 				RedirectPath: "admin",
 				SuccessMsg:   "An email with password reset instructions is on the way.",
@@ -333,6 +334,11 @@ func ForgotPasswordPostHandler(ctx *middleware.AppContext, w http.ResponseWriter
 	t := &models.Token{
 		Author: u,
 		Type:   models.PasswordReset,
+	}
+
+	err = ctx.TokenService.RateLimit(u.ID, models.PasswordReset)
+	if err != nil {
+		logger.Log.Error(err)
 	}
 
 	err = ctx.TokenService.Create(t)
