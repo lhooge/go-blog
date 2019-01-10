@@ -201,8 +201,8 @@ func (sm MockSMTP) Send(m mail.Mail) error {
 	return nil
 }
 
-func (sm MockSMTP) SendAsync(m mail.Mail) error {
-	return nil
+func (sm MockSMTP) SendAsync(m mail.Mail) {
+
 }
 
 func addValue(m url.Values, key, value string) {
