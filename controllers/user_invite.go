@@ -39,18 +39,7 @@ func AdminUserInviteNewPostHandler(ctx *middleware.AppContext, w http.ResponseWr
 		}
 	}
 
-	err = ctx.Mailer.SendActivationLink(ui)
-
-	if err != nil {
-		return &middleware.Template{
-			Name:   tplAdminUserInviteNew,
-			Active: "users",
-			Err:    err,
-			Data: map[string]interface{}{
-				"user_invite": ui,
-			},
-		}
-	}
+	ctx.Mailer.SendActivationLink(ui)
 
 	return &middleware.Template{
 		RedirectPath: "admin/users",
@@ -84,15 +73,7 @@ func AdminUserInviteResendPostHandler(ctx *middleware.AppContext, w http.Respons
 		}
 	}
 
-	err = ctx.Mailer.SendActivationLink(ui)
-
-	if err != nil {
-		return &middleware.Template{
-			RedirectPath: "admin/user-invite",
-			Active:       "users",
-			Err:          err,
-		}
-	}
+	ctx.Mailer.SendActivationLink(ui)
 
 	return &middleware.Template{
 		RedirectPath: "admin/users",

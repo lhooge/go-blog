@@ -13,7 +13,7 @@ type Mailer struct {
 	Sender    mail.Sender
 }
 
-func (m Mailer) SendActivationLink(ui *UserInvite) error {
+func (m Mailer) SendActivationLink(ui *UserInvite) {
 	activation := utils.AppendString(m.AppConfig.Domain, "/admin/activate-account/", ui.Hash)
 
 	mail := mail.Mail{
@@ -23,11 +23,9 @@ func (m Mailer) SendActivationLink(ui *UserInvite) error {
 	}
 
 	m.Sender.SendAsync(mail)
-
-	return nil
 }
 
-func (m Mailer) SendPasswordChangeConfirmation(u *User) error {
+func (m Mailer) SendPasswordChangeConfirmation(u *User) {
 	mail := mail.Mail{
 		To:      u.Email,
 		Subject: "Password change",
@@ -35,11 +33,9 @@ func (m Mailer) SendPasswordChangeConfirmation(u *User) error {
 	}
 
 	m.Sender.SendAsync(mail)
-
-	return nil
 }
 
-func (m Mailer) SendPasswordResetLink(u *User, t *Token) error {
+func (m Mailer) SendPasswordResetLink(u *User, t *Token) {
 	resetLink := utils.AppendString(m.AppConfig.Domain, "/admin/reset-password/", t.Hash)
 
 	mail := mail.Mail{
@@ -49,6 +45,4 @@ func (m Mailer) SendPasswordResetLink(u *User, t *Token) error {
 	}
 
 	m.Sender.SendAsync(mail)
-
-	return nil
 }

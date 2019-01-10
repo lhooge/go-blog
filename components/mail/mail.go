@@ -5,6 +5,8 @@ import (
 	"errors"
 	"fmt"
 	"net/smtp"
+
+	"git.hoogi.eu/go-blog/components/logger"
 )
 
 //Service holds configuration for the SMTP server
@@ -13,6 +15,14 @@ type Service struct {
 	SubjectPrefix string
 	SMTPConfig    SMTPConfig
 	From          string
+}
+
+func (m Mail) validate() error {
+	if len(m.To) == 0 {
+		return errors.New("no recipient specified")
+	}
+
+	return nil
 }
 
 func NewMailService(subjectPrefix, from string, smtpConfig SMTPConfig) Service {
@@ -132,30 +142,15 @@ func (s Service) Send(m Mail) error {
 	}
 }
 
-func (m Mail) validate() error {
-	if len(m.To) == 0 {
-		return errors.New("no recipient specified")
-	}
-
-	return nil
-}
-
 var buffer = make(chan Mail, 10)
-var errc = make(chan error)
 
-func (s Service) readBuffer() <-chan error {
+func (s Service) readBuffer() {
 	for {
-		fmt.Println("reading")
 		select {
 		case mail := <-buffer:
 			if err := s.Send(mail); err != nil {
-				errc <- err
-				return errc
+				logger.Log.Error(err)
 			}
-
-			close(errc)
-
-			return errc
 		}
 	}
 }
