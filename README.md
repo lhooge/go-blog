@@ -32,12 +32,6 @@ Create your first administrator account with createuser:
 
 Make sure -admin is set.
 
-TODOs
------
- * Autosave ariticles
- * Code comments etc.
- * Review async mails
-
 Licence
 -------
     The MIT License (MIT)
