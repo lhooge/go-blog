@@ -8,7 +8,7 @@ import (
 	"io"
 	"strings"
 
-	"github.com/Sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 )
 
 //Log returns a new logrus instance
