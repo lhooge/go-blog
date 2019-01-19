@@ -21,7 +21,7 @@ import (
 //InitRoutes initializes restricted and public routes
 func InitRoutes(ctx *m.AppContext, cfg *settings.Settings) *mux.Router {
 	router := mux.NewRouter()
-	router = router.StrictSlash(true)
+	router = router.StrictSlash(false)
 	sr := router.PathPrefix("/").Subrouter()
 
 	csrf :=
@@ -133,11 +133,11 @@ func restrictedRoutes(ctx *m.AppContext, router *mux.Router, chain alice.Chain) 
 	router.Handle("/site/delete/{siteID}", chain.Append(ctx.RequireAdmin).Then(useTemplateHandler(ctx, c.AdminSiteDeleteHandler))).Methods("GET")
 	router.Handle("/site/delete/{siteID}", chain.Append(ctx.RequireAdmin).Then(useTemplateHandler(ctx, c.AdminSiteDeletePostHandler))).Methods("POST")
 	router.Handle("/site/order/{siteID}", chain.Append(ctx.RequireAdmin).Then(useTemplateHandler(ctx, c.AdminSiteOrderHandler))).Methods("POST")
-	router.Handle("/site/{siteID}", chain.Then(useTemplateHandler(ctx, c.AdminGetSiteHandler))).Methods("GET")
+	router.Handle("/site/{siteID:[0-9]+}}", chain.Then(useTemplateHandler(ctx, c.AdminGetSiteHandler))).Methods("GET")
 
 	//article
 	router.Handle("/categories", chain.Then(useTemplateHandler(ctx, c.AdminListCategoriesHandler))).Methods("GET")
-	router.Handle("/category/{categoryID}", chain.Then(useTemplateHandler(ctx, c.AdminGetCategoryHandler))).Methods("POST")
+	router.Handle("/category/{categoryID:[0-9]+}}", chain.Then(useTemplateHandler(ctx, c.AdminGetCategoryHandler))).Methods("POST")
 	router.Handle("/category/new", chain.Then(useTemplateHandler(ctx, c.AdminCategoryNewHandler))).Methods("GET")
 	router.Handle("/category/new", chain.Then(useTemplateHandler(ctx, c.AdminCategoryNewPostHandler))).Methods("POST")
 	router.Handle("/category/edit/{categoryID}", chain.Then(useTemplateHandler(ctx, c.AdminCategoryEditHandler))).Methods("GET")
@@ -155,7 +155,8 @@ func restrictedRoutes(ctx *m.AppContext, router *mux.Router, chain alice.Chain) 
 
 	router.Handle("/logout", chain.Then(useTemplateHandler(ctx, c.LogoutHandler))).Methods("GET")
 
-	router.Handle("/json/session/keep-alive", chain.Then(useJSONHandler(ctx, c.KeepAliveSessionHandler))).Methods("GET")
+	router.Handle("/json/session/keep-alive", chain.Then(useJSONHandler(ctx, c.KeepAliveSessionHandler))).Methods("POST")
+	router.Handle("/json/file/upload", chain.Then(useJSONHandler(ctx, c.AdminUploadJSONFilePostHandler))).Methods("POST")
 }
 
 func publicRoutes(ctx *m.AppContext, router *mux.Router, chain alice.Chain) {

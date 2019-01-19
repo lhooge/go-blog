@@ -8,7 +8,7 @@
 
     <h2>Write an article</h2>
 
-    <form action="/admin/article/new" method="post">
+    <form id="autosave-form" action="/admin/article/new" method="post">
 		<label for="category">Category</label>
 		<select name="categoryID">
 			<option></option>
@@ -26,13 +26,41 @@
 		<label for="content">Content</label>
 		<textarea rows="25" id="content" name="content" placeholder="Content...">{{.article.Content}}</textarea>
 
-	    {{ .csrfField }}
+		{{ .csrfField }}
 
-	    <div class="button-group">
+		<div class="button-group">
 			<button name="action" value="save">Save</button>
 			<button name="action" formtarget="_blank" value="preview">Preview</button>
 		</div>
-    </form>
+	</form>
+
+	<div id="upload-error" style="margin-top: 10px; display:none" class="alert alert-danger" role="status"></div>
+
+	<form enctype="multipart/form-data" method="post" id="direct-upload">
+		<label for="file">Upload file</label>
+		<input type="file" id="file" name="file" placeholder="Choose a file" required>
+
+		{{ .csrfField }}
+
+		<div class="button-group">
+			<button name="action" value="upload">Upload</button>
+		</div>
+	</form>
+
+	<table id="uploaded-files" class="table" style="display:none">
+		<thead>
+			<tr>
+				<th>Filename</th>
+				<th>Link</th>
+				<th>ContentType</th>
+				<th>Size</th>
+			</tr>
+		</thead>
+
+		<tbody>
+
+		</tbody>
+	</table>
 </main>
 
 {{template "admin/footer" .}}

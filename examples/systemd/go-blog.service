@@ -1,6 +1,5 @@
 [Unit]
 Description=golang blogserver
-#After=mysqld.service
 
 [Service]
 User=go-blog

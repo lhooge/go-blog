@@ -21,12 +21,14 @@ import (
 //File represents a file
 type File struct {
 	ID           int
-	UniqueName   string
-	FullFilename string
+	UniqueName   string    `json:"unique_name"`
+	FullFilename string    `json:"full_name"`
+	Link         string    `json:"link"`
+	ContentType  string    `json:"content_type"`
+	Size         int64     `json:"size"`
+	LastModified time.Time `json:"last_modified"`
+	Data         []byte    `json:"-"`
 	FileInfo     FileInfo
-	ContentType  string
-	Size         int64
-	LastModified time.Time
 	Author       *User
 }
 
@@ -154,7 +156,7 @@ func (fs FileService) Delete(fileID int, location string, u *User) error {
 }
 
 //Upload uploaded files will be saved at the configured file location, filename is saved in the database
-func (fs FileService) Upload(f *File, data []byte) (int, error) {
+func (fs FileService) Upload(f *File) (int, error) {
 	if err := f.validate(); err != nil {
 		return -1, err
 	}
@@ -188,7 +190,7 @@ func (fs FileService) Upload(f *File, data []byte) (int, error) {
 
 	fi := filepath.Join(fs.Config.Location, f.UniqueName)
 
-	err := ioutil.WriteFile(fi, data, 0640)
+	err := ioutil.WriteFile(fi, f.Data, 0640)
 
 	if err != nil {
 		return -1, err
@@ -204,7 +206,7 @@ func (fs FileService) Upload(f *File, data []byte) (int, error) {
 		return -1, err
 	}
 
-	data = nil
+	f.Data = nil
 
 	return i, nil
 }

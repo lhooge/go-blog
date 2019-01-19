@@ -16,6 +16,7 @@ import (
 type TokenDatasourceService interface {
 	Create(t *Token) (int, error)
 	Get(hash string, tt TokenType) (*Token, error)
+	ListByUser(userID int, tt TokenType) ([]Token, error)
 	Remove(hash string, tt TokenType) error
 }
 
@@ -74,8 +75,8 @@ func (ts TokenService) Create(t *Token) error {
 	return err
 }
 
-//Get gets all token for a defined token type expires after a defined time
-//Expired tokens will be removed
+//Get token for a defined token type expires after a defined time
+//Expired token will be removed
 func (ts TokenService) Get(hash string, tt TokenType, expireAfter time.Duration) (*Token, error) {
 	token, err := ts.Datasource.Get(hash, tt)
 
@@ -93,6 +94,30 @@ func (ts TokenService) Get(hash string, tt TokenType, expireAfter time.Duration)
 	}
 
 	return token, nil
+}
+
+//RateLimit returns an error if a token is requested greater three times in a time span of 15 minutes
+func (ts TokenService) RateLimit(userID int, tt TokenType) error {
+	tokens, err := ts.Datasource.ListByUser(userID, tt)
+
+	if err != nil {
+		return err
+	}
+
+	now := time.Now()
+
+	rate := []Token{}
+	for _, t := range tokens {
+		if now.Sub(t.RequestedAt) < time.Minute*15 {
+			rate = append(rate, t)
+		}
+	}
+
+	if len(rate) > 3 {
+		return fmt.Errorf("too many tokens of type %s were requested for user %d, not sending mail", tt, userID)
+	}
+
+	return nil
 }
 
 //Remove removes a token

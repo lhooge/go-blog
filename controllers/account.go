@@ -71,6 +71,24 @@ func AdminProfilePostHandler(ctx *middleware.AppContext, w http.ResponseWriter, 
 		}
 	}
 
+	if changePassword {
+		session, err := ctx.SessionService.Renew(w, r)
+
+		if err != nil {
+			logger.Log.Error(err)
+		}
+
+		session.SetValue("userid", u.ID)
+
+		sessions := ctx.SessionService.SessionProvider.SessionsFromValues("userid", u.ID)
+
+		for _, s := range sessions {
+			if s.SessionID() != session.SessionID() {
+				ctx.SessionService.SessionProvider.Remove(s.SessionID())
+			}
+		}
+	}
+
 	if err := ctx.UserService.Update(u, changePassword); err != nil {
 		return &middleware.Template{
 			Name:   tplAdminProfile,
@@ -237,7 +255,7 @@ func ResetPasswordPostHandler(ctx *middleware.AppContext, w http.ResponseWriter,
 		}
 	}
 
-	u.Password = []byte(password)
+	u.PlainPassword = []byte(password)
 
 	err = ctx.UserService.Update(u, true)
 
@@ -248,19 +266,13 @@ func ResetPasswordPostHandler(ctx *middleware.AppContext, w http.ResponseWriter,
 		}
 	}
 
-	go func(hash string) {
-		err = ctx.TokenService.Remove(hash, models.PasswordReset)
+	err = ctx.TokenService.Remove(hash, models.PasswordReset)
 
-		if err != nil {
-			logger.Log.Errorf("could not remove token %s error %v", hash, err)
-		}
+	if err != nil {
+		logger.Log.Errorf("could not remove token %s error %v", hash, err)
+	}
 
-		err = ctx.Mailer.SendPasswordChangeConfirmation(u)
-
-		if err != nil {
-			logger.Log.Errorf("could not send password changed mail %v", err)
-		}
-	}(hash)
+	ctx.Mailer.SendPasswordChangeConfirmation(u)
 
 	return &middleware.Template{
 		RedirectPath: "admin",
@@ -283,6 +295,7 @@ func ForgotPasswordPostHandler(ctx *middleware.AppContext, w http.ResponseWriter
 
 	if err != nil {
 		if httperror.Equals(err, sql.ErrNoRows) {
+			logger.Log.Error(err)
 			return &middleware.Template{
 				RedirectPath: "admin",
 				SuccessMsg:   "An email with password reset instructions is on the way.",
@@ -317,6 +330,11 @@ func ForgotPasswordPostHandler(ctx *middleware.AppContext, w http.ResponseWriter
 		Type:   models.PasswordReset,
 	}
 
+	err = ctx.TokenService.RateLimit(u.ID, models.PasswordReset)
+	if err != nil {
+		logger.Log.Error(err)
+	}
+
 	err = ctx.TokenService.Create(t)
 
 	if err != nil {
@@ -326,14 +344,7 @@ func ForgotPasswordPostHandler(ctx *middleware.AppContext, w http.ResponseWriter
 		}
 	}
 
-	err = ctx.Mailer.SendPasswordResetLink(u, t)
-
-	if err != nil {
-		return &middleware.Template{
-			Name: tplAdminForgotPassword,
-			Err:  err,
-		}
-	}
+	ctx.Mailer.SendPasswordResetLink(u, t)
 
 	return &middleware.Template{
 		RedirectPath: "admin",

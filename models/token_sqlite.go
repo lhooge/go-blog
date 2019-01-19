@@ -43,6 +43,33 @@ func (rdb SQLiteTokenDatasource) Get(hash string, tt TokenType) (*Token, error) 
 	return &t, nil
 }
 
+//ListByUser receives all tokens based on the user id and the token type ordered by requested
+func (rdb SQLiteTokenDatasource) ListByUser(userID int, tt TokenType) ([]Token, error) {
+	rows, err := rdb.SQLConn.Query("SELECT t.id, t.hash, t.requested_at, t.token_type, t.user_id FROM token as t WHERE t.user_id=? AND t.token_type=? ", userID, tt.String())
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	tokens := []Token{}
+
+	for rows.Next() {
+		var u User
+		var t Token
+		if err = rows.Scan(&t.ID, &t.Hash, &t.RequestedAt, &t.Type, &u.ID); err != nil {
+			return nil, err
+		}
+
+		t.Author = &u
+
+		tokens = append(tokens, t)
+	}
+
+	return tokens, nil
+}
+
 //Remove removes a token based on the hash
 func (rdb SQLiteTokenDatasource) Remove(hash string, tt TokenType) error {
 	if _, err := rdb.SQLConn.Exec("DELETE FROM token WHERE hash=? AND token_type=? ", hash, tt.String()); err != nil {

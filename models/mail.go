@@ -13,7 +13,7 @@ type Mailer struct {
 	Sender    mail.Sender
 }
 
-func (m Mailer) SendActivationLink(ui *UserInvite) error {
+func (m Mailer) SendActivationLink(ui *UserInvite) {
 	activation := utils.AppendString(m.AppConfig.Domain, "/admin/activate-account/", ui.Hash)
 
 	mail := mail.Mail{
@@ -22,20 +22,20 @@ func (m Mailer) SendActivationLink(ui *UserInvite) error {
 		Body:    fmt.Sprintf("Hi %s, \n\n you are invited join %s. To activate your account click the following link and enter a password %s", ui.DisplayName, m.AppConfig.Title, activation),
 	}
 
-	return m.Sender.SendAsync(mail)
+	m.Sender.SendAsync(mail)
 }
 
-func (m Mailer) SendPasswordChangeConfirmation(u *User) error {
+func (m Mailer) SendPasswordChangeConfirmation(u *User) {
 	mail := mail.Mail{
 		To:      u.Email,
 		Subject: "Password change",
 		Body:    fmt.Sprintf("Hi %s, \n\n your password change was sucessfully.", u.DisplayName),
 	}
 
-	return m.Sender.SendAsync(mail)
+	m.Sender.SendAsync(mail)
 }
 
-func (m Mailer) SendPasswordResetLink(u *User, t *Token) error {
+func (m Mailer) SendPasswordResetLink(u *User, t *Token) {
 	resetLink := utils.AppendString(m.AppConfig.Domain, "/admin/reset-password/", t.Hash)
 
 	mail := mail.Mail{
@@ -44,5 +44,5 @@ func (m Mailer) SendPasswordResetLink(u *User, t *Token) error {
 		Body:    fmt.Sprintf("Hi %s, \n\n use the following link to reset your password: \n\n. %s", u.DisplayName, resetLink),
 	}
 
-	return m.Sender.SendAsync(mail)
+	m.Sender.SendAsync(mail)
 }

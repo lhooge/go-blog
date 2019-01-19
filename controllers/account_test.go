@@ -93,7 +93,8 @@ func doAdminProfileRequest(user reqUser, u *models.User, currentPassword string)
 	}
 
 	rw := httptest.NewRecorder()
-	tpl := controllers.AdminProfilePostHandler(ctx, rw, r.buildRequest())
+	re := r.buildRequest()
+	tpl := controllers.AdminProfilePostHandler(ctx, rw, re)
 
 	if tpl.Err != nil {
 		return tpl.Err

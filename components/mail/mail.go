@@ -5,6 +5,8 @@ import (
 	"errors"
 	"fmt"
 	"net/smtp"
+
+	"git.hoogi.eu/go-blog/components/logger"
 )
 
 //Service holds configuration for the SMTP server
@@ -13,6 +15,14 @@ type Service struct {
 	SubjectPrefix string
 	SMTPConfig    SMTPConfig
 	From          string
+}
+
+func (m Mail) validate() error {
+	if len(m.To) == 0 {
+		return errors.New("no recipient specified")
+	}
+
+	return nil
 }
 
 func NewMailService(subjectPrefix, from string, smtpConfig SMTPConfig) Service {
@@ -30,7 +40,7 @@ func NewMailService(subjectPrefix, from string, smtpConfig SMTPConfig) Service {
 
 type Sender interface {
 	Send(m Mail) error
-	SendAsync(m Mail) error
+	SendAsync(m Mail)
 }
 
 //SMTPConfig holds the configuration for the SMTP server
@@ -71,12 +81,10 @@ func (m Mail) buildMessage(s Service) []byte {
 	return buf.Bytes()
 }
 
-func (s Service) SendAsync(m Mail) error {
+func (s Service) SendAsync(m Mail) {
 	go func() {
 		buffer <- m
 	}()
-
-	return <-errc
 }
 
 //Send sends a mail over the configured SMTP server
@@ -134,27 +142,15 @@ func (s Service) Send(m Mail) error {
 	}
 }
 
-func (m Mail) validate() error {
-	if len(m.To) == 0 {
-		return errors.New("no recipient specified")
-	}
-
-	return nil
-}
-
 var buffer = make(chan Mail, 10)
-var errc = make(chan error, 1)
 
-func (s Service) readBuffer() <-chan error {
+func (s Service) readBuffer() {
 	for {
-		mail := <-buffer
-
-		if err := s.Send(mail); err != nil {
-			errc <- err
+		select {
+		case mail := <-buffer:
+			if err := s.Send(mail); err != nil {
+				logger.Log.Error(err)
+			}
 		}
-
-		close(errc)
-
-		return errc
 	}
 }

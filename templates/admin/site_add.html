@@ -8,7 +8,7 @@
 
 	<h2>Add a new site</h2>
 
-	<form action="/admin/site/new" method="post">
+	<form id="autosave-form" action="/admin/site/new" method="post">
 		<label for="title">Title</label>
 		<input type="text" id="title" name="title" placeholder="Title..." {{if .site.Title}}value="{{.site.Title}}"{{end}} required>
 
@@ -25,6 +25,34 @@
 			<button name="action" formtarget="_blank" value="preview">Preview</button>
 		</div>
 	</form>
+	
+	<div id="upload-error" style="margin-top: 10px; display:none" class="alert alert-danger" role="status"></div>
+
+	<form enctype="multipart/form-data" method="post" id="direct-upload">
+		<label for="file">Upload file</label>
+		<input type="file" id="file" name="file" placeholder="Choose a file" required>
+
+		{{ .csrfField }}
+
+		<div class="button-group">
+			<button name="action" value="upload">Upload</button>
+		</div>
+	</form>
+
+	<table id="uploaded-files" class="table" style="display:none">
+		<thead>
+			<tr>
+				<th>Filename</th>
+				<th>Link</th>
+				<th>ContentType</th>
+				<th>Size</th>
+			</tr>
+		</thead>
+
+		<tbody>
+
+		</tbody>
+	</table>
 </main>
 
 {{template "admin/footer" .}}

@@ -107,28 +107,7 @@ func AdminUploadFileHandler(ctx *middleware.AppContext, w http.ResponseWriter, r
 
 //AdminUploadFilePostHandler handles the upload
 func AdminUploadFilePostHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
-	if r.ContentLength > int64(ctx.ConfigService.MaxUploadSize) {
-		return &middleware.Template{
-			Name:   tplAdminFileUpload,
-			Active: "files",
-			Err:    httperror.New(http.StatusUnprocessableEntity, "Filesize too large", errors.New("filesize too large")),
-		}
-	}
-
-	r.Body = http.MaxBytesReader(w, r.Body, int64(ctx.ConfigService.MaxUploadSize))
-
-	err := r.ParseMultipartForm(1024)
-	if err != nil {
-		return &middleware.Template{
-			Name:   tplAdminFileUpload,
-			Active: "files",
-			Err:    err,
-		}
-	}
-
-	u, _ := middleware.User(r)
-
-	ff, h, err := r.FormFile("file")
+	file, err := parseFileField(ctx, w, r)
 
 	if err != nil {
 		return &middleware.Template{
@@ -138,28 +117,7 @@ func AdminUploadFilePostHandler(ctx *middleware.AppContext, w http.ResponseWrite
 		}
 	}
 
-	defer ff.Close()
-
-	data, err := ioutil.ReadAll(ff)
-
-	if err != nil {
-		return &middleware.Template{
-			Name:   tplAdminFileUpload,
-			Active: "files",
-			Err:    err,
-		}
-	}
-
-	ct := http.DetectContentType(data)
-
-	file := &models.File{
-		ContentType:  ct,
-		Author:       u,
-		Size:         int64(len(data)),
-		FullFilename: h.Filename,
-	}
-
-	_, err = ctx.FileService.Upload(file, data)
+	_, err = ctx.FileService.Upload(file)
 
 	if err != nil {
 		return &middleware.Template{
@@ -174,6 +132,28 @@ func AdminUploadFilePostHandler(ctx *middleware.AppContext, w http.ResponseWrite
 		SuccessMsg:   "Successfully uploaded file",
 		Active:       "files",
 	}
+}
+
+func AdminUploadJSONFilePostHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) (*models.JSONData, error) {
+	file, err := parseFileField(ctx, w, r)
+
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = ctx.FileService.Upload(file)
+
+	if err != nil {
+		return nil, err
+	}
+
+	file.Link = ctx.ConfigService.Application.Domain
+
+	json := &models.JSONData{
+		Data: file,
+	}
+
+	return json, nil
 }
 
 //AdminUploadDeleteHandler returns the action template which asks the user if the file should be removed
@@ -255,4 +235,46 @@ func AdminUploadDeletePostHandler(ctx *middleware.AppContext, w http.ResponseWri
 		SuccessMsg:   "File successfully deleted",
 		WarnMsg:      warnMsg,
 	}
+}
+
+func parseFileField(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) (*models.File, error) {
+	if r.ContentLength > int64(ctx.ConfigService.MaxUploadSize) {
+		return nil, httperror.New(http.StatusUnprocessableEntity, "Filesize too large", errors.New("filesize too large"))
+	}
+
+	r.Body = http.MaxBytesReader(w, r.Body, int64(ctx.ConfigService.MaxUploadSize))
+
+	err := r.ParseMultipartForm(1024)
+
+	if err != nil {
+		return nil, err
+	}
+
+	u, _ := middleware.User(r)
+
+	ff, h, err := r.FormFile("file")
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer ff.Close()
+
+	data, err := ioutil.ReadAll(ff)
+
+	if err != nil {
+		return nil, err
+	}
+
+	ct := http.DetectContentType(data)
+
+	file := &models.File{
+		ContentType:  ct,
+		Author:       u,
+		Size:         int64(len(data)),
+		FullFilename: h.Filename,
+		Data:         data,
+	}
+
+	return file, nil
 }
