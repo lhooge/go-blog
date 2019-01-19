@@ -11,7 +11,7 @@ Prerequisites
 
 Configuration
 --------
-
+ * create a "custom" folder
  * copy go-blog.conf into custom/ folder
  * edit custom/go-blog.conf to your needs
 

@@ -9,7 +9,7 @@ import (
 	"strings"
 
 	"github.com/microcosm-cc/bluemonday"
-	bf "gopkg.in/russross/blackfriday.v2"
+	bf "github.com/russross/blackfriday/v2"
 )
 
 // Defines the extensions that are used
