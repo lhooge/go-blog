@@ -19,7 +19,7 @@ func (m Mailer) SendActivationLink(ui *UserInvite) {
 	mail := mail.Mail{
 		To:      ui.Email,
 		Subject: "You got an invitation",
-		Body:    fmt.Sprintf("Hi %s, \n\n you are invited join %s. To activate your account click the following link and enter a password %s", ui.DisplayName, m.AppConfig.Title, activation),
+		Body:    fmt.Sprintf("Hi %s,\n\n you are invited join %s. To activate your account click the following link and enter a password %s", ui.DisplayName, m.AppConfig.Title, activation),
 	}
 
 	m.Sender.SendAsync(mail)
@@ -29,7 +29,7 @@ func (m Mailer) SendPasswordChangeConfirmation(u *User) {
 	mail := mail.Mail{
 		To:      u.Email,
 		Subject: "Password change",
-		Body:    fmt.Sprintf("Hi %s, \n\n your password change was sucessfully.", u.DisplayName),
+		Body:    fmt.Sprintf("Hi %s,\n\nyour password change was successful.", u.DisplayName),
 	}
 
 	m.Sender.SendAsync(mail)
@@ -41,7 +41,7 @@ func (m Mailer) SendPasswordResetLink(u *User, t *Token) {
 	mail := mail.Mail{
 		To:      u.Email,
 		Subject: "Changing password instructions",
-		Body:    fmt.Sprintf("Hi %s, \n\n use the following link to reset your password: \n\n. %s", u.DisplayName, resetLink),
+		Body:    fmt.Sprintf("Hi %s,\n\nuse the following link to reset your password:\n\n%s", u.DisplayName, resetLink),
 	}
 
 	m.Sender.SendAsync(mail)
