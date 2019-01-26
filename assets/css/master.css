@@ -1,6 +1,6 @@
 @font-face {
-	font-family: 'dosis';
-	src: url("../fonts/Dosis-Regular.ttf") format('truetype');
+	font-family: 'rubik';
+	src: url("../fonts/Rubik-Regular.ttf") format('truetype');
 }
 
 html {
@@ -84,7 +84,7 @@ html {
 
 h1, h2, h3, h4, h5, h6 {
 	color: #285e8e;
-	font-family: 'dosis', arial, sans-serif;
+	font-family: "rubik", Helvetica, Arial, sans-serif;
 	font-weight: 600;
 }
 
@@ -115,6 +115,7 @@ a:focus {
 }
 
 p {
+	font-family: "rubik", Helvetica, Arial, sans-serif;
 	font-size: 1.1em;
 	line-height: 1.5;
 	margin-bottom: 1em;
@@ -134,6 +135,7 @@ main {
 }
 
 footer {
+	font-family: "rubik", Helvetica, Arial, sans-serif;
 	grid-area: footer;
 	background-color: #1f1f1f;
 	color: #ffffff;
@@ -148,6 +150,7 @@ footer p {
 }
 
 header {
+	font-family: "rubik", Helvetica, Arial, sans-serif;
 	display: flex;
 	grid-area: header;
 	background-color: #285e8e;
@@ -155,11 +158,13 @@ header {
 }
 
 aside {
+	font-family: "rubik", Helvetica, Arial, sans-serif;
 	grid-area: sidebar;
 	background-color: #1f1f1f;
 }
 
 nav {
+	font-family: "rubik", Helvetica, Arial, sans-serif;
 	grid-area: nav;
 	background-color: #1f1f1f;
 	font-size: 1.1em;
@@ -350,6 +355,7 @@ main p {
 }
 
 .alert {
+	font-family: "rubik", Helvetica, Arial, sans-serif;
 	border-style: solid;
 	border-color: #555;
 	border-radius: 0;

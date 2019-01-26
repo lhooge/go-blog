@@ -72,6 +72,7 @@ func (m Mail) buildMessage(s Service) []byte {
 
 	if len(s.SubjectPrefix) > 0 {
 		buf.WriteString(s.SubjectPrefix)
+		buf.WriteString(" ")
 	}
 
 	buf.WriteString(m.Subject)
