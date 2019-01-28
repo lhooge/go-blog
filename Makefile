@@ -33,7 +33,7 @@ package:
 	cp -r examples/ ${TMP}/
 	cp -r templates/ ${TMP}/
 	cp -r assets/ ${TMP}/
-	tar czf releases/$(BINARYNAME)_$(BUILD_VERSION).tar.gz ${TMP}/  --transform s/tmp/goblog/
+	cd ${TMP} && tar -czvf ../releases/$(BINARYNAME)_$(BUILD_VERSION).tar.gz * && cd -
 
 vet:
 	go vet ./...
