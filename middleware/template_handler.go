@@ -8,6 +8,7 @@ import (
 	"context"
 	"errors"
 	"net/http"
+	"path"
 
 	"github.com/gorilla/csrf"
 
@@ -113,7 +114,7 @@ func (fn TemplateHandler) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 		} else if len(successMsg) > 0 {
 			setCookie(rw, "SuccessMsg", "/", successMsg)
 		}
-		http.Redirect(rw, r, t.RedirectURL(), statusCode)
+		http.Redirect(rw, r, path.Clean(t.RedirectURL()), statusCode)
 	}
 }
 
