@@ -429,6 +429,7 @@ label {
 }
 
 input:not([type='submit']), textarea, select {
+	font-family: "rubik", Helvetica, Arial, sans-serif;
 	background-color: #fffaf0;
 	border: 1px solid grey;
 	font-size: 1.1em;
@@ -441,6 +442,7 @@ input:not([type='submit']), textarea, select {
 }
 
 input#headline {
+	font-family: "rubik", Helvetica, Arial, sans-serif;
 	font-size: 1.8em;
 	font-weight: 600;
 	color: #285e8e;
@@ -448,6 +450,7 @@ input#headline {
 
 button,
 input[type='submit'] {
+	font-family: "rubik", Helvetica, Arial, sans-serif;
 	cursor: pointer;
 	background-color: #285e8e;
 	color: #fffaf0;
