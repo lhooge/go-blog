@@ -71,8 +71,6 @@ func (f File) randomFilename() string {
 	}
 	buf.WriteString(sanFilename)
 	buf.WriteString("-")
-	buf.WriteString(f.Author.Username)
-	buf.WriteString("-")
 	buf.WriteString(strconv.Itoa(int(time.Now().Unix())))
 	buf.WriteString(f.FileInfo.Extension)
 	return buf.String()
