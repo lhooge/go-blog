@@ -117,6 +117,8 @@ func AdminUploadFilePostHandler(ctx *middleware.AppContext, w http.ResponseWrite
 		}
 	}
 
+	file.Inline = convertCheckbox(r, "admin")
+
 	_, err = ctx.FileService.Upload(file)
 
 	if err != nil {

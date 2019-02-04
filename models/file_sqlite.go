@@ -18,7 +18,7 @@ func (rdb SQLiteFileDatasource) GetByUniqueName(uniqueName string, u *User) (*Fi
 
 	var args []interface{}
 
-	stmt.WriteString("SELECT f.id, f.filename, f.unique_name, f.content_type, f.size, f.last_modified, f.user_id, ")
+	stmt.WriteString("SELECT f.id, f.filename, f.unique_name, f.content_type, ,f.inline, f.size, f.last_modified, f.user_id, ")
 	stmt.WriteString("u.display_name, u.username, u.email, u.is_admin ")
 	stmt.WriteString("FROM file as f ")
 	stmt.WriteString("INNER JOIN user as u ")
@@ -37,7 +37,7 @@ func (rdb SQLiteFileDatasource) GetByUniqueName(uniqueName string, u *User) (*Fi
 	var f File
 	var ru User
 
-	if err := rdb.SQLConn.QueryRow(stmt.String(), args...).Scan(&f.ID, &f.FullFilename, &f.UniqueName, &f.ContentType, &f.Size, &f.LastModified, &ru.ID,
+	if err := rdb.SQLConn.QueryRow(stmt.String(), args...).Scan(&f.ID, &f.FullFilename, &f.UniqueName, &f.ContentType, &f.Inline, &f.Size, &f.LastModified, &ru.ID,
 		&ru.DisplayName, &ru.Username, &ru.Email, &ru.IsAdmin); err != nil {
 		return nil, err
 	}
@@ -54,7 +54,7 @@ func (rdb SQLiteFileDatasource) Get(fileID int, u *User) (*File, error) {
 
 	var args []interface{}
 
-	stmt.WriteString("SELECT f.id, f.filename, f.unique_name, f.content_type, f.size, f.last_modified, f.user_id, ")
+	stmt.WriteString("SELECT f.id, f.filename, f.unique_name, f.content_type, f.inline, f.size, f.last_modified, f.user_id, ")
 	stmt.WriteString("u.display_name, u.username, u.email, u.is_admin ")
 	stmt.WriteString("FROM file as f ")
 	stmt.WriteString("INNER JOIN user as u ")
@@ -73,7 +73,7 @@ func (rdb SQLiteFileDatasource) Get(fileID int, u *User) (*File, error) {
 	var f File
 	var ru User
 
-	if err := rdb.SQLConn.QueryRow(stmt.String(), args...).Scan(&f.ID, &f.FullFilename, &f.UniqueName, &f.ContentType, &f.Size, &f.LastModified, &ru.ID,
+	if err := rdb.SQLConn.QueryRow(stmt.String(), args...).Scan(&f.ID, &f.FullFilename, &f.UniqueName, &f.ContentType, &f.Inline, &f.Size, &f.LastModified, &ru.ID,
 		&ru.DisplayName, &ru.Username, &ru.Email, &ru.IsAdmin); err != nil {
 		return nil, err
 	}
@@ -85,8 +85,8 @@ func (rdb SQLiteFileDatasource) Get(fileID int, u *User) (*File, error) {
 
 //Create inserts some file meta information into the database
 func (rdb SQLiteFileDatasource) Create(f *File) (int, error) {
-	res, err := rdb.SQLConn.Exec("INSERT INTO file (filename, unique_name, content_type, size, last_modified, user_id) VALUES(?, ?, ?, ?, ?, ?)",
-		f.FullFilename, f.UniqueName, f.ContentType, f.Size, time.Now(), f.Author.ID)
+	res, err := rdb.SQLConn.Exec("INSERT INTO file (filename, unique_name, content_type, inline, size, last_modified, user_id) VALUES(?, ?, ?, ?, ?, ?, ?)",
+		f.FullFilename, f.UniqueName, f.ContentType, f.Inline, f.Size, time.Now(), f.Author.ID)
 
 	if err != nil {
 		return -1, err
@@ -108,7 +108,7 @@ func (rdb SQLiteFileDatasource) List(u *User, p *Pagination) ([]File, error) {
 
 	var args []interface{}
 
-	stmt.WriteString("SELECT f.id, f.filename, f.unique_name, f.content_type, f.size, f.last_modified, ")
+	stmt.WriteString("SELECT f.id, f.filename, f.unique_name, f.content_type, f.Inline, f.size, f.last_modified, ")
 	stmt.WriteString("u.id, u.display_name, u.username, u.email, u.is_admin ")
 	stmt.WriteString("FROM file as f ")
 	stmt.WriteString("INNER JOIN user as u ")
@@ -142,7 +142,7 @@ func (rdb SQLiteFileDatasource) List(u *User, p *Pagination) ([]File, error) {
 	var us User
 
 	for rows.Next() {
-		if err = rows.Scan(&f.ID, &f.FullFilename, &f.UniqueName, &f.ContentType, &f.Size, &f.LastModified, &us.ID, &us.DisplayName,
+		if err = rows.Scan(&f.ID, &f.FullFilename, &f.UniqueName, &f.ContentType, &f.Inline, &f.Size, &f.LastModified, &us.ID, &us.DisplayName,
 			&us.Username, &us.Email, &u.IsAdmin); err != nil {
 			return nil, err
 		}

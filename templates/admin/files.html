@@ -15,6 +15,7 @@
 				<th>Last modified</th>
 				<th>Link</th>
 				<th>ContentType</th>
+				<th>Inline</th>
 				<th>Size</th>
 				<th>User</th>
 				<th>Actions</th>
@@ -27,6 +28,7 @@
 					<td>{{.LastModified | FormatDateTime}}</td>
 					<td>{{ApplicationURL}}/file/{{.UniqueName}}</td>
 					<td>{{.ContentType}}</td>
+					<td>{{.Inline}}</td>
 					<td>{{.Size}}</td>
 					<td>{{.Author.Username}}</td>
 					<td class="action-data">

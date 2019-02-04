@@ -25,6 +25,7 @@ type File struct {
 	FullFilename string    `json:"full_name"`
 	Link         string    `json:"link"`
 	ContentType  string    `json:"content_type"`
+	Inline       bool      `json:"inline"`
 	Size         int64     `json:"size"`
 	LastModified time.Time `json:"last_modified"`
 	Data         []byte    `json:"-"`
