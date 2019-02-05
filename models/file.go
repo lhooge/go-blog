@@ -25,6 +25,7 @@ type File struct {
 	FullFilename string    `json:"full_name"`
 	Link         string    `json:"link"`
 	ContentType  string    `json:"content_type"`
+	Inline       bool      `json:"inline"`
 	Size         int64     `json:"size"`
 	LastModified time.Time `json:"last_modified"`
 	Data         []byte    `json:"-"`
@@ -47,6 +48,7 @@ type FileDatasourceService interface {
 	GetByUniqueName(uniqueName string, u *User) (*File, error)
 	List(u *User, p *Pagination) ([]File, error)
 	Count(u *User) (int, error)
+	Update(f *File) error
 	Delete(fileID int) error
 }
 
@@ -70,8 +72,6 @@ func (f File) randomFilename() string {
 		sanFilename = "unnamed"
 	}
 	buf.WriteString(sanFilename)
-	buf.WriteString("-")
-	buf.WriteString(f.Author.Username)
 	buf.WriteString("-")
 	buf.WriteString(strconv.Itoa(int(time.Now().Unix())))
 	buf.WriteString(f.FileInfo.Extension)
@@ -130,6 +130,20 @@ func (fs FileService) List(u *User, p *Pagination) ([]File, error) {
 //only files specific to this user are counted
 func (fs FileService) Count(u *User) (int, error) {
 	return fs.Datasource.Count(u)
+}
+
+func (fs FileService) ToggleInline(fileID int, u *User) error {
+	f, err := fs.Datasource.Get(fileID, u)
+
+	if err != nil {
+		return err
+	}
+
+	f.Inline = !f.Inline
+	f.FileInfo = SplitFilename(f.FullFilename)
+	f.UniqueName = f.randomFilename()
+
+	return fs.Datasource.Update(f)
 }
 
 //Delete deletes a file based on fileID; users which are not the owner are not allowed to remove files; except admins

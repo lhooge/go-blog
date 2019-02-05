@@ -6,7 +6,7 @@
 
 	<script type="text/javascript">
 		var directUpload = document.getElementById('direct-upload');
-		
+
 		directUpload && directUpload.addEventListener("submit", function(e) {
 			e.preventDefault();
 
@@ -15,7 +15,7 @@
 			let csrf = document.querySelector('input[name=csrfToken]');
 			let uplError = document.querySelector("#upload-error");
 			uplError.style.display = 'none';
-			
+
 			let formData = new FormData();
 
 			while (uplError.firstChild) {
@@ -60,7 +60,7 @@
 				cell = row.insertCell(3);
 				text = document.createTextNode(json.data.size);
 				cell.appendChild(text);
-				
+
 				form.reset();
 			}).catch(err => {
 				let uplError = document.querySelector("#upload-error");
@@ -69,18 +69,18 @@
 				uplError.appendChild(text);
 			});
 		});
-		
+
 		var persistForm = function() {
 			let form = document.getElementById("autosave-form");
-			
+
 			if(form === undefined) {
 				return
 			}
-			
+
 			let data = {};
-			
+
 			let action = form.getAttribute("action");
-			
+
 			for(let i=0; i<form.elements.length; i++) {
 				let type = form.elements[i].type
 				switch(type) {
@@ -101,7 +101,7 @@
 
 		var autoSaveForm = document.getElementById('autosave-form');
 
-		autoSaveForm && autoSaveForm.addEventListener("submit", function(e) {	
+		autoSaveForm && autoSaveForm.addEventListener("submit", function(e) {
 			let form = document.getElementById("autosave-form");
 			let action = form.getAttribute("action");
 			localStorage.removeItem('AUTOSAVE'+action.split('/').join('_'));
@@ -109,28 +109,30 @@
 
 		var loadForm = function() {
 			let form = document.getElementById("autosave-form");
-			
+
 			if(form === undefined) {
 				return
 			}
-			
+
 			let action = form.getAttribute("action");
-			
+
 			let json = localStorage.getItem('AUTOSAVE'+action.split('/').join('_'));
 			let obj = JSON.parse(json);
 
-			if (Object.keys(obj).length > 0) {
-				for (let key in obj) {
-					if(key != "action") {
-						form.elements[key].value = obj[key]
-					}
-				}
-				
-				let div = document.createElement('div');
-				let main = document.querySelector('main');
-				div.innerHTML = '<div style="margin-top: 10px" class="alert alert-info" role="status">Unsaved changes were loaded.</div>';
-				main.prepend(div);
-			}
+      if (typeof obj === 'object' && obj !== null) {
+  			if (Object.keys(obj).length > 0) {
+  				for (let key in obj) {
+  					if(key != "action") {
+  						form.elements[key].value = obj[key]
+  					}
+  				}
+
+  				let div = document.createElement('div');
+  				let main = document.querySelector('main');
+  				div.innerHTML = '<div style="margin-top: 10px" class="alert alert-info" role="status">Unsaved changes were loaded.</div>';
+  				main.prepend(div);
+  			}
+      }
 		}
 
 		var doKeepAliveRequest = function() {
@@ -150,7 +152,7 @@
 		if (curPath === "/admin/article/new" || curPath.includes("/admin/article/edit")
 			|| curPath === "/admin/site/new" || curPath.includes("/admin/site/edit")) {
 			loadForm();
-				
+
 			setInterval(doKeepAliveRequest, keepAliveInterval);
 			setInterval(persistForm, autoSaveInterval);
 		}

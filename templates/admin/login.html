@@ -23,10 +23,10 @@
 				<h2>Login</h2>
 
 				<label for="username">Username</label>
-				<input type="text" required="required" name="username" id="username" value="{{.user.Username}}" placeholder="Username...">
+				<input type="text" required="required" name="username" id="username" value="{{.user.Username}}" placeholder="Username..." autocomplete="off" >
 
 				<label for="password">Password</label>
-				<input type="password" required="required" autocomplete="off" name="password" id="password" placeholder="Password...">
+				<input type="password" required="required" name="password" id="password" placeholder="Password..." autocomplete="off" >
 
 				{{if .state}}
 					<input type="hidden" required="required" name="state" value="{{.state}}">

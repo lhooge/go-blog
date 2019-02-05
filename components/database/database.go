@@ -110,6 +110,7 @@ func InitTables(db *sql.DB) error {
 		"unique_name VARCHAR(191) NOT NULL, " +
 		"size BIGINT NOT NULL, " +
 		"content_type VARCHAR(150) NOT NULL, " +
+		"inline boolean NOT NULL DEFAULT false, " +
 		"last_modified datetime NOT NULL, " +
 		"user_id INT NOT NULL, " +
 		"CONSTRAINT `fk_file_user` " +

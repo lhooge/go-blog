@@ -32,8 +32,13 @@ func (fh FileHandler) FileGetHandler(w http.ResponseWriter, r *http.Request) {
 
 	loc := filepath.Join(fh.Context.ConfigService.Location, f.UniqueName)
 
-	w.Header().Set("Content-Type", f.ContentType)
-	w.Header().Set("Content-Disposition", "inline")
+	if f.Inline {
+		w.Header().Set("Content-Type", f.ContentType)
+		w.Header().Set("Content-Disposition", "inline")
+	} else {
+		w.Header().Set("Content-Type", f.ContentType)
+		w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%s", f.FullFilename))
+	}
 
 	rf, err := os.Open(loc)
 
@@ -105,6 +110,38 @@ func AdminUploadFileHandler(ctx *middleware.AppContext, w http.ResponseWriter, r
 	}
 }
 
+func AdminToggleInlineFilePostHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
+	u, _ := middleware.User(r)
+
+	rv := getVar(r, "fileID")
+
+	id, err := parseInt(rv)
+
+	if err != nil {
+		return &middleware.Template{
+			RedirectPath: "/admin/files",
+			Err:          err,
+			Active:       "files",
+		}
+	}
+
+	err = ctx.FileService.ToggleInline(id, u)
+
+	if err != nil {
+		return &middleware.Template{
+			RedirectPath: "/admin/files",
+			Err:          err,
+			Active:       "files",
+		}
+	}
+
+	return &middleware.Template{
+		Active:       "files",
+		RedirectPath: "/admin/files",
+		SuccessMsg:   "File successfully updated",
+	}
+}
+
 //AdminUploadFilePostHandler handles the upload
 func AdminUploadFilePostHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
 	file, err := parseFileField(ctx, w, r)
@@ -116,6 +153,8 @@ func AdminUploadFilePostHandler(ctx *middleware.AppContext, w http.ResponseWrite
 			Err:    err,
 		}
 	}
+
+	file.Inline = convertCheckbox(r, "admin")
 
 	_, err = ctx.FileService.Upload(file)
 
@@ -140,6 +179,8 @@ func AdminUploadJSONFilePostHandler(ctx *middleware.AppContext, w http.ResponseW
 	if err != nil {
 		return nil, err
 	}
+
+	file.Inline = true
 
 	_, err = ctx.FileService.Upload(file)
 

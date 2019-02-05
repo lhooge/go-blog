@@ -4,9 +4,14 @@
 }
 
 html {
-	font-size: 100%;
 	-webkit-box-sizing: border-box;
 	box-sizing: border-box;
+}
+
+body {
+	font-family: "rubik", Helvetica, Arial, sans-serif;
+	font-size: 100%;
+	background-color: #fffaf0;
 }
 
 .container {
@@ -84,7 +89,6 @@ html {
 
 h1, h2, h3, h4, h5, h6 {
 	color: #285e8e;
-	font-family: "rubik", Helvetica, Arial, sans-serif;
 	font-weight: 600;
 }
 
@@ -115,14 +119,9 @@ a:focus {
 }
 
 p {
-	font-family: "rubik", Helvetica, Arial, sans-serif;
 	font-size: 1.1em;
 	line-height: 1.5;
 	margin-bottom: 1em;
-}
-
-body {
-	background-color: #fffaf0;
 }
 
 /*
@@ -135,7 +134,6 @@ main {
 }
 
 footer {
-	font-family: "rubik", Helvetica, Arial, sans-serif;
 	grid-area: footer;
 	background-color: #1f1f1f;
 	color: #ffffff;
@@ -150,7 +148,6 @@ footer p {
 }
 
 header {
-	font-family: "rubik", Helvetica, Arial, sans-serif;
 	display: flex;
 	grid-area: header;
 	background-color: #285e8e;
@@ -158,13 +155,11 @@ header {
 }
 
 aside {
-	font-family: "rubik", Helvetica, Arial, sans-serif;
 	grid-area: sidebar;
 	background-color: #1f1f1f;
 }
 
 nav {
-	font-family: "rubik", Helvetica, Arial, sans-serif;
 	grid-area: nav;
 	background-color: #1f1f1f;
 	font-size: 1.1em;
@@ -355,7 +350,6 @@ main p {
 }
 
 .alert {
-	font-family: "rubik", Helvetica, Arial, sans-serif;
 	border-style: solid;
 	border-color: #555;
 	border-radius: 0;
@@ -435,12 +429,12 @@ label {
 }
 
 input:not([type='submit']), textarea, select {
+	font-family: "rubik", Helvetica, Arial, sans-serif;
 	background-color: #fffaf0;
 	border: 1px solid grey;
 	font-size: 1.1em;
 	margin: 0 0 10px 0;
 	padding: 0.5em;
-	font-family: 'dosis', 'arial', sans-serif;
 	-webkit-box-sizing: border-box; /* For legacy WebKit based browsers */
 	-moz-box-sizing: border-box; /* For legacy (Firefox <29) Gecko based browsers */
 	box-sizing: border-box;
@@ -448,6 +442,7 @@ input:not([type='submit']), textarea, select {
 }
 
 input#headline {
+	font-family: "rubik", Helvetica, Arial, sans-serif;
 	font-size: 1.8em;
 	font-weight: 600;
 	color: #285e8e;
@@ -455,6 +450,7 @@ input#headline {
 
 button,
 input[type='submit'] {
+	font-family: "rubik", Helvetica, Arial, sans-serif;
 	cursor: pointer;
 	background-color: #285e8e;
 	color: #fffaf0;
@@ -530,7 +526,6 @@ input[type='submit']:hover, input[type='submit']:focus {
 	text-decoration: underline;
 	cursor: pointer;
 	font-size: 1em;
-	font-family: dosis, arial, sans-serif; ;
 	margin: 0;
 	padding: 0 5px;
 }
