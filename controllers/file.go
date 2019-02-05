@@ -180,6 +180,8 @@ func AdminUploadJSONFilePostHandler(ctx *middleware.AppContext, w http.ResponseW
 		return nil, err
 	}
 
+	file.Inline = true
+
 	_, err = ctx.FileService.Upload(file)
 
 	if err != nil {
