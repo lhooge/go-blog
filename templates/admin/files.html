@@ -32,6 +32,8 @@
 					<td>{{.Size}}</td>
 					<td>{{.Author.Username}}</td>
 					<td class="action-data">
+						<a href="/file/{{.UniqueName}}" title="Show file">Show file</a>
+
 						<form method="post" action="/admin/file/toggleInline/{{.ID}}">
 							{{if .Inline}}
 								<button type="submit" name="disposition" value="download">
@@ -46,7 +48,6 @@
 								{{$.csrfField}}
 						</form>
 
-						<a href="/file/{{.UniqueName}}" title="Show file">Show file</a>
 
 						<a href="/admin/file/delete/{{.ID}}" title="Remove">Remove</a>
 					</td>
