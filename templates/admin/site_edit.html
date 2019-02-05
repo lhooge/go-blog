@@ -7,7 +7,7 @@
 	<h2>Update site</h2>
 
 	{{with .site}}
-		<form action="/admin/site/edit/{{.ID}}" method="post">
+		<form id="autosave-form" action="/admin/site/edit/{{.ID}}" method="post">
 			<label for="headline">Title</label>
 			<input type="text" value="{{.Title}}" id="title" name="title" placeholder="Title..." required>
 
@@ -25,10 +25,10 @@
 			</div>
 		</form>
 	{{end}}
-	
+
 	<div id="upload-error" style="margin-top: 10px; display:none" class="alert alert-danger" role="status"></div>
 
-	<form id="autosave-form" enctype="multipart/form-data" method="post" id="direct-upload">
+	<form enctype="multipart/form-data" method="post" id="direct-upload">
 		<label for="file">Upload file</label>
 		<input type="file" id="file" name="file" placeholder="Choose a file" required>
 
