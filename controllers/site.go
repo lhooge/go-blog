@@ -200,6 +200,8 @@ func AdminSiteEditHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *
 //AdminSiteEditPostHandler receives the form values and updates the site; on success the user is redirected with a success message
 //to the site overview
 func AdminSiteEditPostHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
+	u, _ := middleware.User(r)
+
 	siteID, err := parseInt(getVar(r, "siteID"))
 
 	if err != nil {
@@ -215,6 +217,7 @@ func AdminSiteEditPostHandler(ctx *middleware.AppContext, w http.ResponseWriter,
 		Title:   r.FormValue("title"),
 		Link:    r.FormValue("link"),
 		Content: r.FormValue("content"),
+		Author:  u,
 	}
 
 	if r.FormValue("action") == "preview" {
