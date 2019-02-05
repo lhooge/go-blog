@@ -28,11 +28,26 @@
 					<td>{{.LastModified | FormatDateTime}}</td>
 					<td>{{ApplicationURL}}/file/{{.UniqueName}}</td>
 					<td>{{.ContentType}}</td>
-					<td>{{.Inline}}</td>
+					<td>{{.Inline | BoolToIcon}}</td>
 					<td>{{.Size}}</td>
 					<td>{{.Author.Username}}</td>
 					<td class="action-data">
+						<form method="post" action="/admin/file/toggleInline/{{.ID}}">
+							{{if .Inline}}
+								<button type="submit" name="disposition" value="download">
+									Try force download
+								</button>
+								{{else}}
+								<button type="submit" name="disposition" value="inline">
+									Inline
+								</button>
+								{{end}}
+							
+								{{$.csrfField}}
+						</form>
+						
 						<a href="/file/{{.UniqueName}}" title="Show file">Show file</a>
+
 						<a href="/admin/file/delete/{{.ID}}" title="Remove">Remove</a>
 					</td>
 				</tr>

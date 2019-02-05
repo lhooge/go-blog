@@ -18,7 +18,7 @@ func (rdb SQLiteFileDatasource) GetByUniqueName(uniqueName string, u *User) (*Fi
 
 	var args []interface{}
 
-	stmt.WriteString("SELECT f.id, f.filename, f.unique_name, f.content_type, ,f.inline, f.size, f.last_modified, f.user_id, ")
+	stmt.WriteString("SELECT f.id, f.filename, f.unique_name, f.content_type, f.inline, f.size, f.last_modified, f.user_id, ")
 	stmt.WriteString("u.display_name, u.username, u.email, u.is_admin ")
 	stmt.WriteString("FROM file as f ")
 	stmt.WriteString("INNER JOIN user as u ")
@@ -99,6 +99,14 @@ func (rdb SQLiteFileDatasource) Create(f *File) (int, error) {
 	}
 
 	return int(i), nil
+}
+
+func (rdb SQLiteFileDatasource) Update(f *File) error {
+	if _, err := rdb.SQLConn.Exec("UPDATE file SET filename=?, unique_name=?, content_type=?, inline=?, size=?, last_modified=?, user_id=? WHERE id=?", f.FullFilename, f.UniqueName, f.ContentType, f.Inline, f.Size, time.Now(), f.Author.ID, f.ID); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 //List returns a list of files based on the filename; it the user is given and it is a non admin

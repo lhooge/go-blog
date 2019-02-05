@@ -48,6 +48,7 @@ type FileDatasourceService interface {
 	GetByUniqueName(uniqueName string, u *User) (*File, error)
 	List(u *User, p *Pagination) ([]File, error)
 	Count(u *User) (int, error)
+	Update(f *File) error
 	Delete(fileID int) error
 }
 
@@ -129,6 +130,18 @@ func (fs FileService) List(u *User, p *Pagination) ([]File, error) {
 //only files specific to this user are counted
 func (fs FileService) Count(u *User) (int, error) {
 	return fs.Datasource.Count(u)
+}
+
+func (fs FileService) ToggleInline(fileID int, u *User) error {
+	f, err := fs.Datasource.Get(fileID, u)
+
+	if err != nil {
+		return err
+	}
+
+	f.Inline = !f.Inline
+
+	return fs.Datasource.Update(f)
 }
 
 //Delete deletes a file based on fileID; users which are not the owner are not allowed to remove files; except admins

@@ -150,6 +150,7 @@ func restrictedRoutes(ctx *m.AppContext, router *mux.Router, chain alice.Chain) 
 	router.Handle("/files/page/{page}", chain.Then(useTemplateHandler(ctx, c.AdminListFilesHandler))).Methods("GET")
 	router.Handle("/file/upload", chain.Then(useTemplateHandler(ctx, c.AdminUploadFileHandler))).Methods("GET")
 	router.Handle("/file/upload", chain.Then(useTemplateHandler(ctx, c.AdminUploadFilePostHandler))).Methods("POST")
+	router.Handle("/file/toggleInline/{fileID}", chain.Then(useTemplateHandler(ctx, c.AdminToggleInlineFilePostHandler))).Methods("POST")
 	router.Handle("/file/delete/{fileID}", chain.Then(useTemplateHandler(ctx, c.AdminUploadDeleteHandler))).Methods("GET")
 	router.Handle("/file/delete/{fileID}", chain.Then(useTemplateHandler(ctx, c.AdminUploadDeletePostHandler))).Methods("POST")
 
