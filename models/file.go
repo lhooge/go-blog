@@ -140,6 +140,8 @@ func (fs FileService) ToggleInline(fileID int, u *User) error {
 	}
 
 	f.Inline = !f.Inline
+	f.FileInfo = SplitFilename(f.FullFilename)
+	f.UniqueName = f.randomFilename()
 
 	return fs.Datasource.Update(f)
 }
