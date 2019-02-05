@@ -139,15 +139,23 @@ func (fs FileService) ToggleInline(fileID int, u *User) error {
 		return err
 	}
 
-	f.Inline = !f.Inline
 	f.FileInfo = SplitFilename(f.FullFilename)
-	f.UniqueName = f.randomFilename()
+	newName := f.randomFilename()
+	f.Inline = !f.Inline
+
+	err = os.Rename(filepath.Join(fs.Config.Location, f.UniqueName), filepath.Join(fs.Config.Location, newName))
+
+	f.UniqueName = newName
+
+	if err != nil {
+		return err
+	}
 
 	return fs.Datasource.Update(f)
 }
 
 //Delete deletes a file based on fileID; users which are not the owner are not allowed to remove files; except admins
-func (fs FileService) Delete(fileID int, location string, u *User) error {
+func (fs FileService) Delete(fileID int, u *User) error {
 	file, err := fs.Datasource.Get(fileID, u)
 
 	if err != nil {
@@ -166,7 +174,7 @@ func (fs FileService) Delete(fileID int, location string, u *User) error {
 		return err
 	}
 
-	return os.Remove(filepath.Join(location, file.UniqueName))
+	return os.Remove(filepath.Join(fs.Config.Location, file.UniqueName))
 }
 
 //Upload uploaded files will be saved at the configured file location, filename is saved in the database

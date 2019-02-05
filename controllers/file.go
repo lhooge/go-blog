@@ -255,12 +255,12 @@ func AdminUploadDeletePostHandler(ctx *middleware.AppContext, w http.ResponseWri
 		}
 	}
 
-	err = ctx.FileService.Delete(id, ctx.ConfigService.File.Location, u)
+	err = ctx.FileService.Delete(id, u)
 
 	warnMsg := ""
 	if err != nil {
 		if e, ok := err.(*os.PathError); ok && e.Err == syscall.ENOENT {
-			warnMsg = "File removed from database, but was not found in file system anymore"
+			warnMsg = "File removed from database, but was not found in filesystem anymore"
 		} else {
 			return &middleware.Template{
 				RedirectPath: "/admin/files",
