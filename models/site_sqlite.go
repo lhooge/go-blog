@@ -19,7 +19,7 @@ func (rdb SQLiteSiteDatasource) List(pc PublishedCriteria, p *Pagination) ([]Sit
 
 	var args []interface{}
 
-	stmt.WriteString("SELECT s.id, s.title, s.link, s.content, s.published, s.published_on, s.last_modified, s.order_no, u.id, u.display_name, u.email, u.username ")
+	stmt.WriteString("SELECT s.id, s.title, s.link, s.section, s.content, s.published, s.published_on, s.last_modified, s.order_no, u.id, u.display_name, u.email, u.username ")
 	stmt.WriteString("FROM site s ")
 	stmt.WriteString("INNER JOIN user u ON (s.user_id = u.id) ")
 	stmt.WriteString("WHERE ")
@@ -52,7 +52,7 @@ func (rdb SQLiteSiteDatasource) List(pc PublishedCriteria, p *Pagination) ([]Sit
 	var u User
 
 	for rows.Next() {
-		if err = rows.Scan(&s.ID, &s.Title, &s.Link, &s.Content, &s.Published, &s.PublishedOn, &s.LastModified, &s.OrderNo, &u.ID, &u.DisplayName, &u.Email, &u.Username); err != nil {
+		if err = rows.Scan(&s.ID, &s.Title, &s.Link, &s.Section, &s.Content, &s.Published, &s.PublishedOn, &s.LastModified, &s.OrderNo, &u.ID, &u.DisplayName, &u.Email, &u.Username); err != nil {
 			return nil, err
 		}
 
@@ -73,7 +73,7 @@ func (rdb SQLiteSiteDatasource) Get(siteID int, pc PublishedCriteria) (*Site, er
 	var stmt bytes.Buffer
 	var args []interface{}
 
-	stmt.WriteString("SELECT s.id, s.title, s.link, s.content, s.published, s.published_on, s.last_modified, s.order_no, u.id, u.display_name, u.email, u.username FROM site as s ")
+	stmt.WriteString("SELECT s.id, s.title, s.link, s.section, s.content, s.published, s.published_on, s.last_modified, s.order_no, u.id, u.display_name, u.email, u.username FROM site as s ")
 	stmt.WriteString("INNER JOIN user u ON (s.user_id = u.id) ")
 	stmt.WriteString("WHERE s.id=? ")
 
@@ -88,7 +88,7 @@ func (rdb SQLiteSiteDatasource) Get(siteID int, pc PublishedCriteria) (*Site, er
 	var s Site
 	var u User
 
-	if err := rdb.SQLConn.QueryRow(stmt.String(), siteID).Scan(&s.ID, &s.Title, &s.Link, &s.Content, &s.Published, &s.PublishedOn, &s.LastModified, &s.OrderNo, &u.ID, &u.DisplayName, &u.Email, &u.Username); err != nil {
+	if err := rdb.SQLConn.QueryRow(stmt.String(), siteID).Scan(&s.ID, &s.Title, &s.Link, &s.Section, &s.Content, &s.Published, &s.PublishedOn, &s.LastModified, &s.OrderNo, &u.ID, &u.DisplayName, &u.Email, &u.Username); err != nil {
 		return nil, err
 	}
 
@@ -102,7 +102,7 @@ func (rdb SQLiteSiteDatasource) GetByLink(link string, pc PublishedCriteria) (*S
 	var stmt bytes.Buffer
 	var args []interface{}
 
-	stmt.WriteString("SELECT s.id, s.title, s.link, s.content, s.published, s.published_on, s.order_no, s.last_modified, u.id, u.display_name, u.email, u.username FROM site as s ")
+	stmt.WriteString("SELECT s.id, s.title, s.link, s.section, s.content, s.published, s.published_on, s.order_no, s.last_modified, u.id, u.display_name, u.email, u.username FROM site as s ")
 	stmt.WriteString("INNER JOIN user u ON (s.user_id = u.id) ")
 	stmt.WriteString("WHERE s.link=? ")
 
@@ -117,7 +117,7 @@ func (rdb SQLiteSiteDatasource) GetByLink(link string, pc PublishedCriteria) (*S
 	var s Site
 	var u User
 
-	if err := rdb.SQLConn.QueryRow(stmt.String(), link).Scan(&s.ID, &s.Title, &s.Link, &s.Content, &s.Published, &s.PublishedOn, &s.OrderNo, &s.LastModified, &u.ID, &u.DisplayName, &u.Email, &u.Username); err != nil {
+	if err := rdb.SQLConn.QueryRow(stmt.String(), link).Scan(&s.ID, &s.Title, &s.Link, &s.Section, &s.Content, &s.Published, &s.PublishedOn, &s.OrderNo, &s.LastModified, &u.ID, &u.DisplayName, &u.Email, &u.Username); err != nil {
 		return nil, err
 	}
 
@@ -141,8 +141,8 @@ func (rdb SQLiteSiteDatasource) Publish(s *Site) error {
 
 //Create creates a site
 func (rdb SQLiteSiteDatasource) Create(s *Site) (int, error) {
-	res, err := rdb.SQLConn.Exec("INSERT INTO site (title, link, content, published, published_on, last_modified, order_no, user_id) VALUES(?, ?, ?, ?, ?, ?, ?, ?)",
-		s.Title, s.Link, s.Content, s.Published, s.PublishedOn, time.Now(), s.OrderNo, s.Author.ID)
+	res, err := rdb.SQLConn.Exec("INSERT INTO site (title, link, section, content, published, published_on, last_modified, order_no, user_id) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)",
+		s.Title, s.Link, s.Section, s.Content, s.Published, s.PublishedOn, time.Now(), s.OrderNo, s.Author.ID)
 
 	if err != nil {
 		return -1, err
@@ -216,7 +216,7 @@ func (rdb SQLiteSiteDatasource) Order(id int, d Direction) error {
 
 //Update updates a site
 func (rdb SQLiteSiteDatasource) Update(s *Site) error {
-	if _, err := rdb.SQLConn.Exec("UPDATE site SET title=?, link=?, content=?, last_modified=? WHERE id=?", s.Title, s.Link, s.Content, time.Now(), s.ID); err != nil {
+	if _, err := rdb.SQLConn.Exec("UPDATE site SET title=?, link=?, section=?, content=?, last_modified=? WHERE id=?", s.Title, s.Link, s.Section, s.Content, time.Now(), s.ID); err != nil {
 		return err
 	}
 

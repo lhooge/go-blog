@@ -137,14 +137,33 @@ footer {
 	grid-area: footer;
 	background-color: #1f1f1f;
 	color: #ffffff;
-	font-size: 0.7em;
-	font-weight: bold;
+	font-size: 0.9em;
 }
 
 footer p {
 	padding-top: 5px;
 	padding-left: 5px;
 	margin: auto;
+}
+
+footer ul {
+	text-align: center;
+	list-style-type: none;
+	padding: 5px 0;
+}
+
+footer a {
+	color: #fff;
+	width: 100%;
+	text-decoration: underline;
+}
+
+footer a:active,
+footer a:hover,
+footer a:active,
+footer a.active {
+	color: #fff;
+	text-decoration: none;
 }
 
 header {

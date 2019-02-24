@@ -91,6 +91,7 @@ func InitTables(db *sql.DB) error {
 		"title VARCHAR(100) NOT NULL, " +
 		"link VARCHAR(100) NOT NULL, " +
 		"content text NOT NULL, " +
+		"section VARCHAR(191) text NOT NULL, " +
 		"published boolean NOT NULL DEFAULT false, " +
 		"published_on datetime, " +
 		"last_modified datetime NOT NULL, " +

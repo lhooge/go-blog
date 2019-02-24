@@ -40,6 +40,7 @@ type Site struct {
 	ID           int
 	Title        string
 	Link         string
+	Section      string
 	Content      string
 	Published    bool
 	PublishedOn  NullTime
@@ -85,6 +86,10 @@ func (s *Site) validate(ds SiteDatasourceService, changeLink bool) error {
 
 	if len(s.Title) == 0 {
 		return httperror.ValueRequired("title")
+	}
+
+	if s.Section != "navigation" && s.Section != "footer" {
+		return httperror.New(http.StatusUnprocessableEntity, "Value for section is invalid", fmt.Errorf("invalid value for site section, value is %s", s.Section))
 	}
 
 	if s.isExternal() {
