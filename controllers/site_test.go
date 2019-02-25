@@ -20,6 +20,7 @@ func TestSiteWorkflow(t *testing.T) {
 		Title:   "test title",
 		Link:    "a link",
 		Content: "content",
+		Section: "navigation",
 	}
 
 	id, err := doAdminSiteCreateRequest(rAdminUser, site)
@@ -145,6 +146,7 @@ func doAdminSiteCreateRequest(user reqUser, s *models.Site) (int, error) {
 	addValue(values, "title", s.Title)
 	addValue(values, "link", s.Link)
 	addValue(values, "content", s.Content)
+	addValue(values, "section", s.Section)
 
 	r := request{
 		url:    "/admin/site/new",
@@ -197,6 +199,7 @@ func doAdminSiteEditRequest(user reqUser, s *models.Site) error {
 	addValue(values, "title", s.Title)
 	addValue(values, "link", s.Link)
 	addValue(values, "content", s.Content)
+	addValue(values, "section", s.Section)
 
 	r := request{
 		url:    "/admin/site/edit" + strconv.Itoa(s.ID),
