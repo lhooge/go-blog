@@ -137,6 +137,7 @@ footer {
 	grid-area: footer;
 	background-color: #1f1f1f;
 	color: #ffffff;
+	text-align: center;
 	font-size: 0.9em;
 }
 
@@ -147,7 +148,12 @@ footer p {
 }
 
 footer ul {
-	text-align: center;
+	list-style-type: none;
+	padding: 5px 0;
+}
+
+footer ul li {
+	display: inline-block;
 	list-style-type: none;
 	padding: 5px 0;
 }
