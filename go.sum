@@ -1,5 +1,9 @@
 git.hoogi.eu/cfg v0.0.0-20180624210101-cf2681a7fc01 h1:EeudNpVzgbVcZSxpxYXDse7BfB6qcDVVmIbjcAkQm3E=
 git.hoogi.eu/cfg v0.0.0-20180624210101-cf2681a7fc01/go.mod h1:0xRrNDnjvsfCPijhz52amSXMlP+Pj7HGcbSOxK+iHUo=
+git.hoogi.eu/cfg v0.0.0-20190307173707-1886921e171e h1:i3lK9zZYnxKcs2nxc8WgKNOYzCjz2LKQ41BfQpYuHrQ=
+git.hoogi.eu/cfg v0.0.0-20190307173707-1886921e171e/go.mod h1:0xRrNDnjvsfCPijhz52amSXMlP+Pj7HGcbSOxK+iHUo=
+git.hoogi.eu/cfg v1.0.1 h1:Oz7v1Sei1gISlqh1xOJGArA+VQdOWB0dhXuJ/0SCrZ0=
+git.hoogi.eu/cfg v1.0.1/go.mod h1:+MNsW3r2nSt2ESUBMEDh76Yl5fIy1k/DVheCBtatvnk=
 git.hoogi.eu/session v0.0.0-20181225115814-bdd76b51c632 h1:FsRJhrQ3yKkyKkxfRySXdETvPIUlAe6HphbFUcyCfK8=
 git.hoogi.eu/session v0.0.0-20181225115814-bdd76b51c632/go.mod h1:8kO8zJUJvSAMkeQ3rUcGvj7OlffoZnMh0Uk6Wt0F5XQ=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=

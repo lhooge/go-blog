@@ -1,7 +1,7 @@
 module git.hoogi.eu/go-blog
 
 require (
-	git.hoogi.eu/cfg v0.0.0-20180624210101-cf2681a7fc01
+	git.hoogi.eu/cfg v1.0.1
 	git.hoogi.eu/session v0.0.0-20181225115814-bdd76b51c632
 	github.com/gorilla/csrf v1.5.1
 	github.com/gorilla/handlers v1.4.0

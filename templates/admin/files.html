@@ -29,7 +29,7 @@
 					<td>{{ApplicationURL}}/file/{{.UniqueName}}</td>
 					<td>{{.ContentType}}</td>
 					<td>{{.Inline | BoolToIcon}}</td>
-					<td>{{.Size}}</td>
+					<td>{{.Size | HumanizeFilesize}}</td>
 					<td>{{.Author.Username}}</td>
 					<td class="action-data">
 						<a href="/file/{{.UniqueName}}" title="Show file">Show file</a>
