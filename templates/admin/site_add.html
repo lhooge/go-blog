@@ -15,6 +15,12 @@
 		<label for="site">Link</label>
 		<input type="text" id="link" name="link" placeholder="Link..." {{if .site.Link}}value="{{.site.Link}}"{{end}} required>
 
+		<label for="section">Section</label>
+		<select name="section">
+				<option value="navigation"{{if .site.Section}}{{if eq .site.Section "navigation"}} selected="selected"{{end}}{{end}}>Navigation</option>
+				<option value="footer"{{if .site.Section}}{{if eq .site.Section "footer"}} selected="selected"{{end}}{{end}}>Footer</option>
+		</select>
+
 		<label for="content">Content</label>
 		<textarea rows="25" id="content" name="content" placeholder="Content...">{{.site.Content}}</textarea>
 
@@ -25,7 +31,7 @@
 			<button name="action" formtarget="_blank" value="preview">Preview</button>
 		</div>
 	</form>
-	
+
 	<div id="upload-error" style="margin-top: 10px; display:none" class="alert alert-danger" role="status"></div>
 
 	<form enctype="multipart/form-data" method="post" id="direct-upload">

@@ -14,6 +14,7 @@ import (
 	"strings"
 	"time"
 
+	"git.hoogi.eu/cfg"
 	"git.hoogi.eu/go-blog/components/httperror"
 	"git.hoogi.eu/go-blog/components/logger"
 	"git.hoogi.eu/go-blog/models"
@@ -62,13 +63,13 @@ func NotFound(ctx *AppContext, rw http.ResponseWriter, r *http.Request) *Templat
 }
 
 //FuncMap some functions for use in templates
-func FuncMap(ss models.SiteService, cfg *settings.Settings) template.FuncMap {
+func FuncMap(ss models.SiteService, settings *settings.Settings) template.FuncMap {
 	return template.FuncMap{
 		"GetMetadata": func(data map[string]interface{}) template.HTML {
 			var meta string
 
-			if len(cfg.Description) > 0 {
-				meta = fmt.Sprintf("<meta name=\"description\" content=\"%s\">\n", cfg.Description)
+			if len(settings.Description) > 0 {
+				meta = fmt.Sprintf("<meta name=\"description\" content=\"%s\">\n", settings.Description)
 			}
 
 			if value, ok := data["article"]; ok {
@@ -84,28 +85,28 @@ func FuncMap(ss models.SiteService, cfg *settings.Settings) template.FuncMap {
 			return template.HTML(meta)
 		},
 		"Language": func() string {
-			return cfg.Language
+			return settings.Language
 		},
 		"ApplicationURL": func() string {
-			return cfg.Application.Domain
+			return settings.Application.Domain
 		},
 		"CustomCSS": func() string {
-			return cfg.Application.CustomCSS
+			return settings.Application.CustomCSS
 		},
 		"OverwriteCSS": func() bool {
-			return cfg.Application.OverwriteCSS
+			return settings.Application.OverwriteCSS
 		},
 		"KeepAliveInterval": func() int64 {
-			return (cfg.Session.TTL.Nanoseconds() / 1e9) - 5
+			return (settings.Session.TTL.Nanoseconds() / 1e9) - 5
 		},
 		"PageTitle": func() string {
-			return cfg.Title
+			return settings.Title
 		},
 		"BuildVersion": func() string {
-			return cfg.BuildVersion
+			return settings.BuildVersion
 		},
 		"BuildGitHash": func() string {
-			return cfg.BuildGitHash
+			return settings.BuildGitHash
 		},
 		"NilString": func(s sql.NullString) string {
 			if !s.Valid {
@@ -118,6 +119,10 @@ func FuncMap(ss models.SiteService, cfg *settings.Settings) template.FuncMap {
 				return ""
 			}
 			return t.Time.In(time.Local).Format("January 2, 2006 at 3:04 PM")
+		},
+		"HumanizeFilesize": func(size int64) string {
+			fs := cfg.FileSize(size)
+			return fs.HumanReadable()
 		},
 		"FormatDateTime": func(t time.Time) string {
 			return t.In(time.Local).Format("January 2, 2006 at 3:04 PM")

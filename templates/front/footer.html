@@ -1,5 +1,16 @@
 {{define "front/footer"}}
 <footer>
-
+		{{$sites := GetSites}}
+    {{if $sites}}
+    <ul>
+		{{range $key, $value := $sites}}
+      {{if eq .Section "footer"}}
+			<li>
+				<a{{if $.site}}{{if eq $.site.Link .Link}} class="active"{{end}}{{end}} href="{{.LinkEscape}}">{{.Title}}</a>
+			</li>
+      {{end}}
+		{{end}}
+    </ul>
+    {{end}}
 </footer>
 {{end}}

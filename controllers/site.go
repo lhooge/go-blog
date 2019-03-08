@@ -138,6 +138,7 @@ func AdminSiteNewPostHandler(ctx *middleware.AppContext, w http.ResponseWriter, 
 		Title:     r.FormValue("title"),
 		Link:      r.FormValue("link"),
 		Content:   r.FormValue("content"),
+		Section:   r.FormValue("section"),
 		Published: false,
 		Author:    user,
 	}
@@ -217,6 +218,7 @@ func AdminSiteEditPostHandler(ctx *middleware.AppContext, w http.ResponseWriter,
 		Title:   r.FormValue("title"),
 		Link:    r.FormValue("link"),
 		Content: r.FormValue("content"),
+		Section: r.FormValue("section"),
 		Author:  u,
 	}
 
