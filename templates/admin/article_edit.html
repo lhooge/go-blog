@@ -19,6 +19,10 @@
 
 		<label for="headline">Headline</label>
 		<input type="text" value="{{.Headline}}" id="headline" name="headline" placeholder="Headline..." required>
+		
+		<div class="checkbox" style="margin-bottom: 1em; text-align:right">
+			<label><input type="checkbox" id="updateSlug" name="updateSlug" value="on"{{if $.updateSlug}} checked{{end}}>Update URL when headline has changed?</label>
+		</div>
 
 		<label for="teaser">Teaser</label>
 		<textarea rows="5" id="teaser" name="teaser">{{.Teaser}}</textarea>

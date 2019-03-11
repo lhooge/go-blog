@@ -346,8 +346,9 @@ func AdminListArticlesHandler(ctx *middleware.AppContext, w http.ResponseWriter,
 		}}
 }
 
-//AdminGetArticleByIDHandler returns a specific article, renders it on the front page for the
-func AdminGetArticleByIDHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
+//AdminShowArticleByIDHandler returns a specific article, renders it on the front page
+//used for the preview
+func AdminPreviewArticleByIDHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
 	u, _ := middleware.User(r)
 
 	id, err := parseInt(getVar(r, "articleID"))
@@ -521,6 +522,8 @@ func AdminArticleEditPostHandler(ctx *middleware.AppContext, w http.ResponseWrit
 		Author:   u,
 	}
 
+	updateSlug := convertCheckbox(r, "updateSlug")
+
 	cid, err := parseInt(r.FormValue("categoryID"))
 
 	if err != nil {
@@ -533,13 +536,14 @@ func AdminArticleEditPostHandler(ctx *middleware.AppContext, w http.ResponseWrit
 		return previewArticle(a)
 	}
 
-	if err = ctx.ArticleService.Update(a, u); err != nil {
+	if err = ctx.ArticleService.Update(a, u, updateSlug); err != nil {
 		return &middleware.Template{
 			Name:   tplAdminArticleEdit,
 			Err:    err,
 			Active: "articles",
 			Data: map[string]interface{}{
-				"article": a,
+				"article":    a,
+				"updateSlug": updateSlug,
 			},
 		}
 	}

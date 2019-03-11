@@ -58,8 +58,24 @@ func (a Article) SlugEscape() string {
 	return fmt.Sprintf("%s/%s/%s", spl[0], spl[1], url.PathEscape(spl[2]))
 }
 
-func (a Article) buildSafeSlug(now time.Time, suffix int) string {
+func (a *Article) buildSlug(now time.Time, suffix int) string {
 	return utils.AppendString(strconv.Itoa(now.Year()), "/", strconv.Itoa(int(now.Month())), "/", utils.CreateURLSafeSlug(a.Headline, suffix))
+}
+
+func (a *Article) slug(as ArticleService, now time.Time) error {
+	for i := 0; i < 10; i++ {
+		a.Slug = a.buildSlug(now, i)
+
+		_, err := as.Datasource.GetBySlug(a.Slug, nil, All)
+
+		if err != nil {
+			if err == sql.ErrNoRows {
+				break
+			}
+			return err
+		}
+	}
+	return nil
 }
 
 // validate validates if mandatory article fields are set
@@ -93,25 +109,18 @@ type ArticleService struct {
 
 // Create creates an article
 func (as ArticleService) Create(a *Article) (int, error) {
-	curTime := time.Now()
+	now := time.Now()
 
-	for i := 0; i < 10; i++ {
-		a.Slug = a.buildSafeSlug(curTime, i)
-		_, err := as.Datasource.GetBySlug(a.Slug, nil, All)
-
-		if err != nil {
-			if err == sql.ErrNoRows {
-				break
-			}
-			return -1, err
-		}
-	}
-
-	a.PublishedOn = NullTime{Time: curTime}
-	a.Headline = strings.TrimSpace(a.Headline)
+	a.PublishedOn = NullTime{Time: now, Valid: true}
 
 	if err := a.validate(); err != nil {
 		return 0, err
+	}
+
+	err := a.slug(as, now)
+
+	if err != nil {
+		return -1, err
 	}
 
 	artID, err := as.Datasource.Create(a)
@@ -123,18 +132,30 @@ func (as ArticleService) Create(a *Article) (int, error) {
 }
 
 //Update updates an article
-func (as ArticleService) Update(a *Article, u *User) error {
+func (as ArticleService) Update(a *Article, u *User, updateSlug bool) error {
 	if err := a.validate(); err != nil {
 		return err
 	}
 
-	art, err := as.Datasource.Get(a.ID, a.Author, All)
+	oldArt, err := as.Datasource.Get(a.ID, a.Author, All)
+
 	if err != nil {
 		return err
 	}
 
+	if !updateSlug {
+		a.Slug = oldArt.Slug
+	} else {
+		now := time.Now()
+		err := a.slug(as, now)
+
+		if err != nil {
+			return err
+		}
+	}
+
 	if !u.IsAdmin {
-		if art.Author.ID != u.ID {
+		if oldArt.Author.ID != u.ID {
 			return httperror.PermissionDenied("update", "article", fmt.Errorf("could not update article %d user %d has no permission", a.ID, u.ID))
 		}
 	}
