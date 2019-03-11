@@ -8,6 +8,7 @@ import (
 	"database/sql"
 	"fmt"
 	"net/http"
+	"time"
 
 	"git.hoogi.eu/go-blog/components/httperror"
 	"git.hoogi.eu/go-blog/middleware"
@@ -367,6 +368,10 @@ func AdminGetArticleByIDHandler(ctx *middleware.AppContext, w http.ResponseWrite
 		}
 	}
 
+	if a.Published == false {
+		a.PublishedOn = models.NullTime{Valid: true, Time: a.LastModified}
+	}
+
 	c, err := ctx.CategoryService.List(models.CategoriesWithPublishedArticles)
 
 	if err != nil {
@@ -696,6 +701,8 @@ func AdminArticleDeletePostHandler(ctx *middleware.AppContext, w http.ResponseWr
 }
 
 func previewArticle(a *models.Article) *middleware.Template {
+	a.PublishedOn = models.NullTime{Time: time.Now(), Valid: true}
+
 	return &middleware.Template{
 		Name: tplArticle,
 		Data: map[string]interface{}{
