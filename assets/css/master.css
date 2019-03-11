@@ -570,3 +570,7 @@ input[type='checkbox'] {
 	top: -1px;
  	overflow: hidden;
 }
+
+#direct-upload {
+	margin-top: 10px;
+}
