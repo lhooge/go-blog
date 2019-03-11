@@ -100,7 +100,7 @@ func restrictedRoutes(ctx *m.AppContext, router *mux.Router, chain alice.Chain) 
 	router.Handle("/article/publish/{articleID}", chain.Then(useTemplateHandler(ctx, c.AdminArticlePublishPostHandler))).Methods("POST")
 	router.Handle("/article/delete/{articleID}", chain.Then(useTemplateHandler(ctx, c.AdminArticleDeleteHandler))).Methods("GET")
 	router.Handle("/article/delete/{articleID}", chain.Then(useTemplateHandler(ctx, c.AdminArticleDeletePostHandler))).Methods("POST")
-	router.Handle("/article/{articleID}", chain.Then(useTemplateHandler(ctx, c.AdminGetArticleByIDHandler))).Methods("GET")
+	router.Handle("/article/{articleID}", chain.Then(useTemplateHandler(ctx, c.AdminPreviewArticleByIDHandler))).Methods("GET")
 
 	//user
 	router.Handle("/user/profile", chain.Then(useTemplateHandler(ctx, c.AdminProfileHandler))).Methods("GET")

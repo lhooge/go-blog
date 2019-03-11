@@ -249,7 +249,7 @@ func doAdminGetArticleByIDRequest(user reqUser, articleID int) (*models.Article,
 	}
 
 	rw := httptest.NewRecorder()
-	tpl := controllers.AdminGetArticleByIDHandler(ctx, rw, r.buildRequest())
+	tpl := controllers.AdminPreviewArticleByIDHandler(ctx, rw, r.buildRequest())
 
 	if tpl.Err != nil {
 		return nil, tpl.Err

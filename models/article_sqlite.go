@@ -151,8 +151,8 @@ func (rdb SQLiteArticleDatasource) GetBySlug(slug string, u *User, pc PublishedC
 
 // Update updates an aricle
 func (rdb SQLiteArticleDatasource) Update(a *Article) error {
-	if _, err := rdb.SQLConn.Exec("UPDATE article SET headline=?, teaser=?, content=?, last_modified=?, category_id=? WHERE id=? ", a.Headline, &a.Teaser, a.Content,
-		time.Now(), a.CID, a.ID); err != nil {
+	if _, err := rdb.SQLConn.Exec("UPDATE article SET headline=?, teaser=?, slug=?, content=?, last_modified=?, category_id=? WHERE id=? ", a.Headline, &a.Teaser, a.Slug,
+		a.Content, time.Now(), a.CID, a.ID); err != nil {
 		return err
 	}
 
