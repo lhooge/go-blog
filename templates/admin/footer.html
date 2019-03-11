@@ -144,6 +144,24 @@
 				},
 			})
 		};
+		
+		var toggleContainer = function() {
+			let ahref = document.getElementById('toggleContainer');
+			let val = ahref.text
+			
+			let div = document.getElementById('hiddenContainer');
+			if (div.style.display !== 'none') {
+				div.style.display = 'none';
+				
+				ahref.text = val.replace("⇈", "⇊"); 
+			}
+			else {
+				div.style.display = 'block';
+				
+				ahref.text = val.replace("⇊", "⇈"); 
+			}
+			return false;
+		};
 
 		let curPath = window.location.pathname;
 		let autoSaveInterval=5*1000;
