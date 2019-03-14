@@ -11,11 +11,15 @@ Prerequisites
 
 Configuration
 --------
- * create a "custom" folder
+ * create a "custom" folder in 
  * copy go-blog.conf into custom/ folder
  * edit custom/go-blog.conf to your needs
 
 ### SQLite setup ###
+
+Create the initial database: 
+
+./init_database -sqlite /path/to/your/sqlite/database 
 
 ~~~
   sqlite_file = /path/to/your/sqlite/database

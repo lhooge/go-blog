@@ -27,7 +27,7 @@ package:
 	mkdir -p ${TMP}/clt
 	-mkdir -p releases
 	cp ${GOPATH}/bin/go-blog ${TMP}/
-	cp ${GOPATH}/bin/create_user  ${TMP}/clt
+	cp ${GOPATH}/bin/create_user ${TMP}/clt
 	cp ${GOPATH}/bin/init_database ${TMP}/clt
 	cp go-blog.conf ${TMP}/
 	cp -r examples/ ${TMP}/
