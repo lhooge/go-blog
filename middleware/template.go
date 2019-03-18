@@ -7,6 +7,7 @@ package middleware
 import (
 	"database/sql"
 	"fmt"
+	"html"
 	"html/template"
 	"net/http"
 	"os"
@@ -66,20 +67,30 @@ func NotFound(ctx *AppContext, rw http.ResponseWriter, r *http.Request) *Templat
 func FuncMap(ss models.SiteService, settings *settings.Settings) template.FuncMap {
 	return template.FuncMap{
 		"GetMetadata": func(data map[string]interface{}) template.HTML {
-			var meta string
+			var meta, desc string
 
 			if len(settings.Description) > 0 {
-				meta = fmt.Sprintf("<meta name=\"description\" content=\"%s\">\n", settings.Description)
-			}
+				desc := settings.Description
 
-			if value, ok := data["article"]; ok {
+				if len(desc) > 200 {
+					desc = desc[0:200] + "..."
+				}
+
+				meta = fmt.Sprintf("<meta name=\"description\" content=\"%s\">\n", html.EscapeString(desc))
+			} else if value, ok := data["article"]; ok {
 				if art, ok := value.(*models.Article); ok {
-					meta = fmt.Sprintf("<meta name=\"description\" content=\"%s\">\n", art.Teaser)
-					meta += fmt.Sprintf("\t\t<meta name=\"author\" content=\"%s\">\n", art.Author.DisplayName)
+					desc = art.Teaser
+
+					if len(desc) > 200 {
+						desc = desc[0:200] + "..."
+					}
+
+					meta = fmt.Sprintf("<meta name=\"description\" content=\"%s\">\n", html.EscapeString(desc))
+					meta += fmt.Sprintf("\t\t<meta name=\"author\" content=\"%s\">\n", html.EscapeString(art.Author.DisplayName))
 				}
 			} else if value, ok := data["site"]; ok {
 				if site, ok := value.(*models.Site); ok {
-					meta = fmt.Sprintf("\t\t<meta name=\"author\" content=\"%s\">\n", site.Author.DisplayName)
+					meta = fmt.Sprintf("\t\t<meta name=\"author\" content=\"%s\">\n", html.EscapeString(site.Author.DisplayName))
 				}
 			}
 			return template.HTML(meta)
@@ -151,6 +162,9 @@ func FuncMap(ss models.SiteService, settings *settings.Settings) template.FuncMa
 		"NToBr": func(in string) template.HTML {
 			out := models.NewlineToBr(models.EscapeHTML(in))
 			return template.HTML(out)
+		},
+		"EscapeHTML": func(in string) string {
+			return html.EscapeString(in)
 		},
 		"GetSites": func() []models.Site {
 			sites, err := ss.List(models.OnlyPublished, nil)
