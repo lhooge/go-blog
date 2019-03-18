@@ -2,7 +2,6 @@ BINARYNAME=go-blog
 TMP=tmp
 GITHASH=$(shell git rev-parse HEAD)
 BUILD_VERSION=$(shell git describe --tags)
-BUILD_DATE=$(shell date -u '+%Y-%m-%d %I:%M:%S %Z')
 
 RELEASE="releases"
 
@@ -10,7 +9,7 @@ LDFLAGS=-ldflags '-X main.BuildVersion=${BUILD_VERSION} -X main.GitHash=${GITHAS
 
 .PHONY: clean build-release build lint install package vet fmt test
 
-build-release: clean fmt vet test build package
+build-release: clean tidy fmt vet test build package
 
 build:
 	go build ${LDFLAGS} -o ${GOPATH}/bin/go-blog
@@ -46,3 +45,6 @@ test:
 
 clean:
 	go clean -i ./...
+
+tidy:
+	go mod tidy
