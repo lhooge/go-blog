@@ -8,6 +8,8 @@ git.hoogi.eu/session v0.0.0-20181225115814-bdd76b51c632 h1:FsRJhrQ3yKkyKkxfRySXd
 git.hoogi.eu/session v0.0.0-20181225115814-bdd76b51c632/go.mod h1:8kO8zJUJvSAMkeQ3rUcGvj7OlffoZnMh0Uk6Wt0F5XQ=
 git.hoogi.eu/session v1.0.0 h1:e4vdVnkSsI/sLjGq49JB+qiJbAP3Erbq/jYM2WUAVAc=
 git.hoogi.eu/session v1.0.0/go.mod h1:8kO8zJUJvSAMkeQ3rUcGvj7OlffoZnMh0Uk6Wt0F5XQ=
+git.hoogi.eu/session v1.1.0 h1:8skqhdUj+uJ7H3hxs0/mAuF2/G56gqpYWJC7KdwCSEE=
+git.hoogi.eu/session v1.1.0/go.mod h1:pYq481XvKXjA6RQ2vp+XYHyYLolajqMIn72q57/vO5Y=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/gorilla/context v1.1.1/go.mod h1:kBGZzfjB9CEq2AlWe17Uuf7NDRt0dE0s8S51q0aT7Yg=
 github.com/gorilla/csrf v1.5.1 h1:UASc2+EB0T51tvl6/2ls2ciA8/qC7KdTO7DsOEKbttQ=

@@ -10,7 +10,7 @@ LDFLAGS=-ldflags '-X main.BuildVersion=${BUILD_VERSION} -X main.GitHash=${GITHAS
 
 .PHONY: clean build-release build lint install package vet fmt test
 
-build-release: build package
+build-release: clean fmt vet test build package
 
 build:
 	go build ${LDFLAGS} -o ${GOPATH}/bin/go-blog
@@ -42,10 +42,7 @@ fmt:
 	go fmt ./...
 
 test:
-	go test -v ./...
+	go test ./...
 
 clean:
 	go clean -i ./...
-
-lint:
-	golint ./...

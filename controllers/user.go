@@ -196,11 +196,11 @@ func AdminUserEditPostHandler(ctx *middleware.AppContext, w http.ResponseWriter,
 			}
 		}
 
-		sessions := ctx.SessionService.SessionProvider.SessionsFromValues("userid", u.ID)
+		sids := ctx.SessionService.SessionProvider.SessionIDsFromValues("userid", u.ID)
 
-		for _, s := range sessions {
-			if s.SessionID() != session.SessionID() {
-				ctx.SessionService.SessionProvider.Remove(s.SessionID())
+		for _, id := range sids {
+			if session.SessionID() != id {
+				ctx.SessionService.SessionProvider.Remove(id)
 			}
 		}
 	}
