@@ -80,11 +80,11 @@ func AdminProfilePostHandler(ctx *middleware.AppContext, w http.ResponseWriter, 
 
 		session.SetValue("userid", u.ID)
 
-		sessions := ctx.SessionService.SessionProvider.SessionsFromValues("userid", u.ID)
+		sids := ctx.SessionService.SessionProvider.SessionIDsFromValues("userid", u.ID)
 
-		for _, s := range sessions {
-			if s.SessionID() != session.SessionID() {
-				ctx.SessionService.SessionProvider.Remove(s.SessionID())
+		for _, sid := range sids {
+			if sid != session.SessionID() {
+				ctx.SessionService.SessionProvider.Remove(sid)
 			}
 		}
 	}
