@@ -77,7 +77,9 @@ func FuncMap(ss models.SiteService, settings *settings.Settings) template.FuncMa
 				}
 
 				meta = fmt.Sprintf("<meta name=\"description\" content=\"%s\">\n", html.EscapeString(desc))
-			} else if value, ok := data["article"]; ok {
+			}
+
+			if value, ok := data["article"]; ok {
 				if art, ok := value.(*models.Article); ok {
 					desc = art.Teaser
 
@@ -88,9 +90,18 @@ func FuncMap(ss models.SiteService, settings *settings.Settings) template.FuncMa
 					meta = fmt.Sprintf("<meta name=\"description\" content=\"%s\">\n", html.EscapeString(desc))
 					meta += fmt.Sprintf("\t\t<meta name=\"author\" content=\"%s\">\n", html.EscapeString(art.Author.DisplayName))
 				}
-			} else if value, ok := data["site"]; ok {
+			}
+
+			if value, ok := data["site"]; ok {
 				if site, ok := value.(*models.Site); ok {
-					meta = fmt.Sprintf("\t\t<meta name=\"author\" content=\"%s\">\n", html.EscapeString(site.Author.DisplayName))
+					desc = site.Content
+
+					if len(desc) > 200 {
+						desc = desc[0:200] + "..."
+					}
+
+					meta = fmt.Sprintf("<meta name=\"description\" content=\"%s\">\n", html.EscapeString(desc))
+					meta += fmt.Sprintf("\t\t<meta name=\"author\" content=\"%s\">\n", html.EscapeString(site.Author.DisplayName))
 				}
 			}
 			return template.HTML(meta)
@@ -157,7 +168,7 @@ func FuncMap(ss models.SiteService, settings *settings.Settings) template.FuncMa
 			return p.PaginationBar()
 		},
 		"ParseMarkdown": func(s string) template.HTML {
-			return template.HTML(models.MarkdownToHTML(s))
+			return template.HTML(models.MarkdownToHTML([]byte(s)))
 		},
 		"NToBr": func(in string) template.HTML {
 			out := models.NewlineToBr(models.EscapeHTML(in))

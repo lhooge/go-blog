@@ -5,6 +5,7 @@
 package models
 
 import (
+	"bytes"
 	"html/template"
 	"strings"
 
@@ -30,13 +31,15 @@ func init() {
 }
 
 //MarkdownToHTML sanitizes and parses markdown to HTML
-func MarkdownToHTML(md string) string {
-	md = strings.Replace(md, "\r\n", "\n", -1)
-	return sanitize(string(bf.Run([]byte(md), bf.WithExtensions(exts))))
+func MarkdownToHTML(md []byte) []byte {
+	md = bytes.Replace(md, []byte("\r\n"), []byte("\n"), -1)
+	unsafe := bf.Run((md), bf.WithExtensions(exts))
+
+	return sanitize(unsafe)
 }
 
-func sanitize(in string) string {
-	return p.Sanitize(in)
+func sanitize(in []byte) []byte {
+	return p.SanitizeBytes(in)
 }
 
 func EscapeHTML(in string) string {

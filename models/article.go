@@ -273,7 +273,6 @@ func (as ArticleService) RSSFeed(p *Pagination, pc PublishedCriteria) (RSS, erro
 
 	items := []RSSItem{}
 	for _, a := range articles {
-		fmt.Println(sanitize(a.Teaser))
 		link := fmt.Sprint(as.AppConfig.Domain, "/article/by-id/", a.ID)
 		item := RSSItem{
 			GUID:        link,
