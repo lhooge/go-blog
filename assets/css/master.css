@@ -23,21 +23,25 @@ body {
 		"header header header header"
 		"nav content content sidebar"
 		"footer footer footer footer"
-  	;
+	;
 }
 
 @media screen and (max-width: 39em) {
 	.container {
+		height: 100vh;
 		grid-template-areas: 	"header"
 								"nav"
 								"content"
-								"sidebar";
+								"sidebar"
+								"footer"
+								;
 		grid-template-columns: 100%;
 		grid-template-rows:
 							80px
-							auto
-							minmax(30px, auto)
-							auto
+							min-content
+							min-content
+							min-content
+							40px
 							;
 	}
 }
@@ -61,11 +65,11 @@ body {
 								"content"
 								"footer";
 		grid-template-columns: 100%;
-		justify-content: stretch;
-		grid-template-rows:	80px
-							auto
-						   	auto
-						   	auto;
+		grid-template-rows:		
+							80px
+							min-content
+							min-content
+							40px;
 	}
 
 	.container-admin #header-text {
@@ -285,10 +289,10 @@ aside li {
 }
 
 main a[href^='http'] {
-    background: url('../svg/external-link.svg') no-repeat left center;
-    background-size: 10px 10px;
-    display: inline-block;
-    padding-left: 15px;
+	background: url('../svg/external-link.svg') no-repeat left center;
+	background-size: 10px 10px;
+	display: inline-block;
+	padding-left: 15px;
 }
 
 code {
@@ -309,11 +313,11 @@ article {
 }
 
 main h1 {
-  margin-top: 1em;
+	margin-top: 1em;
 }
 
 main h2 {
-  margin-top: 0.8em;
+	margin-top: 0.8em;
 }
 
 main h3 {
@@ -331,8 +335,8 @@ main ul {
 }
 
 main ul li {
-  padding-left: 0.2em;
-  line-height: 1.5;
+	padding-left: 0.2em;
+	line-height: 1.5;
 }
 
 main ul li p {
@@ -346,14 +350,14 @@ main ol {
 }
 
 main p {
-  margin-top: 0.8em;
-  line-height: 1.5;
+	margin-top: 0.8em;
+	line-height: 1.5;
 }
 
 #pagination {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
 }
 
 #pagination .pages {
@@ -518,11 +522,11 @@ input[type='submit']:hover, input[type='submit']:focus {
 }
 
 .button-inactive {
-    background-color: #fffaf0;
-    color: black;
-    pointer-events: none;
-    cursor: default;
-    text-decoration: none;
+	background-color: #fffaf0;
+	color: black;
+	pointer-events: none;
+	cursor: default;
+	text-decoration: none;
 }
 
 .action-data button:not(:first-child),
@@ -532,10 +536,10 @@ input[type='submit']:hover, input[type='submit']:focus {
 }
 
 .action-data a[href^='http'] {
-    background: url('../svg/external-link.svg') no-repeat left center;
-    background-size: 10px 10px;
-    display: inline-block;
-    padding-left: 15px;
+	background: url('../svg/external-link.svg') no-repeat left center;
+	background-size: 10px 10px;
+	display: inline-block;
+	padding-left: 15px;
 	margin-left: 5px;
 }
 
