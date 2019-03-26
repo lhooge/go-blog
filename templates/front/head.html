@@ -4,7 +4,7 @@
 <html{{if Language}} lang="{{Language}}"{{end}}>
     <head>
 		<meta charset="UTF-8">
-		<title>{{PageTitle}} {{if .actual}} | {{.actual}} {{end}}{{if $.site}}{{if $.site.Link}} | {{$.site.Link}}{{end}}{{end}}</title>
+		<title>{{GetTitle .}}</title>
 		<meta name="viewport" content="width=device-width,initial-scale=1.0">
 
 		{{if not OverwriteCSS}}

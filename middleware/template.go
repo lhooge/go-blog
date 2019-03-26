@@ -70,7 +70,7 @@ func FuncMap(ss models.SiteService, settings *settings.Settings) template.FuncMa
 			var meta, desc string
 
 			if len(settings.Description) > 0 {
-				desc := settings.Description
+				desc = settings.Description
 
 				if len(desc) > 200 {
 					desc = desc[0:200] + "..."
@@ -105,6 +105,20 @@ func FuncMap(ss models.SiteService, settings *settings.Settings) template.FuncMa
 				}
 			}
 			return template.HTML(meta)
+		},
+		"GetTitle": func(data map[string]interface{}) string {
+			if value, ok := data["article"]; ok {
+				if art, ok := value.(*models.Article); ok {
+					return art.Headline
+				}
+			}
+
+			if value, ok := data["site"]; ok {
+				if site, ok := value.(*models.Site); ok {
+					return site.Link
+				}
+			}
+			return settings.Title
 		},
 		"Language": func() string {
 			return settings.Language
