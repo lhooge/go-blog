@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"database/sql"
 	"errors"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -26,7 +27,7 @@ func AdminProfileHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *h
 	}
 }
 
-//AdminProfilePostHandler handles the updating of the user profile
+//AdminProfilePostHandler handles the updating of the user profile which is currently logged in
 func AdminProfilePostHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
 	ctxUser, _ := middleware.User(r)
 	ctxUser.PlainPassword = []byte(r.FormValue("current_password"))
@@ -63,7 +64,7 @@ func AdminProfilePostHandler(ctx *middleware.AppContext, w http.ResponseWriter, 
 			return &middleware.Template{
 				Name:   tplAdminProfile,
 				Active: "profile",
-				Err:    httperror.New(http.StatusUnprocessableEntity, "Please check your retyped password", errors.New("the password did not match the retyped one")),
+				Err:    httperror.New(http.StatusUnprocessableEntity, "The passwords entered do not match.", errors.New("the password entered did not match")),
 				Data: map[string]interface{}{
 					"user": u,
 				},
@@ -103,13 +104,14 @@ func AdminProfilePostHandler(ctx *middleware.AppContext, w http.ResponseWriter, 
 	return &middleware.Template{
 		RedirectPath: "admin/user/profile",
 		Active:       "profile",
-		SuccessMsg:   "Your profile update was successful",
+		SuccessMsg:   "Your profile was successfully updated.",
 		Data: map[string]interface{}{
 			"user": u,
 		},
 	}
 }
 
+//ActivateAccountHandler shows the form to activate an account.
 func ActivateAccountHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
 	hash := getVar(r, "hash")
 
@@ -119,7 +121,7 @@ func ActivateAccountHandler(ctx *middleware.AppContext, w http.ResponseWriter, r
 		if err == sql.ErrNoRows {
 			return &middleware.Template{
 				Name: tplAdminLogin,
-				Err:  httperror.New(http.StatusNotFound, "Could not find an invitation", errors.New("the invitation was not found")),
+				Err:  httperror.New(http.StatusNotFound, "Can't find an invitation.", fmt.Errorf("the invitation with hash %s was not found", hash)),
 			}
 		}
 
@@ -137,8 +139,9 @@ func ActivateAccountHandler(ctx *middleware.AppContext, w http.ResponseWriter, r
 	}
 }
 
+//ActivateAccountPostHandler activates an user account
 func ActivateAccountPostHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
-	// Delete any cookies if user is logged in
+	// Delete any cookies if an user is logged in
 	ctx.SessionService.Remove(w, r)
 
 	password := r.FormValue("password")
@@ -148,7 +151,7 @@ func ActivateAccountPostHandler(ctx *middleware.AppContext, w http.ResponseWrite
 	if !bytes.Equal([]byte(password), []byte(repassword)) {
 		return &middleware.Template{
 			Name: tplAdminActivateAccount,
-			Err:  httperror.New(http.StatusUnprocessableEntity, "Please check your retyped password", errors.New("the password did not match the retyped one")),
+			Err:  httperror.New(http.StatusUnprocessableEntity, "The passwords entered do not match.", errors.New("the password entered did not match")),
 			Data: map[string]interface{}{
 				"hash": hash,
 			},
@@ -161,7 +164,7 @@ func ActivateAccountPostHandler(ctx *middleware.AppContext, w http.ResponseWrite
 		if err == sql.ErrNoRows {
 			return &middleware.Template{
 				Name: tplAdminLogin,
-				Err:  httperror.New(http.StatusNotFound, "Could not find the invitation", errors.New("the invitation was not found")),
+				Err:  httperror.New(http.StatusNotFound, "Can't find an invitation.", fmt.Errorf("the invitation with hash %s was not found", hash)),
 			}
 		}
 
@@ -197,7 +200,7 @@ func ActivateAccountPostHandler(ctx *middleware.AppContext, w http.ResponseWrite
 	}
 }
 
-//ResetPasswordHandler returns the form for the resetting the password
+//ResetPasswordHandler returns the form for resetting the password
 func ResetPasswordHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
 	hash := getVar(r, "hash")
 
@@ -207,7 +210,7 @@ func ResetPasswordHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *
 		if err == sql.ErrNoRows {
 			return &middleware.Template{
 				Name: tplAdminForgotPassword,
-				Err:  httperror.New(http.StatusNotFound, "The token was not found. Fill out the form to receive another token", errors.New("the token was not found")),
+				Err:  httperror.New(http.StatusNotFound, "The token was not found. Please fill out the form to receive another token.", errors.New("the token to reset the password was not found")),
 			}
 		}
 		return &middleware.Template{
@@ -251,7 +254,7 @@ func ResetPasswordPostHandler(ctx *middleware.AppContext, w http.ResponseWriter,
 	if password != repassword {
 		return &middleware.Template{
 			Name: tplAdminResetPassword,
-			Err:  httperror.New(http.StatusUnprocessableEntity, "The passwords do not match", errors.New("the passwords did not match")),
+			Err:  httperror.New(http.StatusUnprocessableEntity, "The passwords entered do not match.", errors.New("the password entered did not match")),
 		}
 	}
 
@@ -276,7 +279,7 @@ func ResetPasswordPostHandler(ctx *middleware.AppContext, w http.ResponseWriter,
 
 	return &middleware.Template{
 		RedirectPath: "admin",
-		SuccessMsg:   "Your password reset was successful. Please enter your login information.",
+		SuccessMsg:   "Your password reset was successful.",
 	}
 }
 

@@ -92,7 +92,7 @@ func AdminCategoryNewPostHandler(ctx *middleware.AppContext, w http.ResponseWrit
 	return &middleware.Template{
 		RedirectPath: "admin/categories",
 		Active:       "categories",
-		SuccessMsg:   "Category successfully saved",
+		SuccessMsg:   "Category successfully saved.",
 		Data: map[string]interface{}{
 			"categoryID": id,
 		},
@@ -164,7 +164,7 @@ func AdminCategoryEditPostHandler(ctx *middleware.AppContext, w http.ResponseWri
 	return &middleware.Template{
 		RedirectPath: "admin/categories",
 		Active:       "categories",
-		SuccessMsg:   "Category successfully updated",
+		SuccessMsg:   "Category successfully updated.",
 	}
 }
 

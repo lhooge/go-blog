@@ -44,7 +44,7 @@ func AdminUserInviteNewPostHandler(ctx *middleware.AppContext, w http.ResponseWr
 	return &middleware.Template{
 		RedirectPath: "admin/users",
 		Active:       "users",
-		SuccessMsg:   "Successfully invited user " + ui.Email,
+		SuccessMsg:   fmt.Sprintf("%s %s. ", "Successfully invited user ", ui.Email),
 		Data: map[string]interface{}{
 			"inviteID": inviteID,
 			"hash":     ui.Hash,
@@ -78,7 +78,7 @@ func AdminUserInviteResendPostHandler(ctx *middleware.AppContext, w http.Respons
 	return &middleware.Template{
 		RedirectPath: "admin/users",
 		Active:       "users",
-		SuccessMsg:   "Successfully invited user " + ui.Email,
+		SuccessMsg:   fmt.Sprintf("%s %s. ", "Successfully invited user ", ui.Email),
 		Data: map[string]interface{}{
 			"inviteID": inviteID,
 			"hash":     ui.Hash,

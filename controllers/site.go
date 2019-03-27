@@ -15,7 +15,7 @@ import (
 	"git.hoogi.eu/go-blog/models"
 )
 
-//SiteHandler returns the site template only published sites are considered
+//GetSiteHandler returns the site template - only published sites are considered
 func GetSiteHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
 	site, err := ctx.SiteService.GetByLink(getVar(r, "site"), models.OnlyPublished)
 
@@ -40,7 +40,7 @@ func GetSiteHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.R
 	}
 }
 
-//SiteHandler returns the site template only published sites are considered
+//AdminGetSiteHandler returns the template containing the sites
 func AdminGetSiteHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
 	reqVar := getVar(r, "siteID")
 
@@ -240,7 +240,7 @@ func AdminSiteEditPostHandler(ctx *middleware.AppContext, w http.ResponseWriter,
 	return &middleware.Template{
 		RedirectPath: "admin/sites",
 		Active:       "sites",
-		SuccessMsg:   "Successfully edited site " + s.Title,
+		SuccessMsg:   fmt.Sprintf("%s %s.", "Successfully edited site", s.Title),
 	}
 }
 
@@ -282,7 +282,7 @@ func AdminSiteOrderHandler(ctx *middleware.AppContext, w http.ResponseWriter, r 
 	return &middleware.Template{
 		RedirectPath: "admin/sites",
 		Active:       "sites",
-		SuccessMsg:   "Site successfully reordered",
+		SuccessMsg:   "Site successfully reordered.",
 	}
 }
 
@@ -316,7 +316,7 @@ func AdminSitePublishHandler(ctx *middleware.AppContext, w http.ResponseWriter, 
 			ID:          "unpublishSite",
 			ActionURL:   fmt.Sprintf("/admin/site/publish/%d", s.ID),
 			BackLinkURL: "/admin/sites",
-			Description: fmt.Sprintf("%s %s?", "Do you want to unpublish the site ", s.Title),
+			Description: fmt.Sprintf("%s %s?", "Do you want to unpublish the site", s.Title),
 			Title:       "Confirm unpublishing of site",
 		}
 	} else {
@@ -324,7 +324,7 @@ func AdminSitePublishHandler(ctx *middleware.AppContext, w http.ResponseWriter, 
 			ID:          "publishSite",
 			ActionURL:   fmt.Sprintf("/admin/site/publish/%d", s.ID),
 			BackLinkURL: "/admin/sites",
-			Description: fmt.Sprintf("%s %s?", "Do you want to publish the site ", s.Title),
+			Description: fmt.Sprintf("%s %s?", "Do you want to publish the site", s.Title),
 			Title:       "Confirm publishing of site",
 		}
 	}
@@ -363,7 +363,7 @@ func AdminSitePublishPostHandler(ctx *middleware.AppContext, w http.ResponseWrit
 	return &middleware.Template{
 		RedirectPath: "admin/sites",
 		Active:       "sites",
-		SuccessMsg:   "Site successfully published",
+		SuccessMsg:   "Site successfully published.",
 	}
 }
 
@@ -434,7 +434,7 @@ func AdminSiteDeletePostHandler(ctx *middleware.AppContext, w http.ResponseWrite
 	return &middleware.Template{
 		RedirectPath: "admin/sites",
 		Active:       "sites",
-		SuccessMsg:   "Site successfully deleted",
+		SuccessMsg:   "Site successfully deleted.",
 	}
 }
 

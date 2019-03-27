@@ -11,24 +11,27 @@ Prerequisites
 
 Configuration
 --------
- * create a "custom" folder in 
+ * create a "custom" folder in the app directory
  * copy go-blog.conf into custom/ folder
  * edit custom/go-blog.conf to your needs
+ * create a user for running this application
+ * see "examples/systemd" for creating a service 
 
 ### SQLite setup ###
 
-Create the initial database: 
+Create the initial database (switch to folder clt/): 
 
 ./init_database -sqlite /path/to/your/sqlite/database 
+
+Change the config file to point to the correct sqlite database
 
 ~~~
   sqlite_file = /path/to/your/sqlite/database
 ~~~
 
-
 ### Create user with administration rights ###
 
-Create your first administrator account with createuser:
+Create your first administrator account with createuser (switch to folder clt/):
 
 ~~~
 ./createuser -admin -sqlite /path/to/your/sqlite/database -username test -email test@example.com -displayname "Hello World" -password secret1234

@@ -32,6 +32,7 @@ package:
 	cp -r examples/ ${TMP}/
 	cp -r templates/ ${TMP}/
 	cp -r assets/ ${TMP}/
+	cp README.md ${TMP}/
 	cd ${TMP} && tar -czvf ../releases/$(BINARYNAME)_$(BUILD_VERSION).tar.gz * && cd -
 
 vet:

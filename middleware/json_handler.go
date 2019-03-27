@@ -14,8 +14,6 @@ import (
 )
 
 // JSONHandler marshals JSON and writes to the http response
-// Currently just used for keeping the session alive (if writing or editing an article or site)
-// see controllers/json/session.go
 type JSONHandler struct {
 	AppCtx  *AppContext
 	Handler JHandler

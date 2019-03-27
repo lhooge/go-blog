@@ -10,21 +10,21 @@ import (
 )
 
 //Error enriches the original go error type with
-//DisplayMsg the description for the displaying message; shown to the user
-//HTTPStatus is returned as response code in the middleware.AppHandler
-//Error the error if available which is logged internally
+//DisplayMsg the description for the displaying message
+//HTTPStatus the HTTP status code
+//Err the internal error it should not be shown to the user
 type Error struct {
 	DisplayMsg string `json:"display_message"`
 	HTTPStatus int    `json:"status"`
 	Err        error  `json:"-"`
 }
 
-//New convenient function to returns a new error
+//New returns a new error
 func New(httpStatus int, displayMsg string, err error) *Error {
 	return &Error{DisplayMsg: displayMsg, Err: err, HTTPStatus: httpStatus}
 }
 
-//PermissionDenied returns a permission denied message with code 403 to the user on a specific action and subject.
+//PermissionDenied returns a permission denied message with code 403.
 //The following display message is returned: "You are not allowed to [action] the [subject]."
 func PermissionDenied(action, subject string, err error) *Error {
 	return &Error{
@@ -34,8 +34,8 @@ func PermissionDenied(action, subject string, err error) *Error {
 	}
 }
 
-//NotFound returns a not found message with code 404 on a resource.
-//The following display message is returned: "The %s was not found."
+//NotFound returns a not found message with code 404.
+//The following display message is returned: "The [res] was not found."
 func NotFound(res string, err error) *Error {
 	return &Error{
 		HTTPStatus: http.StatusNotFound,
@@ -45,12 +45,12 @@ func NotFound(res string, err error) *Error {
 }
 
 //ValueTooLong returns the following display message with code 422.
-//Display message: "The value of [param] is too long. Maximum %d characters are allowed."
-func ValueTooLong(param string, nChars int) *Error {
+//Display message: "The value of [param] is too long. Maximum [nchars] characters are allowed."
+func ValueTooLong(param string, nchars int) *Error {
 	return &Error{
 		HTTPStatus: http.StatusUnprocessableEntity,
-		Err:        fmt.Errorf("the value of field %s is too long (%d characters are allowed.)", param, nChars),
-		DisplayMsg: fmt.Sprintf("The value of %s is too long. Maximum %d characters are allowed.", param, nChars),
+		Err:        fmt.Errorf("the value of field %s is too long (%d characters are allowed.)", param, nchars),
+		DisplayMsg: fmt.Sprintf("The value of %s is too long. Maximum %d characters are allowed.", param, nchars),
 	}
 }
 
