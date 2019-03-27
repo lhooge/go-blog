@@ -60,7 +60,7 @@ func (fh FileHandler) FileGetHandler(w http.ResponseWriter, r *http.Request) {
 	http.ServeContent(w, r, loc, f.LastModified, rf)
 }
 
-//AdminListFilesHandler returns the template which lists alle uploaded files belonging to a user, admins will see all files
+//AdminListFilesHandler returns the template which lists all uploaded files belonging to a user, admins will see all files
 func AdminListFilesHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
 	u, _ := middleware.User(r)
 
@@ -138,7 +138,7 @@ func AdminToggleInlineFilePostHandler(ctx *middleware.AppContext, w http.Respons
 	return &middleware.Template{
 		Active:       "files",
 		RedirectPath: "/admin/files",
-		SuccessMsg:   "File successfully updated",
+		SuccessMsg:   "File successfully updated.",
 	}
 }
 
@@ -168,7 +168,7 @@ func AdminUploadFilePostHandler(ctx *middleware.AppContext, w http.ResponseWrite
 
 	return &middleware.Template{
 		RedirectPath: "/admin/files",
-		SuccessMsg:   "Successfully uploaded file",
+		SuccessMsg:   "Successfully uploaded file.",
 		Active:       "files",
 	}
 }
@@ -226,7 +226,7 @@ func AdminUploadDeleteHandler(ctx *middleware.AppContext, w http.ResponseWriter,
 	action := models.Action{
 		ID:          "deleteFile",
 		ActionURL:   fmt.Sprintf("/admin/file/delete/%d", f.ID),
-		Description: fmt.Sprintf("%s %s?", "Do you want to delete the file ", f.UniqueName),
+		Description: fmt.Sprintf("%s %s?", "Do you want to delete the file", f.UniqueName),
 		Title:       "Confirm removal of file",
 	}
 
@@ -260,7 +260,7 @@ func AdminUploadDeletePostHandler(ctx *middleware.AppContext, w http.ResponseWri
 	warnMsg := ""
 	if err != nil {
 		if e, ok := err.(*os.PathError); ok && e.Err == syscall.ENOENT {
-			warnMsg = "File removed from database, but was not found in filesystem anymore"
+			warnMsg = "File removed from database, but was not found in filesystem anymore."
 		} else {
 			return &middleware.Template{
 				RedirectPath: "/admin/files",
@@ -273,7 +273,7 @@ func AdminUploadDeletePostHandler(ctx *middleware.AppContext, w http.ResponseWri
 	return &middleware.Template{
 		Active:       "files",
 		RedirectPath: "admin/files",
-		SuccessMsg:   "File successfully deleted",
+		SuccessMsg:   "File successfully deleted.",
 		WarnMsg:      warnMsg,
 	}
 }

@@ -17,7 +17,7 @@ import (
 )
 
 //GetArticleHandler returns a specific article
-//Parameters in the url form 2016/03/my-headline are used for obtaining the article
+//Parameters in the url form 2016/3/my-headline are used for obtaining the article
 func GetArticleHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
 	year := getVar(r, "year")
 	month := getVar(r, "month")
@@ -577,18 +577,18 @@ func AdminArticlePublishHandler(ctx *middleware.AppContext, w http.ResponseWrite
 
 	if a.Published {
 		action = models.Action{
-			ID:          "unpublishSite",
+			ID:          "unpublishArticle",
 			ActionURL:   fmt.Sprintf("/admin/article/publish/%d", a.ID),
 			BackLinkURL: "/admin/articles",
-			Description: fmt.Sprintf("%s %s?", "Do you want to unpublish the article ", a.Headline),
+			Description: fmt.Sprintf("%s %s?", "Do you want to unpublish the article", a.Headline),
 			Title:       "Confirm unpublishing of article",
 		}
 	} else {
 		action = models.Action{
-			ID:          "publishSite",
+			ID:          "publishArticle",
 			ActionURL:   fmt.Sprintf("/admin/article/publish/%d", a.ID),
 			BackLinkURL: "/admin/articles",
-			Description: fmt.Sprintf("%s %s?", "Do you want to publish the article ", a.Headline),
+			Description: fmt.Sprintf("%s %s?", "Do you want to publish the article", a.Headline),
 			Title:       "Confirm publishing of article",
 		}
 	}
@@ -627,7 +627,7 @@ func AdminArticlePublishPostHandler(ctx *middleware.AppContext, w http.ResponseW
 	return &middleware.Template{
 		RedirectPath: "admin/articles",
 		Active:       "articles",
-		SuccessMsg:   "Article successfully published",
+		SuccessMsg:   "Article successfully published.",
 	}
 }
 
@@ -661,7 +661,7 @@ func AdminArticleDeleteHandler(ctx *middleware.AppContext, w http.ResponseWriter
 		ID:          "deleteArticle",
 		ActionURL:   fmt.Sprintf("/admin/article/delete/%d", a.ID),
 		BackLinkURL: "/admin/articles",
-		Description: fmt.Sprintf("%s %s?", "Do you want to delete the article", a.Headline),
+		Description: fmt.Sprintf("%s %s?", "Do you want to delete the article ", a.Headline),
 		Title:       "Confirm removal of article",
 	}
 
@@ -700,7 +700,7 @@ func AdminArticleDeletePostHandler(ctx *middleware.AppContext, w http.ResponseWr
 	return &middleware.Template{
 		Active:       "articles",
 		RedirectPath: "admin/articles",
-		SuccessMsg:   "Article successfully deleted",
+		SuccessMsg:   "Article successfully deleted.",
 	}
 }
 

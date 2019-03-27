@@ -12,7 +12,7 @@ import (
 	"git.hoogi.eu/session"
 )
 
-//AppContext contains the services, session store, templates
+//AppContext contains the services, session store, templates, ...
 type AppContext struct {
 	SessionService    *session.SessionService
 	ArticleService    models.ArticleService

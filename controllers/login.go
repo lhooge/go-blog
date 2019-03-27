@@ -79,7 +79,7 @@ func LogoutHandler(ctx *middleware.AppContext, rw http.ResponseWriter, r *http.R
 
 	return &middleware.Template{
 		RedirectPath: "admin",
-		SuccessMsg:   "Successfully logged out",
+		SuccessMsg:   "Successfully logged out.",
 	}
 }
 

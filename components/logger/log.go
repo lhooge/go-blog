@@ -22,7 +22,7 @@ var Log = logrus.New()
 // error
 // fatal
 // panic
-func InitLogger(file io.Writer, level string) {
+func InitLogger(w io.Writer, level string) {
 	level = strings.ToLower(level)
 
 	switch level {
@@ -43,6 +43,6 @@ func InitLogger(file io.Writer, level string) {
 		Log.Level = logrus.InfoLevel
 	}
 
-	Log.Out = file
+	Log.Out = w
 	Log.Formatter = &logrus.TextFormatter{FullTimestamp: true, DisableColors: true}
 }

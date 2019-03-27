@@ -25,6 +25,7 @@ func (m Mail) validate() error {
 	return nil
 }
 
+//NewMailService returns a new Service with specified config
 func NewMailService(subjectPrefix, from string, smtpConfig SMTPConfig) Service {
 	s := Service{
 		SubjectPrefix: subjectPrefix,

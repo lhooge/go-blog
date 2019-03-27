@@ -233,7 +233,7 @@ func AdminUserDeleteHandler(ctx *middleware.AppContext, w http.ResponseWriter, r
 			RedirectPath: "admin/users",
 			Active:       "users",
 			Err: httperror.New(http.StatusUnprocessableEntity,
-				"Could not remove administrator. No Administrator would remain.",
+				"Could not remove administrator. No administrator would remain.",
 				fmt.Errorf("could not remove administrator %s no administrator would remain", user.Username)),
 		}
 	}
