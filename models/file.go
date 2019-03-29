@@ -4,11 +4,9 @@ import (
 	"bytes"
 	"fmt"
 	"io/ioutil"
-	"mime"
 	"net/http"
 	"os"
 	"path/filepath"
-	"strconv"
 	"strings"
 	"time"
 
@@ -72,8 +70,6 @@ func (f File) randomFilename() string {
 		sanFilename = "unnamed"
 	}
 	buf.WriteString(sanFilename)
-	buf.WriteString("-")
-	buf.WriteString(strconv.Itoa(int(time.Now().Unix())))
 	buf.WriteString(f.FileInfo.Extension)
 	return buf.String()
 }
@@ -198,13 +194,6 @@ func (fs FileService) Upload(f *File) (int, error) {
 				http.StatusUnprocessableEntity,
 				"The file type is not supported.",
 				fmt.Errorf("error during upload, the file type %s is not supported", f.FileInfo.Extension))
-		} else {
-			if !strings.HasPrefix(mime.TypeByExtension(f.FileInfo.Extension), f.ContentType) {
-				return -1, httperror.New(
-					http.StatusUnprocessableEntity,
-					"The file type does not contain the expected content.",
-					fmt.Errorf("error during upload, the file type %s is not related to the mime type %s", f.FileInfo.Extension, f.ContentType))
-			}
 		}
 	}
 
