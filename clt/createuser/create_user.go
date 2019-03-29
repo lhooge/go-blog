@@ -10,11 +10,13 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"syscall"
 
 	"git.hoogi.eu/go-blog/components/database"
 	"git.hoogi.eu/go-blog/components/logger"
 	"git.hoogi.eu/go-blog/models"
 	"git.hoogi.eu/go-blog/utils"
+	"golang.org/x/crypto/ssh/terminal"
 )
 
 type createUserFlag struct {
@@ -37,18 +39,27 @@ func main() {
 	fmt.Printf("create_user version %s\n", BuildVersion)
 
 	username := flag.String("username", "", "Username for the admin user ")
-	password := flag.String("password", "", "Password for the admin user ")
 	email := flag.String("email", "", "Email for the created user ")
 	displayName := flag.String("displayname", "", "Display name for the admin user ")
 	isAdmin := flag.Bool("admin", false, "If set a new administrator will be created; otherwise a non-admin is created")
 	file := flag.String("sqlite", "", "Location to the sqlite3 database file")
+
+	fmt.Printf("Password: ")
+	pw, err := terminal.ReadPassword(int(syscall.Stdin))
+
+	if err != nil {
+		fmt.Printf("could not read password %v", err)
+		os.Exit(1)
+	}
+
+	fmt.Println()
 
 	flag.Parse()
 
 	if flag.Parsed() {
 		initUser := createUserFlag{
 			username:    *username,
-			password:    *password,
+			password:    string(pw),
 			email:       *email,
 			displayName: *displayName,
 			admin:       *isAdmin,
@@ -69,7 +80,7 @@ func (userFlags createUserFlag) CreateUser() error {
 		return fmt.Errorf("the username (-username) must be specified")
 	}
 	if utils.TrimmedStringIsEmpty(userFlags.password) {
-		return fmt.Errorf("the password (-password) must be specified")
+		return fmt.Errorf("the password is empty")
 	}
 	if utils.TrimmedStringIsEmpty(userFlags.email) {
 		return fmt.Errorf("the email (-email) must be specified")
