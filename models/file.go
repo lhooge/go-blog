@@ -2,13 +2,13 @@ package models
 
 import (
 	"bytes"
+	"database/sql"
+	"errors"
 	"fmt"
 	"io/ioutil"
-	"mime"
 	"net/http"
 	"os"
 	"path/filepath"
-	"strconv"
 	"strings"
 	"time"
 
@@ -72,8 +72,6 @@ func (f File) randomFilename() string {
 		sanFilename = "unnamed"
 	}
 	buf.WriteString(sanFilename)
-	buf.WriteString("-")
-	buf.WriteString(strconv.Itoa(int(time.Now().Unix())))
 	buf.WriteString(f.FileInfo.Extension)
 	return buf.String()
 }
@@ -185,7 +183,7 @@ func (fs FileService) Upload(f *File) (int, error) {
 
 	f.FileInfo = SplitFilename(f.FullFilename)
 
-	if len(f.FileInfo.Extension) == 0 && !strings.HasPrefix("text/plain", f.ContentType) {
+	if len(f.FileInfo.Extension) == 0 && !strings.HasPrefix(f.ContentType, "text/plain") {
 		return -1, httperror.New(
 			http.StatusUnprocessableEntity,
 			"The file has no extension and does not contain plain text.",
@@ -198,21 +196,29 @@ func (fs FileService) Upload(f *File) (int, error) {
 				http.StatusUnprocessableEntity,
 				"The file type is not supported.",
 				fmt.Errorf("error during upload, the file type %s is not supported", f.FileInfo.Extension))
-		} else {
-			if !strings.HasPrefix(mime.TypeByExtension(f.FileInfo.Extension), f.ContentType) {
-				return -1, httperror.New(
-					http.StatusUnprocessableEntity,
-					"The file type does not contain the expected content.",
-					fmt.Errorf("error during upload, the file type %s is not related to the mime type %s", f.FileInfo.Extension, f.ContentType))
-			}
 		}
 	}
 
 	f.UniqueName = f.randomFilename()
 
+	file, err := fs.GetByUniqueName(f.UniqueName, nil)
+
+	if err != nil {
+		if err != sql.ErrNoRows {
+			return -1, err
+		}
+	}
+
+	if file != nil {
+		return -1, httperror.New(
+			http.StatusUnprocessableEntity,
+			"A file with this filename already exist. Please choose another filename.",
+			errors.New("a file with this filename already exist"))
+	}
+
 	fi := filepath.Join(fs.Config.Location, f.UniqueName)
 
-	err := ioutil.WriteFile(fi, f.Data, 0640)
+	err = ioutil.WriteFile(fi, f.Data, 0640)
 
 	if err != nil {
 		return -1, err

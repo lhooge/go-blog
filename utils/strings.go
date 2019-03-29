@@ -67,7 +67,7 @@ func SanitizeFilename(s string) string {
 	s = strings.TrimFunc(s, unicode.IsSpace)
 	s = removeControlCharacters(s)
 	s = substitute(s, filenameSubs)
-	s = strings.TrimFunc(s, isDot)
+	s = strings.TrimLeftFunc(s, isDot)
 	return s
 }
 
