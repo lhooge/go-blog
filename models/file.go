@@ -2,6 +2,8 @@ package models
 
 import (
 	"bytes"
+	"database/sql"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -181,7 +183,7 @@ func (fs FileService) Upload(f *File) (int, error) {
 
 	f.FileInfo = SplitFilename(f.FullFilename)
 
-	if len(f.FileInfo.Extension) == 0 && !strings.HasPrefix("text/plain", f.ContentType) {
+	if len(f.FileInfo.Extension) == 0 && !strings.HasPrefix(f.ContentType, "text/plain") {
 		return -1, httperror.New(
 			http.StatusUnprocessableEntity,
 			"The file has no extension and does not contain plain text.",
@@ -199,9 +201,24 @@ func (fs FileService) Upload(f *File) (int, error) {
 
 	f.UniqueName = f.randomFilename()
 
+	file, err := fs.GetByUniqueName(f.UniqueName, nil)
+
+	if err != nil {
+		if err != sql.ErrNoRows {
+			return -1, err
+		}
+	}
+
+	if file != nil {
+		return -1, httperror.New(
+			http.StatusUnprocessableEntity,
+			"A file with this filename already exist. Please choose another filename.",
+			errors.New("a file with this filename already exist"))
+	}
+
 	fi := filepath.Join(fs.Config.Location, f.UniqueName)
 
-	err := ioutil.WriteFile(fi, f.Data, 0640)
+	err = ioutil.WriteFile(fi, f.Data, 0640)
 
 	if err != nil {
 		return -1, err
