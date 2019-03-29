@@ -115,7 +115,7 @@ func FuncMap(ss models.SiteService, settings *settings.Settings) template.FuncMa
 
 			if value, ok := data["site"]; ok {
 				if site, ok := value.(*models.Site); ok {
-					return site.Link
+					return site.Title
 				}
 			}
 			return settings.Title
