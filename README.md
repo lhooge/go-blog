@@ -34,10 +34,10 @@ Change the config file to point to the correct sqlite database
 Create your first administrator account with createuser (switch to folder clt/):
 
 ~~~
-./createuser -admin -sqlite /path/to/your/sqlite/database -username test -email test@example.com -displayname "Hello World" -password secret1234
+./createuser -admin -sqlite /path/to/your/sqlite/database -username test -email test@example.com -displayname "Hello World" 
 ~~~
 
-Make sure -admin is set.
+Make sure -admin is set. Enter a password for the user.
 
 Licence
 -------
