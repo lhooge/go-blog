@@ -119,20 +119,20 @@
 			let json = localStorage.getItem('AUTOSAVE'+action.split('/').join('_'));
 			let obj = JSON.parse(json);
 
-      if (typeof obj === 'object' && obj !== null) {
-  			if (Object.keys(obj).length > 0) {
-  				for (let key in obj) {
-  					if(key != "action") {
-  						form.elements[key].value = obj[key]
+      		if (typeof obj === 'object' && obj !== null) {
+  				if (Object.keys(obj).length > 0) {
+  					for (let key in obj) {
+  						if(key != "action") {
+  							form.elements[key].value = obj[key]
+  						}
   					}
-  				}
 
-  				let div = document.createElement('div');
-  				let main = document.querySelector('main');
-  				div.innerHTML = '<div style="margin-top: 10px" class="alert alert-info" role="status">Unsaved changes were loaded.</div>';
-  				main.prepend(div);
-  			}
-      }
+					let div = document.createElement('div');
+					let main = document.querySelector('main');
+					div.innerHTML = '<div style="margin-top: 10px" class="alert alert-info" role="status">Unsaved changes were loaded.</div>';
+					main.prepend(div);
+  				}
+      		}
 		}
 
 		var doKeepAliveRequest = function() {
