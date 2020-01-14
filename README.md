@@ -21,7 +21,9 @@ Configuration
 
 Create the initial database (switch to folder clt/): 
 
+~~~
 ./init_database -sqlite /path/to/your/sqlite/database 
+~~~
 
 Change the config file to point to the correct sqlite database
 
