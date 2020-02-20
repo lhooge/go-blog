@@ -7,8 +7,8 @@ package controllers
 import (
 	"net/http"
 
-	"git.hoogi.eu/go-blog/middleware"
-	"git.hoogi.eu/go-blog/models"
+	"git.hoogi.eu/snafu/go-blog/middleware"
+	"git.hoogi.eu/snafu/go-blog/models"
 )
 
 // LoginHandler shows the login form;

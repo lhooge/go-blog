@@ -6,8 +6,8 @@ import (
 	"strconv"
 	"testing"
 
-	"git.hoogi.eu/go-blog/controllers"
-	"git.hoogi.eu/go-blog/models"
+	"git.hoogi.eu/snafu/go-blog/controllers"
+	"git.hoogi.eu/snafu/go-blog/models"
 )
 
 func TestUserInviteWorkflow(t *testing.T) {

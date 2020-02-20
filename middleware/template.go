@@ -15,12 +15,12 @@ import (
 	"strings"
 	"time"
 
-	"git.hoogi.eu/cfg"
-	"git.hoogi.eu/go-blog/components/httperror"
-	"git.hoogi.eu/go-blog/components/logger"
-	"git.hoogi.eu/go-blog/models"
-	"git.hoogi.eu/go-blog/settings"
-	"git.hoogi.eu/go-blog/utils"
+	"git.hoogi.eu/snafu/cfg"
+	"git.hoogi.eu/snafu/go-blog/components/httperror"
+	"git.hoogi.eu/snafu/go-blog/components/logger"
+	"git.hoogi.eu/snafu/go-blog/models"
+	"git.hoogi.eu/snafu/go-blog/settings"
+	"git.hoogi.eu/snafu/go-blog/utils"
 )
 
 // Template contains the information about the template to render.

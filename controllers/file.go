@@ -9,10 +9,10 @@ import (
 	"path/filepath"
 	"syscall"
 
-	"git.hoogi.eu/go-blog/components/httperror"
-	"git.hoogi.eu/go-blog/components/logger"
-	"git.hoogi.eu/go-blog/middleware"
-	"git.hoogi.eu/go-blog/models"
+	"git.hoogi.eu/snafu/go-blog/components/httperror"
+	"git.hoogi.eu/snafu/go-blog/components/logger"
+	"git.hoogi.eu/snafu/go-blog/middleware"
+	"git.hoogi.eu/snafu/go-blog/models"
 )
 
 type FileHandler struct {

@@ -8,9 +8,9 @@ import (
 	"net/http"
 	"os"
 
-	c "git.hoogi.eu/go-blog/controllers"
-	m "git.hoogi.eu/go-blog/middleware"
-	"git.hoogi.eu/go-blog/settings"
+	c "git.hoogi.eu/snafu/go-blog/controllers"
+	m "git.hoogi.eu/snafu/go-blog/middleware"
+	"git.hoogi.eu/snafu/go-blog/settings"
 
 	"github.com/gorilla/csrf"
 	"github.com/gorilla/handlers"

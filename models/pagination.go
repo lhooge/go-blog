@@ -10,7 +10,7 @@ import (
 	"html/template"
 	"math"
 
-	"git.hoogi.eu/go-blog/utils"
+	"git.hoogi.eu/snafu/go-blog/utils"
 )
 
 //Pagination type is used to provide a page selector

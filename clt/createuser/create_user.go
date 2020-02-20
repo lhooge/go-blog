@@ -12,10 +12,10 @@ import (
 	"os"
 	"syscall"
 
-	"git.hoogi.eu/go-blog/components/database"
-	"git.hoogi.eu/go-blog/components/logger"
-	"git.hoogi.eu/go-blog/models"
-	"git.hoogi.eu/go-blog/utils"
+	"git.hoogi.eu/snafu/go-blog/components/database"
+	"git.hoogi.eu/snafu/go-blog/components/logger"
+	"git.hoogi.eu/snafu/go-blog/models"
+	"git.hoogi.eu/snafu/go-blog/utils"
 	"golang.org/x/crypto/ssh/terminal"
 )
 

@@ -10,10 +10,10 @@ import (
 	"net/http"
 	"time"
 
-	"git.hoogi.eu/go-blog/components/httperror"
-	"git.hoogi.eu/go-blog/middleware"
-	"git.hoogi.eu/go-blog/models"
-	"git.hoogi.eu/go-blog/utils"
+	"git.hoogi.eu/snafu/go-blog/components/httperror"
+	"git.hoogi.eu/snafu/go-blog/middleware"
+	"git.hoogi.eu/snafu/go-blog/models"
+	"git.hoogi.eu/snafu/go-blog/utils"
 )
 
 //GetArticleHandler returns a specific article

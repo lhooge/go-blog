@@ -8,9 +8,9 @@ import (
 	"fmt"
 	"net/http"
 
-	"git.hoogi.eu/go-blog/components/httperror"
-	"git.hoogi.eu/go-blog/middleware"
-	"git.hoogi.eu/go-blog/models"
+	"git.hoogi.eu/snafu/go-blog/components/httperror"
+	"git.hoogi.eu/snafu/go-blog/middleware"
+	"git.hoogi.eu/snafu/go-blog/models"
 )
 
 func AdminListCategoriesHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {

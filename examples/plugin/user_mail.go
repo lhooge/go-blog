@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"os/exec"
 
-	"git.hoogi.eu/go-blog/models"
+	"git.hoogi.eu/snafu/go-blog/models"
 	_ "github.com/mattn/go-sqlite3"
 )
 

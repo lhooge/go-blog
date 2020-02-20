@@ -3,8 +3,8 @@ package models
 import (
 	"time"
 
-	"git.hoogi.eu/go-blog/components/mail"
-	"git.hoogi.eu/go-blog/utils"
+	"git.hoogi.eu/snafu/go-blog/components/mail"
+	"git.hoogi.eu/snafu/go-blog/utils"
 )
 
 //User represents a user

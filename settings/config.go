@@ -14,9 +14,9 @@ import (
 	"strings"
 	"time"
 
-	"git.hoogi.eu/cfg"
-	"git.hoogi.eu/go-blog/components/logger"
-	"git.hoogi.eu/go-blog/utils"
+	"git.hoogi.eu/snafu/cfg"
+	"git.hoogi.eu/snafu/go-blog/components/logger"
+	"git.hoogi.eu/snafu/go-blog/utils"
 )
 
 type LoginMethod int

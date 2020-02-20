@@ -12,8 +12,8 @@ import (
 	"os"
 	"strings"
 
-	"git.hoogi.eu/go-blog/components/database"
-	"git.hoogi.eu/go-blog/components/logger"
+	"git.hoogi.eu/snafu/go-blog/components/database"
+	"git.hoogi.eu/snafu/go-blog/components/logger"
 )
 
 var (

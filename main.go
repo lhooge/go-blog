@@ -12,15 +12,15 @@ import (
 	"plugin"
 	"time"
 
-	"git.hoogi.eu/cfg"
-	"git.hoogi.eu/go-blog/components/database"
-	"git.hoogi.eu/go-blog/components/logger"
-	"git.hoogi.eu/go-blog/components/mail"
-	m "git.hoogi.eu/go-blog/middleware"
-	"git.hoogi.eu/go-blog/models"
-	"git.hoogi.eu/go-blog/routers"
-	"git.hoogi.eu/go-blog/settings"
-	"git.hoogi.eu/session"
+	"git.hoogi.eu/snafu/cfg"
+	"git.hoogi.eu/snafu/go-blog/components/database"
+	"git.hoogi.eu/snafu/go-blog/components/logger"
+	"git.hoogi.eu/snafu/go-blog/components/mail"
+	m "git.hoogi.eu/snafu/go-blog/middleware"
+	"git.hoogi.eu/snafu/go-blog/models"
+	"git.hoogi.eu/snafu/go-blog/routers"
+	"git.hoogi.eu/snafu/go-blog/settings"
+	"git.hoogi.eu/snafu/session"
 )
 
 var (
