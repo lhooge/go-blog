@@ -3,7 +3,7 @@ package models_test
 import (
 	"testing"
 
-	"git.hoogi.eu/go-blog/models"
+	"git.hoogi.eu/snafu/go-blog/models"
 )
 
 func TestFilenameSplit(t *testing.T) {

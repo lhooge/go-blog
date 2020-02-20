@@ -8,9 +8,9 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"git.hoogi.eu/go-blog/components/httperror"
-	"git.hoogi.eu/go-blog/components/logger"
-	"git.hoogi.eu/go-blog/models"
+	"git.hoogi.eu/snafu/go-blog/components/httperror"
+	"git.hoogi.eu/snafu/go-blog/components/logger"
+	"git.hoogi.eu/snafu/go-blog/models"
 )
 
 // JSONHandler marshals JSON and writes to the http response

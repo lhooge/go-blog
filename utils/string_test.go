@@ -7,7 +7,7 @@ package utils_test
 import (
 	"testing"
 
-	"git.hoogi.eu/go-blog/utils"
+	"git.hoogi.eu/snafu/go-blog/utils"
 )
 
 func TestCreateURLSafeSlug(t *testing.T) {

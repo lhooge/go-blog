@@ -5,8 +5,8 @@ import (
 	"encoding/xml"
 	"net/http"
 
-	"git.hoogi.eu/go-blog/components/logger"
-	"git.hoogi.eu/go-blog/models"
+	"git.hoogi.eu/snafu/go-blog/components/logger"
+	"git.hoogi.eu/snafu/go-blog/models"
 )
 
 // XMLHandler marshals XML and writes to the http response

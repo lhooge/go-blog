@@ -6,7 +6,7 @@ import (
 	"net/url"
 	"testing"
 
-	"git.hoogi.eu/go-blog/controllers"
+	"git.hoogi.eu/snafu/go-blog/controllers"
 )
 
 func TestLogin(t *testing.T) {

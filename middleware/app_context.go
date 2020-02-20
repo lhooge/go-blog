@@ -7,9 +7,9 @@ package middleware
 import (
 	"html/template"
 
-	"git.hoogi.eu/go-blog/models"
-	"git.hoogi.eu/go-blog/settings"
-	"git.hoogi.eu/session"
+	"git.hoogi.eu/snafu/go-blog/models"
+	"git.hoogi.eu/snafu/go-blog/settings"
+	"git.hoogi.eu/snafu/session"
 )
 
 //AppContext contains the services, session store, templates, ...
