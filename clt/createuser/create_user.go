@@ -21,7 +21,7 @@ import (
 
 type createUserFlag struct {
 	username    string
-	password    string
+	password    []byte
 	email       string
 	displayName string
 	admin       bool
@@ -44,44 +44,52 @@ func main() {
 	isAdmin := flag.Bool("admin", false, "If set a new administrator will be created; otherwise a non-admin is created")
 	file := flag.String("sqlite", "", "Location to the sqlite3 database file")
 
-	fmt.Printf("Password: ")
-	pw, err := terminal.ReadPassword(int(syscall.Stdin))
-
-	if err != nil {
-		fmt.Printf("could not read password %v", err)
-		os.Exit(1)
-	}
-
-	fmt.Println()
-
 	flag.Parse()
 
 	if flag.Parsed() {
 		initUser := createUserFlag{
 			username:    *username,
-			password:    string(pw),
 			email:       *email,
 			displayName: *displayName,
 			admin:       *isAdmin,
 			sqlite:      *file,
 		}
 
-		err := initUser.CreateUser()
+		if err := initUser.validate(); err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+
+		fmt.Printf("Password: ")
+		pw, err := terminal.ReadPassword(int(syscall.Stdin))
+
+		if err != nil {
+			fmt.Printf("could not read password %v", err)
+			os.Exit(1)
+		}
+
+		initUser.password = pw
+
+		if len(initUser.password) == 0 {
+			fmt.Println("the password is empty")
+			os.Exit(1)
+		}
+
+		err = initUser.CreateUser()
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
+
 		fmt.Printf("The user '%s' was successfully created\n", *username)
 	}
 }
 
-func (userFlags createUserFlag) CreateUser() error {
+func (userFlags createUserFlag) validate() error {
 	if utils.TrimmedStringIsEmpty(userFlags.username) {
 		return fmt.Errorf("the username (-username) must be specified")
 	}
-	if utils.TrimmedStringIsEmpty(userFlags.password) {
-		return fmt.Errorf("the password is empty")
-	}
+
 	if utils.TrimmedStringIsEmpty(userFlags.email) {
 		return fmt.Errorf("the email (-email) must be specified")
 	}
@@ -91,6 +99,11 @@ func (userFlags createUserFlag) CreateUser() error {
 	if utils.TrimmedStringIsEmpty(userFlags.sqlite) {
 		return fmt.Errorf("the argument -sqlite is empty. Please specify the location of the sqlite3 database file")
 	}
+
+	return nil
+}
+
+func (userFlags createUserFlag) CreateUser() error {
 
 	var userService models.UserService
 

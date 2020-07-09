@@ -300,44 +300,31 @@ type IndexArticle struct {
 }
 
 func (as ArticleService) Index(u *User, c *Category, p *Pagination, pc PublishedCriteria) ([]IndexArticle, error) {
-	arts, err := as.Datasource.List(u, c, p, pc)
+	articles, err := as.Datasource.List(u, c, p, pc)
 
 	if err != nil {
 		return nil, err
 	}
 
-	var ias []IndexArticle
-	var articles []Article
+	amap := make(map[int][]Article)
 
-	idx := 0
-	for i := 0; i < len(arts); i++ {
-		if arts[i].PublishedOn.Valid {
-			curYear := arts[i].PublishedOn.Time.Year()
+	for _, v := range articles {
+		if v.PublishedOn.Valid {
+			year := v.PublishedOn.Time.Year()
 
-			if i == len(arts)-1 {
-				articles = append(articles, arts[i])
-
-				ia := IndexArticle{
-					Year:     arts[idx].PublishedOn.Time.Year(),
-					Articles: articles,
-				}
-				ias = append(ias, ia)
-				articles = nil
-			} else if curYear == arts[idx].PublishedOn.Time.Year() {
-				articles = append(articles, arts[i])
-			} else {
-				ia := IndexArticle{
-					Year:     arts[idx].PublishedOn.Time.Year(),
-					Articles: articles,
-				}
-
-				idx = i
-				ias = append(ias, ia)
-
-				articles = nil
-			}
+			amap[year] = append(amap[year], v)
 		}
 	}
 
-	return ias, nil
+	var ia []IndexArticle
+
+	for k, v := range amap {
+		a := IndexArticle{
+			Year:     k,
+			Articles: v,
+		}
+		ia = append(ia, a)
+	}
+
+	return ia, nil
 }
