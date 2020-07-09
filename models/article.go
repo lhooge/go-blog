@@ -9,6 +9,7 @@ import (
 	"errors"
 	"fmt"
 	"net/url"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -306,6 +307,7 @@ func (as ArticleService) Index(u *User, c *Category, p *Pagination, pc Published
 		return nil, err
 	}
 
+	var keys []int
 	amap := make(map[int][]Article)
 
 	for _, v := range articles {
@@ -313,14 +315,19 @@ func (as ArticleService) Index(u *User, c *Category, p *Pagination, pc Published
 			year := v.PublishedOn.Time.Year()
 
 			amap[year] = append(amap[year], v)
+			keys = append(keys, year)
 		}
 	}
 
+	sort.Sort(sort.Reverse(sort.IntSlice(keys)))
+
 	var ia []IndexArticle
 
-	for k, v := range amap {
+	for _, year := range keys {
+		v, _ := amap[year]
+
 		a := IndexArticle{
-			Year:     k,
+			Year:     year,
 			Articles: v,
 		}
 		ia = append(ia, a)
