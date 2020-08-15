@@ -38,3 +38,6 @@ releases
 releases
 
 db/
+
+*.swp
+*.swo
