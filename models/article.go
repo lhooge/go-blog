@@ -16,6 +16,7 @@ import (
 
 	"git.hoogi.eu/snafu/go-blog/httperror"
 	"git.hoogi.eu/snafu/go-blog/settings"
+	"git.hoogi.eu/snafu/go-blog/slug"
 )
 
 // Article represents an article
@@ -64,7 +65,7 @@ func (a *Article) buildSlug(now time.Time, suffix int) string {
 	sb.WriteString("/")
 	sb.WriteString(strconv.Itoa(int(now.Month())))
 	sb.WriteString("/")
-	sb.WriteString(CreateURLSafeSlug(a.Headline, suffix))
+	sb.WriteString(slug.CreateURLSafeSlug(a.Headline, suffix))
 	return sb.String()
 }
 

@@ -258,9 +258,16 @@ func isDot(r rune) bool {
 
 //SanitizeFilename sanitizes a filename for safe use when serving file
 func sanitizeFilename(s string) string {
+	s = strings.ToValidUTF8(s, "")
 	s = strings.TrimFunc(s, unicode.IsSpace)
-	s = removeControlCharacters(s)
-	s = substitute(s, filenameSubs)
+
+	s = strings.Map(func(r rune) rune {
+		if _, ok := filenameSubs[r]; ok {
+			return -1
+		}
+		return r
+	}, s)
+
 	s = strings.TrimLeftFunc(s, isDot)
 	return s
 }

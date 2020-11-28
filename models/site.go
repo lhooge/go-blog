@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"git.hoogi.eu/snafu/go-blog/httperror"
+	"git.hoogi.eu/snafu/go-blog/slug"
 )
 
 //SiteDatasourceService defines an interface for CRUD operations on sites
@@ -60,7 +61,7 @@ func (s Site) safeLink() string {
 	if s.isExternal() {
 		return s.Link
 	}
-	return CreateURLSafeSlug(s.Link, -1)
+	return slug.CreateURLSafeSlug(s.Link, -1)
 }
 
 func (s Site) isExternal() bool {

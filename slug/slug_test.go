@@ -2,12 +2,12 @@
 // Use of this source code is governed by a MIT-style
 // license that can be found in the LICENSE file.
 
-package models_test
+package slug_test
 
 import (
 	"testing"
 
-	"git.hoogi.eu/snafu/go-blog/utils"
+	"git.hoogi.eu/snafu/go-blog/slug"
 )
 
 func TestCreateURLSafeSlug(t *testing.T) {
@@ -26,7 +26,7 @@ func TestCreateURLSafeSlug(t *testing.T) {
 	}
 
 	for i := 0; i < len(testcases)-1; i = i + 2 {
-		actual := utils.CreateURLSafeSlug(testcases[i], 0)
+		actual := slug.CreateURLSafeSlug(testcases[i], 0)
 
 		if actual != testcases[i+1] {
 			t.Errorf("Got: '%s'; want '%s'", actual, testcases[i+1])
