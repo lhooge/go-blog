@@ -9,7 +9,7 @@ import (
 
 	"git.hoogi.eu/snafu/go-blog/components/httperror"
 	"git.hoogi.eu/snafu/go-blog/components/logger"
-	"git.hoogi.eu/snafu/go-blog/utils"
+	"git.hoogi.eu/snafu/go-blog/crypt"
 )
 
 //TokenDatasourceService defines an interface for CRUD operations for tokens
@@ -68,7 +68,7 @@ type TokenService struct {
 
 //Create creates a new token
 func (ts TokenService) Create(t *Token) error {
-	t.Hash = utils.RandomHash(32)
+	t.Hash = crypt.RandomHash(32)
 
 	_, err := ts.Datasource.Create(t)
 

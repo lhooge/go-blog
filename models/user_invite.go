@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"git.hoogi.eu/snafu/go-blog/components/mail"
-	"git.hoogi.eu/snafu/go-blog/utils"
+	"git.hoogi.eu/snafu/go-blog/crypt"
 )
 
 //User represents a user
@@ -64,7 +64,7 @@ func (uis UserInviteService) List() ([]UserInvite, error) {
 }
 
 func (uis UserInviteService) Update(ui *UserInvite) error {
-	ui.Hash = utils.RandomHash(32)
+	ui.Hash = crypt.RandomHash(32)
 
 	if err := ui.validate(uis); err != nil {
 		return err
@@ -74,7 +74,7 @@ func (uis UserInviteService) Update(ui *UserInvite) error {
 }
 
 func (uis UserInviteService) Create(ui *UserInvite) (int, error) {
-	ui.Hash = utils.RandomHash(32)
+	ui.Hash = crypt.RandomHash(32)
 
 	if err := ui.validate(uis); err != nil {
 		return -1, err

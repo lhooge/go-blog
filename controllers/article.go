@@ -13,7 +13,6 @@ import (
 	"git.hoogi.eu/snafu/go-blog/components/httperror"
 	"git.hoogi.eu/snafu/go-blog/middleware"
 	"git.hoogi.eu/snafu/go-blog/models"
-	"git.hoogi.eu/snafu/go-blog/utils"
 )
 
 //GetArticleHandler returns a specific article
@@ -21,9 +20,11 @@ import (
 func GetArticleHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
 	year := getVar(r, "year")
 	month := getVar(r, "month")
-	slug := getVar(r, "slug")
+	headline := getVar(r, "slug")
 
-	a, err := ctx.ArticleService.GetBySlug(utils.AppendString(year, "/", month, "/", slug), nil, models.OnlyPublished)
+	slug := year + "/" + month + "/" + headline
+
+	a, err := ctx.ArticleService.GetBySlug(slug, nil, models.OnlyPublished)
 
 	if err != nil {
 		return &middleware.Template{

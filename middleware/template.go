@@ -20,7 +20,6 @@ import (
 	"git.hoogi.eu/snafu/go-blog/components/logger"
 	"git.hoogi.eu/snafu/go-blog/models"
 	"git.hoogi.eu/snafu/go-blog/settings"
-	"git.hoogi.eu/snafu/go-blog/utils"
 )
 
 // Template contains the information about the template to render.
@@ -234,5 +233,5 @@ func (t Template) RedirectURL() string {
 	if t.RedirectPath[0] == byte('/') {
 		return t.RedirectPath
 	}
-	return utils.AppendString("/", t.RedirectPath)
+	return "/" + t.RedirectPath
 }

@@ -11,7 +11,7 @@ import (
 	"time"
 
 	"git.hoogi.eu/snafu/go-blog/components/logger"
-	"git.hoogi.eu/snafu/go-blog/utils"
+	"git.hoogi.eu/snafu/go-blog/crypt"
 )
 
 var locals = [...]net.IPNet{
@@ -72,7 +72,7 @@ func setCookie(rw http.ResponseWriter, name, path, data string) {
 	c := &http.Cookie{
 		Name:  name,
 		Path:  path,
-		Value: utils.EncodeBase64(data),
+		Value: crypt.EncodeBase64(data),
 	}
 
 	http.SetCookie(rw, c)
@@ -88,7 +88,7 @@ func getFlash(w http.ResponseWriter, r *http.Request, name string) (string, erro
 			return "", err
 		}
 	}
-	value, err := utils.DecodeBase64(c.Value)
+	value, err := crypt.DecodeBase64(c.Value)
 	if err != nil {
 		return "", err
 	}

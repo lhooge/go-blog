@@ -16,7 +16,6 @@ import (
 
 	"git.hoogi.eu/snafu/go-blog/components/httperror"
 	"git.hoogi.eu/snafu/go-blog/settings"
-	"git.hoogi.eu/snafu/go-blog/utils"
 )
 
 // Article represents an article
@@ -60,7 +59,13 @@ func (a Article) SlugEscape() string {
 }
 
 func (a *Article) buildSlug(now time.Time, suffix int) string {
-	return utils.AppendString(strconv.Itoa(now.Year()), "/", strconv.Itoa(int(now.Month())), "/", utils.CreateURLSafeSlug(a.Headline, suffix))
+	var sb strings.Builder
+	sb.WriteString(strconv.Itoa(now.Year()))
+	sb.WriteString("/")
+	sb.WriteString(strconv.Itoa(int(now.Month())))
+	sb.WriteString("/")
+	sb.WriteString(CreateURLSafeSlug(a.Headline, suffix))
+	return sb.String()
 }
 
 func (a *Article) slug(as ArticleService, now time.Time) error {

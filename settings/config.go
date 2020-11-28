@@ -16,7 +16,7 @@ import (
 
 	"git.hoogi.eu/snafu/cfg"
 	"git.hoogi.eu/snafu/go-blog/components/logger"
-	"git.hoogi.eu/snafu/go-blog/utils"
+	"git.hoogi.eu/snafu/go-blog/crypt"
 )
 
 type LoginMethod int
@@ -286,8 +286,8 @@ func (cfg *Settings) GenerateCSRF() (bool, error) {
 
 		if _, err := os.Stat(csrfTokenFilename); os.IsNotExist(err) {
 			//create a random csrf token
-			r := utils.RandomSource{
-				CharsToGen: utils.AlphaUpperLowerNumericSpecial,
+			r := crypt.RandomSource{
+				CharsToGen: crypt.AlphaUpperLowerNumericSpecial,
 			}
 
 			b = r.RandomSequence(32)

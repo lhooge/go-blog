@@ -146,7 +146,7 @@ func teardown() {
 
 func fillSeeds(db *sql.DB) error {
 	salt := utils.GenerateSalt()
-	saltedPassword := utils.AppendBytes([]byte("123456789012"), salt)
+	saltedPassword := "123456789012" + salt
 	password, err := utils.CryptPassword([]byte(saltedPassword), 12)
 
 	if err != nil {

@@ -14,8 +14,8 @@ import (
 
 	"git.hoogi.eu/snafu/go-blog/components/httperror"
 	"git.hoogi.eu/snafu/go-blog/components/logger"
+	"git.hoogi.eu/snafu/go-blog/crypt"
 	"git.hoogi.eu/snafu/go-blog/settings"
-	"git.hoogi.eu/snafu/go-blog/utils"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -225,9 +225,9 @@ func (us UserService) Create(u *User) (int, error) {
 		return -1, err
 	}
 
-	salt := utils.GenerateSalt()
-	saltedPassword := utils.AppendBytes(u.PlainPassword, salt)
-	password, err := utils.CryptPassword([]byte(saltedPassword), bcryptRounds)
+	salt := crypt.GenerateSalt()
+	saltedPassword := append(u.PlainPassword[:], salt[:]...)
+	password, err := crypt.CryptPassword([]byte(saltedPassword), bcryptRounds)
 
 	if err != nil {
 		return -1, err
@@ -309,9 +309,9 @@ func (us UserService) Update(u *User, changePassword bool) error {
 	}
 
 	if changePassword {
-		salt := utils.GenerateSalt()
-		saltedPassword := utils.AppendBytes(u.PlainPassword, salt)
-		password, err := utils.CryptPassword([]byte(saltedPassword), bcryptRounds)
+		salt := crypt.GenerateSalt()
+		saltedPassword := append(u.PlainPassword[:], salt[:]...)
+		password, err := crypt.CryptPassword([]byte(saltedPassword), bcryptRounds)
 
 		if err != nil {
 			return err
@@ -429,5 +429,5 @@ func (us UserService) OneAdmin() (bool, error) {
 }
 
 func (u User) comparePassword() error {
-	return bcrypt.CompareHashAndPassword(u.Password, utils.AppendBytes(u.PlainPassword, u.Salt))
+	return bcrypt.CompareHashAndPassword(u.Password, append(u.PlainPassword[:], u.Salt[:]...))
 }

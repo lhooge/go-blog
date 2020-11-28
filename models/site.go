@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"git.hoogi.eu/snafu/go-blog/components/httperror"
-	"git.hoogi.eu/snafu/go-blog/utils"
 )
 
 //SiteDatasourceService defines an interface for CRUD operations on sites
@@ -54,14 +53,14 @@ func (s Site) LinkEscape() string {
 	if s.isExternal() {
 		return s.Link
 	}
-	return utils.AppendString("/site/", url.PathEscape(s.Link))
+	return "/site/" + url.PathEscape(s.Link)
 }
 
 func (s Site) safeLink() string {
 	if s.isExternal() {
 		return s.Link
 	}
-	return utils.CreateURLSafeSlug(s.Link, -1)
+	return CreateURLSafeSlug(s.Link, -1)
 }
 
 func (s Site) isExternal() bool {

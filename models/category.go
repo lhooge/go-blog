@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"git.hoogi.eu/snafu/go-blog/components/httperror"
-	"git.hoogi.eu/snafu/go-blog/utils"
 )
 
 type Category struct {
@@ -99,7 +98,7 @@ func (cs CategoryService) List(fc FilterCriteria) ([]Category, error) {
 //Create creates a category
 func (cs CategoryService) Create(c *Category) (int, error) {
 	for i := 0; i < 10; i++ {
-		c.Slug = utils.CreateURLSafeSlug(c.Name, i)
+		c.Slug = CreateURLSafeSlug(c.Name, i)
 		_, err := cs.Datasource.GetBySlug(c.Slug, AllCategories)
 
 		if err != nil {

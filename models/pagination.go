@@ -5,12 +5,10 @@
 package models
 
 import (
-	"bytes"
 	"fmt"
 	"html/template"
 	"math"
-
-	"git.hoogi.eu/snafu/go-blog/utils"
+	"strings"
 )
 
 //Pagination type is used to provide a page selector
@@ -29,9 +27,9 @@ func (p Pagination) Offset() int {
 //url returns the absolute url
 func (p Pagination) url() string {
 	if p.RelURL[0] == '/' {
-		return utils.AppendString(p.RelURL)
+		return p.RelURL
 	}
-	return utils.AppendString("/", p.RelURL)
+	return "/" + p.RelURL
 }
 
 //pages returns the amount of pages
@@ -75,32 +73,32 @@ func (p Pagination) previousPage() int {
 
 //PaginationBar returns the HTML for the pagination bar which can be embedded
 func (p Pagination) PaginationBar() template.HTML {
-	var buffer bytes.Buffer
+	var sb strings.Builder
 
 	if p.pages() > 1 {
-		buffer.WriteString(`<div id="pagination">`)
+		sb.WriteString(`<div id="pagination">`)
 
 		if !p.hasPrevious() {
-			buffer.WriteString(`<a class="button button-inactive" href="#">&laquo; Backward</a>`)
+			sb.WriteString(`<a class="button button-inactive" href="#">&laquo; Backward</a>`)
 		} else {
-			buffer.WriteString(fmt.Sprintf(`<a class="button button-active" href="%s/%d">&laquo; Backward</a>`, p.url(), p.previousPage()))
+			sb.WriteString(fmt.Sprintf(`<a class="button button-active" href="%s/%d">&laquo; Backward</a>`, p.url(), p.previousPage()))
 		}
 
 		for i := 1; i <= p.pages(); i++ {
 			if p.CurrentPage == i {
-				buffer.WriteString(fmt.Sprintf(`<a class="button button-inactive" href="#">%d</a></li>`, i))
+				sb.WriteString(fmt.Sprintf(`<a class="button button-inactive" href="#">%d</a></li>`, i))
 			} else {
-				buffer.WriteString(fmt.Sprintf(`<a class="button button-active" href="%s/%d">%d</a></li>`, p.url(), i, i))
+				sb.WriteString(fmt.Sprintf(`<a class="button button-active" href="%s/%d">%d</a></li>`, p.url(), i, i))
 			}
 		}
 
 		if !p.hasNext() {
-			buffer.WriteString(`<a class="button button-inactive" href="#">Forward &raquo;</a>`)
+			sb.WriteString(`<a class="button button-inactive" href="#">Forward &raquo;</a>`)
 		} else {
-			buffer.WriteString(fmt.Sprintf(`<a class="button button-active" href="%s/%d">Forward &raquo;</a>`, p.url(), p.nextPage()))
+			sb.WriteString(fmt.Sprintf(`<a class="button button-active" href="%s/%d">Forward &raquo;</a>`, p.url(), p.nextPage()))
 		}
 
-		buffer.WriteString(`</div>`)
+		sb.WriteString(`</div>`)
 	}
-	return template.HTML(buffer.String())
+	return template.HTML(sb.String())
 }
