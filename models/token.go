@@ -7,9 +7,9 @@ import (
 	"net/http"
 	"time"
 
-	"git.hoogi.eu/snafu/go-blog/components/httperror"
-	"git.hoogi.eu/snafu/go-blog/components/logger"
 	"git.hoogi.eu/snafu/go-blog/crypt"
+	"git.hoogi.eu/snafu/go-blog/httperror"
+	"git.hoogi.eu/snafu/go-blog/logger"
 )
 
 //TokenDatasourceService defines an interface for CRUD operations for tokens

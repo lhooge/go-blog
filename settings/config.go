@@ -15,8 +15,8 @@ import (
 	"time"
 
 	"git.hoogi.eu/snafu/cfg"
-	"git.hoogi.eu/snafu/go-blog/components/logger"
 	"git.hoogi.eu/snafu/go-blog/crypt"
+	"git.hoogi.eu/snafu/go-blog/logger"
 )
 
 type LoginMethod int

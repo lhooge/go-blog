@@ -10,8 +10,8 @@ import (
 	"strings"
 	"time"
 
-	"git.hoogi.eu/snafu/go-blog/components/logger"
 	"git.hoogi.eu/snafu/go-blog/crypt"
+	"git.hoogi.eu/snafu/go-blog/logger"
 )
 
 var locals = [...]net.IPNet{

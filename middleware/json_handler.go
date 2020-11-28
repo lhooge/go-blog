@@ -8,8 +8,8 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"git.hoogi.eu/snafu/go-blog/components/httperror"
-	"git.hoogi.eu/snafu/go-blog/components/logger"
+	"git.hoogi.eu/snafu/go-blog/httperror"
+	"git.hoogi.eu/snafu/go-blog/logger"
 	"git.hoogi.eu/snafu/go-blog/models"
 )
 

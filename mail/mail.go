@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"net/smtp"
 
-	"git.hoogi.eu/snafu/go-blog/components/logger"
+	"git.hoogi.eu/snafu/go-blog/logger"
 )
 
 //Service holds configuration for the SMTP server

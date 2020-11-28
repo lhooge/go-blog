@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"git.hoogi.eu/snafu/go-blog/components/httperror"
+	"git.hoogi.eu/snafu/go-blog/httperror"
 )
 
 type Category struct {

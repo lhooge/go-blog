@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"time"
 
-	"git.hoogi.eu/snafu/go-blog/components/logger"
+	"git.hoogi.eu/snafu/go-blog/logger"
 )
 
 //SQLiteSiteDatasource providing an implementation of SiteDatasourceService for sqlite

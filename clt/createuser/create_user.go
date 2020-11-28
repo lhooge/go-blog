@@ -13,7 +13,7 @@ import (
 	"syscall"
 
 	"git.hoogi.eu/snafu/go-blog/components/database"
-	"git.hoogi.eu/snafu/go-blog/components/logger"
+	"git.hoogi.eu/snafu/go-blog/logger"
 	"git.hoogi.eu/snafu/go-blog/models"
 	"git.hoogi.eu/snafu/go-blog/utils"
 	"golang.org/x/crypto/ssh/terminal"

@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"git.hoogi.eu/snafu/go-blog/components/logger"
+	"git.hoogi.eu/snafu/go-blog/logger"
 	"github.com/gorilla/mux"
 )
 

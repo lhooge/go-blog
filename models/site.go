@@ -7,7 +7,7 @@ import (
 	"net/url"
 	"time"
 
-	"git.hoogi.eu/snafu/go-blog/components/httperror"
+	"git.hoogi.eu/snafu/go-blog/httperror"
 )
 
 //SiteDatasourceService defines an interface for CRUD operations on sites

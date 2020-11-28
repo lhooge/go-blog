@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"git.hoogi.eu/snafu/go-blog/components/httperror"
+	"git.hoogi.eu/snafu/go-blog/httperror"
 	"git.hoogi.eu/snafu/go-blog/middleware"
 	"git.hoogi.eu/snafu/go-blog/models"
 )

@@ -3,7 +3,7 @@ package models
 import (
 	"fmt"
 
-	"git.hoogi.eu/snafu/go-blog/components/mail"
+	"git.hoogi.eu/snafu/go-blog/mail"
 	"git.hoogi.eu/snafu/go-blog/settings"
 )
 
