@@ -1,4 +1,4 @@
-package controllers_test
+package handler_test
 
 import (
 	"fmt"
@@ -6,7 +6,7 @@ import (
 	"net/url"
 	"testing"
 
-	"git.hoogi.eu/snafu/go-blog/controllers"
+	"git.hoogi.eu/snafu/go-blog/handler"
 )
 
 func TestLogin(t *testing.T) {
@@ -71,7 +71,7 @@ func doLoginRequest(user reqUser, login, password string) (responseWrapper, erro
 	}
 
 	rr := httptest.NewRecorder()
-	tpl := controllers.LoginPostHandler(ctx, rr, r.buildRequest())
+	tpl := handler.LoginPostHandler(ctx, rr, r.buildRequest())
 
 	if tpl.Err != nil {
 		return responseWrapper{response: rr, template: tpl}, tpl.Err

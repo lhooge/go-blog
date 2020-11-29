@@ -1,11 +1,11 @@
-package controllers_test
+package handler_test
 
 import (
 	"net/http/httptest"
 	"net/url"
 	"testing"
 
-	"git.hoogi.eu/snafu/go-blog/controllers"
+	"git.hoogi.eu/snafu/go-blog/handler"
 	"git.hoogi.eu/snafu/go-blog/models"
 )
 
@@ -94,7 +94,7 @@ func doAdminProfileRequest(user reqUser, u *models.User, currentPassword string)
 
 	rw := httptest.NewRecorder()
 	re := r.buildRequest()
-	tpl := controllers.AdminProfilePostHandler(ctx, rw, re)
+	tpl := handler.AdminProfilePostHandler(ctx, rw, re)
 
 	if tpl.Err != nil {
 		return tpl.Err
@@ -122,7 +122,7 @@ func doActivateAccountRequest(user reqUser, password, passwordRepeat, hash strin
 	}
 
 	rw := httptest.NewRecorder()
-	tpl := controllers.ActivateAccountPostHandler(ctx, rw, r.buildRequest())
+	tpl := handler.ActivateAccountPostHandler(ctx, rw, r.buildRequest())
 
 	if tpl.Err != nil {
 		return tpl.Err
@@ -150,7 +150,7 @@ func doResetPasswordRequest(user reqUser, password, passwordRepeat, hash string)
 	}
 
 	rw := httptest.NewRecorder()
-	tpl := controllers.AdminSiteEditPostHandler(ctx, rw, r.buildRequest())
+	tpl := handler.AdminSiteEditPostHandler(ctx, rw, r.buildRequest())
 
 	if tpl.Err != nil {
 		return tpl.Err

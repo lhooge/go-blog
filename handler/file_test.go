@@ -1,4 +1,4 @@
-package controllers_test
+package handler_test
 
 import (
 	"fmt"
@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"testing"
 
-	"git.hoogi.eu/snafu/go-blog/controllers"
+	"git.hoogi.eu/snafu/go-blog/handler"
 	"git.hoogi.eu/snafu/go-blog/models"
 )
 
@@ -63,7 +63,7 @@ func doAdminListFilesRequest(user reqUser) ([]models.File, error) {
 	}
 
 	rw := httptest.NewRecorder()
-	tpl := controllers.AdminListFilesHandler(ctx, rw, r.buildRequest())
+	tpl := handler.AdminListFilesHandler(ctx, rw, r.buildRequest())
 
 	if tpl.Err != nil {
 		return nil, tpl.Err
@@ -87,7 +87,7 @@ func doAdminGetFileRequest(user reqUser, uniquename string) (*httptest.ResponseR
 
 	rw := httptest.NewRecorder()
 
-	fh := controllers.FileHandler{
+	fh := handler.FileHandler{
 		Context: ctx,
 	}
 
@@ -116,7 +116,7 @@ func doAdminUploadFileRequest(user reqUser, file string) error {
 	}
 
 	rw := httptest.NewRecorder()
-	tpl := controllers.AdminUploadFilePostHandler(ctx, rw, r.buildRequest())
+	tpl := handler.AdminUploadFilePostHandler(ctx, rw, r.buildRequest())
 
 	if tpl.Err != nil {
 		return tpl.Err
@@ -139,7 +139,7 @@ func doAdminFileDeleteRequest(user reqUser, fileID int) error {
 	}
 
 	rw := httptest.NewRecorder()
-	tpl := controllers.AdminUploadDeletePostHandler(ctx, rw, r.buildRequest())
+	tpl := handler.AdminUploadDeletePostHandler(ctx, rw, r.buildRequest())
 
 	if tpl.Err != nil {
 		return tpl.Err

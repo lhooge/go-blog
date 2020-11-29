@@ -1,4 +1,4 @@
-package controllers_test
+package handler_test
 
 import (
 	"net/http/httptest"
@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"testing"
 
-	"git.hoogi.eu/snafu/go-blog/controllers"
+	"git.hoogi.eu/snafu/go-blog/handler"
 	"git.hoogi.eu/snafu/go-blog/models"
 )
 
@@ -82,7 +82,7 @@ func doAdminGetCategoryRequest(user reqUser, categoryID int) (*models.Category, 
 	}
 
 	rw := httptest.NewRecorder()
-	tpl := controllers.AdminGetCategoryHandler(ctx, rw, r.buildRequest())
+	tpl := handler.AdminGetCategoryHandler(ctx, rw, r.buildRequest())
 
 	if tpl.Err != nil {
 		return nil, tpl.Err
@@ -99,7 +99,7 @@ func doAdminListCategoriesRequest(user reqUser) ([]models.Category, error) {
 	}
 
 	rw := httptest.NewRecorder()
-	tpl := controllers.AdminListCategoriesHandler(ctx, rw, r.buildRequest())
+	tpl := handler.AdminListCategoriesHandler(ctx, rw, r.buildRequest())
 
 	if tpl.Err != nil {
 		return nil, tpl.Err
@@ -119,7 +119,7 @@ func doAdminCategoryNewRequest(user reqUser, c *models.Category) (int, error) {
 	}
 
 	rw := httptest.NewRecorder()
-	tpl := controllers.AdminCategoryNewPostHandler(ctx, rw, r.buildRequest())
+	tpl := handler.AdminCategoryNewPostHandler(ctx, rw, r.buildRequest())
 
 	if tpl.Err != nil {
 		return -1, tpl.Err
@@ -144,7 +144,7 @@ func doAdminCategoryEditRequest(user reqUser, c *models.Category) error {
 	}
 
 	rw := httptest.NewRecorder()
-	tpl := controllers.AdminCategoryEditPostHandler(ctx, rw, r.buildRequest())
+	tpl := handler.AdminCategoryEditPostHandler(ctx, rw, r.buildRequest())
 
 	if tpl.Err != nil {
 		return tpl.Err
@@ -166,7 +166,7 @@ func doAdminDeleteCategoryRequest(user reqUser, categoryID int) error {
 	}
 
 	rw := httptest.NewRecorder()
-	tpl := controllers.AdminCategoryDeletePostHandler(ctx, rw, r.buildRequest())
+	tpl := handler.AdminCategoryDeletePostHandler(ctx, rw, r.buildRequest())
 
 	if tpl.Err != nil {
 		return tpl.Err

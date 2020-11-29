@@ -2,7 +2,7 @@
 // Use of this source code is governed by a MIT-style
 // license that can be found in the LICENSE file.
 
-package controllers_test
+package handler_test
 
 import (
 	"fmt"
@@ -11,7 +11,7 @@ import (
 	"strconv"
 	"testing"
 
-	"git.hoogi.eu/snafu/go-blog/controllers"
+	"git.hoogi.eu/snafu/go-blog/handler"
 	"git.hoogi.eu/snafu/go-blog/models"
 )
 
@@ -110,7 +110,7 @@ func doAdminGetUserRequest(user reqUser, userID int) (*models.User, error) {
 	}
 
 	rw := httptest.NewRecorder()
-	tpl := controllers.AdminUserEditHandler(ctx, rw, r.buildRequest())
+	tpl := handler.AdminUserEditHandler(ctx, rw, r.buildRequest())
 
 	if tpl.Err != nil {
 		return nil, tpl.Err
@@ -156,7 +156,7 @@ func doAdminEditUsersRequest(user reqUser, u *models.User) error {
 	}
 
 	rw := httptest.NewRecorder()
-	tpl := controllers.AdminUserEditPostHandler(ctx, rw, r.buildRequest())
+	tpl := handler.AdminUserEditPostHandler(ctx, rw, r.buildRequest())
 
 	if tpl.Err != nil {
 		return tpl.Err
@@ -176,7 +176,7 @@ func doAdminListUsersRequest(user reqUser) ([]models.User, error) {
 	}
 
 	rw := httptest.NewRecorder()
-	tpl := controllers.AdminUsersHandler(ctx, rw, r.buildRequest())
+	tpl := handler.AdminUsersHandler(ctx, rw, r.buildRequest())
 
 	if tpl.Err != nil {
 		return nil, tpl.Err
@@ -202,7 +202,7 @@ func doAdminCreateUserRequest(user reqUser, u *models.User) (int, error) {
 	}
 
 	rw := httptest.NewRecorder()
-	tpl := controllers.AdminUserNewPostHandler(ctx, rw, r.buildRequest())
+	tpl := handler.AdminUserNewPostHandler(ctx, rw, r.buildRequest())
 
 	if tpl.Err != nil {
 		return 0, tpl.Err

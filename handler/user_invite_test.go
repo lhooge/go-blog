@@ -1,4 +1,4 @@
-package controllers_test
+package handler_test
 
 import (
 	"net/http/httptest"
@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"testing"
 
-	"git.hoogi.eu/snafu/go-blog/controllers"
+	"git.hoogi.eu/snafu/go-blog/handler"
 	"git.hoogi.eu/snafu/go-blog/models"
 )
 
@@ -70,7 +70,7 @@ func doAdminCreateUserInviteRequest(user reqUser, ui *models.UserInvite) (int, s
 	}
 
 	rw := httptest.NewRecorder()
-	tpl := controllers.AdminUserInviteNewPostHandler(ctx, rw, r.buildRequest())
+	tpl := handler.AdminUserInviteNewPostHandler(ctx, rw, r.buildRequest())
 
 	if tpl.Err != nil {
 		return -1, "", tpl.Err
@@ -93,7 +93,7 @@ func doAdminResendUserInviteRequest(user reqUser, inviteID int) (int, string, er
 	}
 
 	rw := httptest.NewRecorder()
-	tpl := controllers.AdminUserInviteResendPostHandler(ctx, rw, r.buildRequest())
+	tpl := handler.AdminUserInviteResendPostHandler(ctx, rw, r.buildRequest())
 
 	if tpl.Err != nil {
 		return -1, "", tpl.Err
@@ -116,7 +116,7 @@ func doAdminRemoveUserInviteRequest(user reqUser, inviteID int) error {
 	}
 
 	rw := httptest.NewRecorder()
-	tpl := controllers.AdminUserInviteDeletePostHandler(ctx, rw, r.buildRequest())
+	tpl := handler.AdminUserInviteDeletePostHandler(ctx, rw, r.buildRequest())
 
 	if tpl.Err != nil {
 		return tpl.Err

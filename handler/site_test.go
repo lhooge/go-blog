@@ -1,4 +1,4 @@
-package controllers_test
+package handler_test
 
 import (
 	"fmt"
@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"testing"
 
-	"git.hoogi.eu/snafu/go-blog/controllers"
+	"git.hoogi.eu/snafu/go-blog/handler"
 	"git.hoogi.eu/snafu/go-blog/models"
 )
 
@@ -92,7 +92,7 @@ func doGetSiteRequest(user reqUser, link string) (*models.Site, error) {
 	}
 
 	rw := httptest.NewRecorder()
-	tpl := controllers.GetSiteHandler(ctx, rw, r.buildRequest())
+	tpl := handler.GetSiteHandler(ctx, rw, r.buildRequest())
 
 	if tpl.Err != nil {
 		return nil, tpl.Err
@@ -115,7 +115,7 @@ func doAdminGetSiteRequest(user reqUser, siteID int) (*models.Site, error) {
 	}
 
 	rw := httptest.NewRecorder()
-	tpl := controllers.AdminGetSiteHandler(ctx, rw, r.buildRequest())
+	tpl := handler.AdminGetSiteHandler(ctx, rw, r.buildRequest())
 
 	if tpl.Err != nil {
 		return nil, tpl.Err
@@ -132,7 +132,7 @@ func doAdminListSitesRequest(user reqUser) ([]models.Site, error) {
 	}
 
 	rw := httptest.NewRecorder()
-	tpl := controllers.AdminSitesHandler(ctx, rw, r.buildRequest())
+	tpl := handler.AdminSitesHandler(ctx, rw, r.buildRequest())
 
 	if tpl.Err != nil {
 		return nil, tpl.Err
@@ -156,7 +156,7 @@ func doAdminSiteCreateRequest(user reqUser, s *models.Site) (int, error) {
 	}
 
 	rw := httptest.NewRecorder()
-	tpl := controllers.AdminSiteNewPostHandler(ctx, rw, r.buildRequest())
+	tpl := handler.AdminSiteNewPostHandler(ctx, rw, r.buildRequest())
 
 	if tpl.Err != nil {
 		return 0, tpl.Err
@@ -185,7 +185,7 @@ func doAdminSitePublishRequest(user reqUser, siteID int) error {
 	}
 
 	rw := httptest.NewRecorder()
-	tpl := controllers.AdminSitePublishPostHandler(ctx, rw, r.buildRequest())
+	tpl := handler.AdminSitePublishPostHandler(ctx, rw, r.buildRequest())
 
 	if tpl.Err != nil {
 		return tpl.Err
@@ -215,7 +215,7 @@ func doAdminSiteEditRequest(user reqUser, s *models.Site) error {
 	}
 
 	rw := httptest.NewRecorder()
-	tpl := controllers.AdminSiteEditPostHandler(ctx, rw, r.buildRequest())
+	tpl := handler.AdminSiteEditPostHandler(ctx, rw, r.buildRequest())
 
 	if tpl.Err != nil {
 		return tpl.Err
@@ -238,7 +238,7 @@ func doAdminSiteDeleteRequest(user reqUser, siteID int) error {
 	}
 
 	rw := httptest.NewRecorder()
-	tpl := controllers.AdminSiteDeletePostHandler(ctx, rw, r.buildRequest())
+	tpl := handler.AdminSiteDeletePostHandler(ctx, rw, r.buildRequest())
 
 	if tpl.Err != nil {
 		return tpl.Err
@@ -261,7 +261,7 @@ func doAdminSiteOrderRequest(user reqUser, siteID int) error {
 	}
 
 	rw := httptest.NewRecorder()
-	tpl := controllers.AdminSiteOrderHandler(ctx, rw, r.buildRequest())
+	tpl := handler.AdminSiteOrderHandler(ctx, rw, r.buildRequest())
 
 	if tpl.Err != nil {
 		return tpl.Err

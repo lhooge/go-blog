@@ -2,7 +2,7 @@
 // Use of this source code is governed by a MIT-style
 // license that can be found in the LICENSE file.
 
-package controllers_test
+package handler_test
 
 import (
 	"fmt"
@@ -13,7 +13,7 @@ import (
 	"strconv"
 	"testing"
 
-	"git.hoogi.eu/snafu/go-blog/controllers"
+	"git.hoogi.eu/snafu/go-blog/handler"
 	"git.hoogi.eu/snafu/go-blog/models"
 )
 
@@ -143,7 +143,7 @@ func doGetArticleBySlugRequest(user reqUser, article *models.Article) (*models.A
 	}
 
 	rw := httptest.NewRecorder()
-	tpl := controllers.GetArticleHandler(ctx, rw, r.buildRequest())
+	tpl := handler.GetArticleHandler(ctx, rw, r.buildRequest())
 
 	if tpl.Err != nil {
 		return nil, tpl.Err
@@ -166,7 +166,7 @@ func doGetArticleByIDRequest(user reqUser, articleID int) (*models.Article, erro
 	}
 
 	rw := httptest.NewRecorder()
-	tpl := controllers.GetArticleByIDHandler(ctx, rw, r.buildRequest())
+	tpl := handler.GetArticleByIDHandler(ctx, rw, r.buildRequest())
 
 	if tpl.Err != nil {
 		return nil, tpl.Err
@@ -196,7 +196,7 @@ func doAdminEditArticleRequest(user reqUser, articleID int, article *models.Arti
 
 	rw := httptest.NewRecorder()
 
-	tpl := controllers.AdminArticleEditPostHandler(ctx, rw, r.buildRequest())
+	tpl := handler.AdminArticleEditPostHandler(ctx, rw, r.buildRequest())
 
 	if tpl.Err != nil {
 		return tpl.Err
@@ -222,7 +222,7 @@ func doAdminCreateArticleRequest(user reqUser, article *models.Article) (int, er
 	}
 
 	rw := httptest.NewRecorder()
-	tpl := controllers.AdminArticleNewPostHandler(ctx, rw, r.buildRequest())
+	tpl := handler.AdminArticleNewPostHandler(ctx, rw, r.buildRequest())
 
 	if tpl.Err != nil {
 		return 0, tpl.Err
@@ -249,7 +249,7 @@ func doAdminGetArticleByIDRequest(user reqUser, articleID int) (*models.Article,
 	}
 
 	rw := httptest.NewRecorder()
-	tpl := controllers.AdminPreviewArticleByIDHandler(ctx, rw, r.buildRequest())
+	tpl := handler.AdminPreviewArticleByIDHandler(ctx, rw, r.buildRequest())
 
 	if tpl.Err != nil {
 		return nil, tpl.Err
@@ -266,7 +266,7 @@ func doAdminListArticleRequest(user reqUser) ([]models.Article, error) {
 	}
 
 	rw := httptest.NewRecorder()
-	tpl := controllers.AdminListArticlesHandler(ctx, rw, r.buildRequest())
+	tpl := handler.AdminListArticlesHandler(ctx, rw, r.buildRequest())
 
 	if tpl.Err != nil {
 		return nil, tpl.Err
@@ -289,7 +289,7 @@ func doAdminPublishArticleRequest(user reqUser, articleID int) error {
 	}
 
 	rw := httptest.NewRecorder()
-	tpl := controllers.AdminArticlePublishPostHandler(ctx, rw, r.buildRequest())
+	tpl := handler.AdminArticlePublishPostHandler(ctx, rw, r.buildRequest())
 
 	if tpl.Err != nil {
 		return tpl.Err
@@ -312,7 +312,7 @@ func doAdminRemoveArticleRequest(user reqUser, articleID int) error {
 	}
 
 	rw := httptest.NewRecorder()
-	tpl := controllers.AdminArticleDeletePostHandler(ctx, rw, r.buildRequest())
+	tpl := handler.AdminArticleDeletePostHandler(ctx, rw, r.buildRequest())
 
 	if tpl.Err != nil {
 		return tpl.Err
