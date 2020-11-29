@@ -10,7 +10,7 @@ import (
 
 var multipleDashes = regexp.MustCompile(`[-]{2,}`)
 
-//CreateURLSafeSlug creates a url safe slug to use in URL
+//CreateURLSafeSlug creates a URL safe slug to use in URL
 func CreateURLSafeSlug(input string, suffix int) string {
 	input = strings.Replace(input, "-", "", -1)
 

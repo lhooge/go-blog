@@ -230,7 +230,7 @@ func ResetPasswordHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *
 //ResetPasswordPostHandler handles the resetting of the password
 func ResetPasswordPostHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
 	password := r.FormValue("password")
-	repassword := r.FormValue("password_repeat")
+	password2 := r.FormValue("password_repeat")
 	hash := getVar(r, "hash")
 
 	t, err := ctx.TokenService.Get(hash, models.PasswordReset, time.Duration(1)*time.Hour)
@@ -251,7 +251,7 @@ func ResetPasswordPostHandler(ctx *middleware.AppContext, w http.ResponseWriter,
 		}
 	}
 
-	if password != repassword {
+	if password != password2 {
 		return &middleware.Template{
 			Name: tplAdminResetPassword,
 			Err:  httperror.New(http.StatusUnprocessableEntity, "The passwords entered do not match.", errors.New("the password entered did not match")),
