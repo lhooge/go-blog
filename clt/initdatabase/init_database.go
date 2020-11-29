@@ -12,7 +12,7 @@ import (
 	"os"
 	"strings"
 
-	"git.hoogi.eu/snafu/go-blog/components/database"
+	"git.hoogi.eu/snafu/go-blog/database"
 	"git.hoogi.eu/snafu/go-blog/logger"
 )
 
