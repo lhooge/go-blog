@@ -99,7 +99,6 @@ func main() {
 }
 
 func (userFlags createUserFlag) CreateUser() error {
-
 	var userService models.UserService
 
 	dbConfig := database.SQLiteConfig{

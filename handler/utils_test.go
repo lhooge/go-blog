@@ -20,13 +20,13 @@ import (
 	"path/filepath"
 	"testing"
 
-	"git.hoogi.eu/snafu/go-blog/components/database"
-	"git.hoogi.eu/snafu/go-blog/components/mail"
+	"git.hoogi.eu/snafu/go-blog/crypt"
+	"git.hoogi.eu/snafu/go-blog/database"
 	"git.hoogi.eu/snafu/go-blog/logger"
+	"git.hoogi.eu/snafu/go-blog/mail"
 	"git.hoogi.eu/snafu/go-blog/middleware"
 	"git.hoogi.eu/snafu/go-blog/models"
 	"git.hoogi.eu/snafu/go-blog/settings"
-	"git.hoogi.eu/snafu/go-blog/utils"
 	"git.hoogi.eu/snafu/session"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -145,9 +145,9 @@ func teardown() {
 }
 
 func fillSeeds(db *sql.DB) error {
-	salt := utils.GenerateSalt()
-	saltedPassword := "123456789012" + salt
-	password, err := utils.CryptPassword([]byte(saltedPassword), 12)
+	salt := crypt.GenerateSalt()
+	saltedPassword := append([]byte("123456789012"), salt[:]...)
+	password, err := crypt.CryptPassword([]byte(saltedPassword), 12)
 
 	if err != nil {
 		return err
