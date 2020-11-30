@@ -1,7 +1,13 @@
 BINARYNAME=go-blog
 TMP=tmp
+DIST=release
 GITHASH=$(shell git rev-parse HEAD)
 BUILD_VERSION=$(shell git describe --tags)
+
+ifndef $(GOPATH)
+    GOPATH=$(shell go env GOPATH)
+    export GOPATH
+endif
 
 RELEASE="releases"
 
