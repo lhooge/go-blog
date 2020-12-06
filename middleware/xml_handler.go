@@ -26,7 +26,7 @@ func (fn XMLHandler) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		logger.Log.Error(err)
 
-		xml, err := xml.Marshal(err)
+		x, err := xml.Marshal(err)
 
 		if err != nil {
 			logger.Log.Error(err)
@@ -34,14 +34,14 @@ func (fn XMLHandler) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		rw.Write(xml)
+		rw.Write(x)
 		return
 	}
 
-	x, err := xml.MarshalIndent(h.Data, "", "\t")
+	x, err2 := xml.MarshalIndent(h.Data, "", "\t")
 
-	if err != nil {
-		http.Error(rw, err.Error(), http.StatusInternalServerError)
+	if err2 != nil {
+		http.Error(rw, err2.Error(), http.StatusInternalServerError)
 		return
 	}
 
