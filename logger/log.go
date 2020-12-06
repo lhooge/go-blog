@@ -14,14 +14,9 @@ import (
 //Log returns a new logrus instance
 var Log = logrus.New()
 
-//InitLogger initializes the logger. Writes to file with the specified log level
-//Valid log levels are:
-// debug
-// info   (fallback)
-// warn
-// error
-// fatal
-// panic
+//InitLogger initializes the logger
+//Valid log levels are: debug|info|warn|error|fatal|panic
+//Fallback: info
 func InitLogger(w io.Writer, level string) {
 	level = strings.ToLower(level)
 
