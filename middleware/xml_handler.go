@@ -26,22 +26,22 @@ func (fn XMLHandler) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		logger.Log.Error(err)
 
-		x, err2 := xml.Marshal(err)
+		xml, err := xml.Marshal(err)
 
-		if err2 != nil {
-			logger.Log.Error(err2)
-			http.Error(rw, err2.Error(), http.StatusInternalServerError)
+		if err != nil {
+			logger.Log.Error(err)
+			http.Error(rw, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
-		rw.Write(x)
+		rw.Write(xml)
 		return
 	}
 
-	x, err2 := xml.MarshalIndent(h.Data, "", "\t")
+	x, err := xml.MarshalIndent(h.Data, "", "\t")
 
-	if err2 != nil {
-		http.Error(rw, err2.Error(), http.StatusInternalServerError)
+	if err != nil {
+		http.Error(rw, err.Error(), http.StatusInternalServerError)
 		return
 	}
 

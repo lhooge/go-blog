@@ -80,6 +80,7 @@ func setCookie(rw http.ResponseWriter, name, path, data string) {
 
 func getFlash(w http.ResponseWriter, r *http.Request, name string) (string, error) {
 	c, err := r.Cookie(name)
+
 	if err != nil {
 		switch err {
 		case http.ErrNoCookie:
@@ -88,7 +89,9 @@ func getFlash(w http.ResponseWriter, r *http.Request, name string) (string, erro
 			return "", err
 		}
 	}
+
 	value, err := base64.StdEncoding.DecodeString(c.Value)
+
 	if err != nil {
 		return "", err
 	}
@@ -98,7 +101,8 @@ func getFlash(w http.ResponseWriter, r *http.Request, name string) (string, erro
 		Name:    name,
 		MaxAge:  -1,
 		Expires: time.Unix(1, 0),
-		Path:    "/"}
+		Path:    "/",
+	}
 
 	http.SetCookie(w, dc)
 
