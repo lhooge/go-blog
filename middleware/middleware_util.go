@@ -5,12 +5,12 @@
 package middleware
 
 import (
+	"encoding/base64"
 	"net"
 	"net/http"
 	"strings"
 	"time"
 
-	"git.hoogi.eu/snafu/go-blog/crypt"
 	"git.hoogi.eu/snafu/go-blog/logger"
 )
 
@@ -72,7 +72,7 @@ func setCookie(rw http.ResponseWriter, name, path, data string) {
 	c := &http.Cookie{
 		Name:  name,
 		Path:  path,
-		Value: crypt.EncodeBase64(data),
+		Value: base64.StdEncoding.EncodeToString([]byte(data)),
 	}
 
 	http.SetCookie(rw, c)
@@ -88,7 +88,7 @@ func getFlash(w http.ResponseWriter, r *http.Request, name string) (string, erro
 			return "", err
 		}
 	}
-	value, err := crypt.DecodeBase64(c.Value)
+	value, err := base64.StdEncoding.DecodeString(c.Value)
 	if err != nil {
 		return "", err
 	}
@@ -102,5 +102,5 @@ func getFlash(w http.ResponseWriter, r *http.Request, name string) (string, erro
 
 	http.SetCookie(w, dc)
 
-	return value, nil
+	return string(value), nil
 }

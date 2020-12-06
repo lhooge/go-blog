@@ -8,41 +8,39 @@ package crypt
 import (
 	"crypto/rand"
 	"crypto/sha512"
-	"encoding/base64"
 	"encoding/hex"
+	"fmt"
 	"io"
 	"math/big"
 
 	"golang.org/x/crypto/bcrypt"
 )
 
-const (
+var (
 	//AlphaUpper all upper alphas chars
-	AlphaUpper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	AlphaUpper = RandomSource("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
 	//AlphaLower all lowers alphas chars
-	AlphaLower = "abcdefghijklmnopqrstuvwxyz"
+	AlphaLower = RandomSource("abcdefghijklmnopqrstuvwxyz")
 	//AlphaUpperLower all upper and lowers aplhas chars
-	AlphaUpperLower = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+	AlphaUpperLower = RandomSource("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz")
 	//AlphaUpperLowerNumeric all upper lowers alphas and numerics
-	AlphaUpperLowerNumeric = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890abcdefghijklmnopqrstuvwxyz"
-	//AlphaUpperLowerNumericSpecial all upper lowers alphas, numerics and special chas
-	AlphaUpperLowerNumericSpecial = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz123456890" +
-		"!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~"
+	AlphaUpperLowerNumeric = RandomSource("ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890abcdefghijklmnopqrstuvwxyz")
+	//AlphaUpperLowerNumericSpecial all upper lowers alphas, numerics and special chars
+	AlphaUpperLowerNumericSpecial = RandomSource("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz123456890" +
+		"!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~")
 )
 
-//RandomSource express which chars should be considered
-type RandomSource struct {
-	CharsToGen string
-}
+//RandomSource string containing which characters should be considered when generating random sequences
+type RandomSource string
 
 //RandomSequence returns random character with given length;
-//random source express which chars should be considered
 func (r RandomSource) RandomSequence(length int) []byte {
 	result := make([]byte, length)
 	for i := 0; i < length; i++ {
-		char, _ := rand.Int(rand.Reader, big.NewInt(int64(len(r.CharsToGen))))
-		result[i] = r.CharsToGen[int(char.Int64())]
+		char, _ := rand.Int(rand.Reader, big.NewInt(int64(len(r))))
+		result[i] = r[int(char.Int64())]
 	}
+	fmt.Println(result)
 	return result
 }
 
@@ -55,7 +53,7 @@ func RandomSecureKey(length int) []byte {
 	return k
 }
 
-//CryptPassword bcrypts a password at given costs
+//CryptPassword hashes a password with bcrypt and a given cost
 func CryptPassword(password []byte, cost int) ([]byte, error) {
 	s, err := bcrypt.GenerateFromPassword(password, cost)
 
@@ -68,21 +66,7 @@ func CryptPassword(password []byte, cost int) ([]byte, error) {
 
 //GenerateSalt generates a random salt with alphanumerics and some special characters
 func GenerateSalt() []byte {
-	r := RandomSource{
-		CharsToGen: AlphaUpperLowerNumericSpecial,
-	}
-	return r.RandomSequence(32)
-}
-
-//EncodeBase64 encodes a string to base64
-func EncodeBase64(input string) string {
-	return base64.StdEncoding.EncodeToString([]byte(input))
-}
-
-//DecodeBase64 descodes a string to base64
-func DecodeBase64(b64 string) (string, error) {
-	out, err := base64.StdEncoding.DecodeString(b64)
-	return string(out), err
+	return AlphaUpperLowerNumericSpecial.RandomSequence(32)
 }
 
 func RandomHash(length int) string {

@@ -286,11 +286,7 @@ func (cfg *Settings) GenerateCSRF() (bool, error) {
 
 		if _, err := os.Stat(csrfTokenFilename); os.IsNotExist(err) {
 			//create a random csrf token
-			r := crypt.RandomSource{
-				CharsToGen: crypt.AlphaUpperLowerNumericSpecial,
-			}
-
-			b = r.RandomSequence(32)
+			b = crypt.AlphaUpperLowerNumericSpecial.RandomSequence(32)
 
 			err := ioutil.WriteFile(csrfTokenFilename, b, 0640)
 
