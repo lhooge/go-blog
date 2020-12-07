@@ -17,13 +17,7 @@ type SQLiteConfig struct {
 
 //Open receives handle for sqlite database, returns an error if connection failed
 func (d SQLiteConfig) Open() (*sql.DB, error) {
-	db, err := sql.Open("sqlite3", d.File)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return db, nil
+	return sql.Open("sqlite3", d.File)
 }
 
 //InitTables creates the tables

@@ -66,7 +66,7 @@ func (cs CategoryService) GetBySlug(s string, fc FilterCriteria) (*Category, err
 	c, err := cs.Datasource.GetBySlug(s, fc)
 
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if errors.Is(err, sql.ErrNoRows) {
 			return nil, httperror.NotFound("category", fmt.Errorf("the category with slug %s was not found", s))
 		}
 		return nil, err
@@ -79,7 +79,7 @@ func (cs CategoryService) GetByID(id int, fc FilterCriteria) (*Category, error) 
 	c, err := cs.Datasource.Get(id, fc)
 
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if errors.Is(err, sql.ErrNoRows) {
 			return nil, httperror.NotFound("category", fmt.Errorf("the category with id %d was not found", id))
 		}
 		return nil, err
@@ -103,7 +103,7 @@ func (cs CategoryService) Create(c *Category) (int, error) {
 		_, err := cs.Datasource.GetBySlug(c.Slug, AllCategories)
 
 		if err != nil {
-			if err == sql.ErrNoRows {
+			if errors.Is(err, sql.ErrNoRows) {
 				break
 			}
 			return -1, err

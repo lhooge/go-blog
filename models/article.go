@@ -76,7 +76,7 @@ func (a *Article) slug(as ArticleService, now time.Time) error {
 		_, err := as.Datasource.GetBySlug(a.Slug, nil, All)
 
 		if err != nil {
-			if err == sql.ErrNoRows {
+			if errors.Is(err, sql.ErrNoRows) {
 				break
 			}
 			return err
@@ -210,7 +210,7 @@ func (as ArticleService) GetBySlug(s string, u *User, pc PublishedCriteria) (*Ar
 	a, err := as.Datasource.GetBySlug(s, u, pc)
 
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if errors.Is(err, sql.ErrNoRows) {
 			return nil, httperror.NotFound("article", err)
 		}
 		return nil, err
@@ -233,7 +233,7 @@ func (as ArticleService) GetByID(id int, u *User, pc PublishedCriteria) (*Articl
 	a, err := as.Datasource.Get(id, u, pc)
 
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if errors.Is(err, sql.ErrNoRows) {
 			return nil, httperror.NotFound("article", fmt.Errorf("the article with id %d was not found", id))
 		}
 		return nil, err
