@@ -32,9 +32,6 @@ releases
 
 .idea
 .csrftoken
-/clt/createUser
-/clt/initDatabase
-/go-blog
 releases
 
 db/

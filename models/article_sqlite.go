@@ -76,10 +76,9 @@ func (rdb SQLiteArticleDatasource) List(u *User, c *Category, p *Pagination, pc 
 //the PublishedCritera specifies which articles should be considered
 func (rdb SQLiteArticleDatasource) Count(u *User, c *Category, pc PublishedCriteria) (int, error) {
 	var total int
-
 	var args []interface{}
-
 	var stmt bytes.Buffer
+
 	stmt.WriteString("SELECT count(a.id) FROM article a ")
 
 	if c != nil {
@@ -211,19 +210,21 @@ func selectArticleStmt(db *sql.DB, articleID int, slug string, u *User, pc Publi
 		stmt.WriteString("AND a.id=? ")
 		args = append(args, articleID)
 	}
+
 	if u != nil {
 		if !u.IsAdmin {
 			stmt.WriteString("AND a.user_id=? ")
 			args = append(args, u.ID)
 		}
 	}
+
 	stmt.WriteString("LIMIT 1")
+
 	return db.QueryRow(stmt.String(), args...)
 }
 
 func selectArticlesStmt(db *sql.DB, u *User, c *Category, p *Pagination, pc PublishedCriteria) (*sql.Rows, error) {
 	var stmt bytes.Buffer
-
 	var args []interface{}
 
 	stmt.WriteString("SELECT a.id, a.headline, a.teaser, a.content, a.published, a.published_on, a.slug, a.last_modified, ")

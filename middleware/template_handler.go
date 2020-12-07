@@ -12,8 +12,8 @@ import (
 
 	"github.com/gorilla/csrf"
 
-	"git.hoogi.eu/snafu/go-blog/components/httperror"
-	"git.hoogi.eu/snafu/go-blog/components/logger"
+	"git.hoogi.eu/snafu/go-blog/httperror"
+	"git.hoogi.eu/snafu/go-blog/logger"
 	"git.hoogi.eu/snafu/go-blog/models"
 )
 
@@ -34,7 +34,8 @@ type Handler func(*AppContext, http.ResponseWriter, *http.Request) *Template
 
 func (fn TemplateHandler) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	var errorMsg, warnMsg, successMsg string
-	statusCode := 200
+
+	code := http.StatusOK
 
 	ip := getIP(r)
 	en := logger.Log.WithField("ip", ip)
@@ -60,7 +61,7 @@ func (fn TemplateHandler) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 
 		switch e := t.Err.(type) {
 		case *httperror.Error:
-			statusCode = e.HTTPStatus
+			code = e.HTTPStatus
 			en.Error(e)
 			errorMsg = e.DisplayMsg
 		default:
@@ -99,14 +100,14 @@ func (fn TemplateHandler) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 		t.Data[csrf.TemplateTag] = csrf.TemplateField(r)
 		t.Data["active"] = t.Active
 
-		rw.WriteHeader(statusCode)
+		rw.WriteHeader(code)
 
 		if err := fn.AppCtx.Templates.ExecuteTemplate(rw, t.Name, t.Data); err != nil {
 			en.Error(err)
 			http.Error(rw, err.Error(), http.StatusInternalServerError)
 		}
 	} else {
-		statusCode = http.StatusFound
+		code = http.StatusFound
 		if len(errorMsg) > 0 {
 			setCookie(rw, "ErrorMsg", "/", errorMsg)
 		} else if len(warnMsg) > 0 {
@@ -114,7 +115,7 @@ func (fn TemplateHandler) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 		} else if len(successMsg) > 0 {
 			setCookie(rw, "SuccessMsg", "/", successMsg)
 		}
-		http.Redirect(rw, r, path.Clean(t.RedirectURL()), statusCode)
+		http.Redirect(rw, r, path.Clean(t.RedirectURL()), code)
 	}
 }
 
@@ -135,6 +136,7 @@ func (ctx AppContext) AuthHandler(handler http.Handler) http.Handler {
 		}
 
 		userid, ok := session.GetValue("userid").(int)
+
 		if !ok {
 			logger.Log.Errorf("userid is not an integer %v", userid)
 
@@ -148,6 +150,7 @@ func (ctx AppContext) AuthHandler(handler http.Handler) http.Handler {
 		}
 
 		u, err := ctx.UserService.GetByID(userid)
+
 		if err != nil {
 			logger.Log.Error(err)
 			rw.WriteHeader(http.StatusUnauthorized)
@@ -159,8 +162,7 @@ func (ctx AppContext) AuthHandler(handler http.Handler) http.Handler {
 			return
 		}
 
-		ctx := context.WithValue(r.Context(), UserContextKey, u)
-		handler.ServeHTTP(rw, r.WithContext(ctx))
+		handler.ServeHTTP(rw, r.WithContext(context.WithValue(r.Context(), UserContextKey, u)))
 	}
 	return http.HandlerFunc(fn)
 }
@@ -195,7 +197,7 @@ func (ctx AppContext) RequireAdmin(handler http.Handler) http.Handler {
 func User(r *http.Request) (*models.User, error) {
 	v := r.Context().Value(UserContextKey)
 	if v == nil {
-		return nil, httperror.InternalServerError(errors.New("user is not available in context. is the authentication handler in chain?"))
+		return nil, httperror.InternalServerError(errors.New("user is not available in context"))
 	}
 
 	return v.(*models.User), nil

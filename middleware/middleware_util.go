@@ -5,13 +5,13 @@
 package middleware
 
 import (
+	"encoding/base64"
 	"net"
 	"net/http"
 	"strings"
 	"time"
 
-	"git.hoogi.eu/snafu/go-blog/components/logger"
-	"git.hoogi.eu/snafu/go-blog/utils"
+	"git.hoogi.eu/snafu/go-blog/logger"
 )
 
 var locals = [...]net.IPNet{
@@ -72,7 +72,7 @@ func setCookie(rw http.ResponseWriter, name, path, data string) {
 	c := &http.Cookie{
 		Name:  name,
 		Path:  path,
-		Value: utils.EncodeBase64(data),
+		Value: base64.StdEncoding.EncodeToString([]byte(data)),
 	}
 
 	http.SetCookie(rw, c)
@@ -80,6 +80,7 @@ func setCookie(rw http.ResponseWriter, name, path, data string) {
 
 func getFlash(w http.ResponseWriter, r *http.Request, name string) (string, error) {
 	c, err := r.Cookie(name)
+
 	if err != nil {
 		switch err {
 		case http.ErrNoCookie:
@@ -88,7 +89,9 @@ func getFlash(w http.ResponseWriter, r *http.Request, name string) (string, erro
 			return "", err
 		}
 	}
-	value, err := utils.DecodeBase64(c.Value)
+
+	value, err := base64.StdEncoding.DecodeString(c.Value)
+
 	if err != nil {
 		return "", err
 	}
@@ -98,9 +101,10 @@ func getFlash(w http.ResponseWriter, r *http.Request, name string) (string, erro
 		Name:    name,
 		MaxAge:  -1,
 		Expires: time.Unix(1, 0),
-		Path:    "/"}
+		Path:    "/",
+	}
 
 	http.SetCookie(w, dc)
 
-	return value, nil
+	return string(value), nil
 }

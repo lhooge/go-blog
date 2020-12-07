@@ -15,6 +15,8 @@ type SQLiteUserDatasource struct {
 func (rdb SQLiteUserDatasource) List(p *Pagination) ([]User, error) {
 	var stmt bytes.Buffer
 	var args []interface{}
+	var users []User
+	var u User
 
 	stmt.WriteString("SELECT id, username, email, display_name, last_modified, active, is_admin FROM user ORDER BY username ASC ")
 
@@ -30,10 +32,6 @@ func (rdb SQLiteUserDatasource) List(p *Pagination) ([]User, error) {
 	}
 
 	defer rows.Close()
-
-	users := []User{}
-
-	var u User
 
 	for rows.Next() {
 		if err = rows.Scan(&u.ID, &u.Username, &u.Email, &u.DisplayName, &u.LastModified, &u.Active, &u.IsAdmin); err != nil {
@@ -106,7 +104,6 @@ func (rdb SQLiteUserDatasource) Create(u *User) (int, error) {
 //Update updates an user
 func (rdb SQLiteUserDatasource) Update(u *User, changePassword bool) error {
 	var stmt bytes.Buffer
-
 	var args []interface{}
 
 	stmt.WriteString("UPDATE user SET display_name=?, username=?, email=?, last_modified=?, active=?, is_admin=? ")
@@ -128,10 +125,9 @@ func (rdb SQLiteUserDatasource) Update(u *User, changePassword bool) error {
 	return nil
 }
 
-//Count retuns the amount of users matches the AdminCriteria
+//Count returns the amount of users matches the AdminCriteria
 func (rdb SQLiteUserDatasource) Count(ac AdminCriteria) (int, error) {
 	var stmt bytes.Buffer
-
 	stmt.WriteString("SELECT count(id) FROM user ")
 
 	if ac == OnlyAdmins {
@@ -151,11 +147,7 @@ func (rdb SQLiteUserDatasource) Count(ac AdminCriteria) (int, error) {
 
 //Removes an user
 func (rdb SQLiteUserDatasource) Remove(userID int) error {
-	var stmt bytes.Buffer
-
-	stmt.WriteString("DELETE FROM user WHERE id=?")
-
-	if _, err := rdb.SQLConn.Exec(stmt.String(), userID); err != nil {
+	if _, err := rdb.SQLConn.Exec("DELETE FROM user WHERE id=?", userID); err != nil {
 		return err
 	}
 

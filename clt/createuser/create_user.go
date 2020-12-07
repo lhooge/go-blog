@@ -12,10 +12,9 @@ import (
 	"os"
 	"syscall"
 
-	"git.hoogi.eu/snafu/go-blog/components/database"
-	"git.hoogi.eu/snafu/go-blog/components/logger"
+	"git.hoogi.eu/snafu/go-blog/database"
+	"git.hoogi.eu/snafu/go-blog/logger"
 	"git.hoogi.eu/snafu/go-blog/models"
-	"git.hoogi.eu/snafu/go-blog/utils"
 	"golang.org/x/crypto/ssh/terminal"
 )
 
@@ -38,13 +37,30 @@ func main() {
 
 	fmt.Printf("create_user version %s\n", BuildVersion)
 
-	username := flag.String("username", "", "Username for the admin user ")
-	email := flag.String("email", "", "Email for the created user ")
-	displayName := flag.String("displayname", "", "Display name for the admin user ")
-	isAdmin := flag.Bool("admin", false, "If set a new administrator will be created; otherwise a non-admin is created")
-	file := flag.String("sqlite", "", "Location to the sqlite3 database file")
+	username := flag.String("username", "", "Username for the admin user. (required)")
+	email := flag.String("email", "", "Email for the created user. (required)")
+	displayName := flag.String("displayname", "", "Display name for the admin user. (required)")
+	isAdmin := flag.Bool("admin", false, "If set a new user with admin permissions will be created; otherwise a non-admin is created.")
+	file := flag.String("sqlite", "", "Location to the sqlite3 database file. (required)")
 
 	flag.Parse()
+
+	if *username == "" {
+		fmt.Println("the username (-username) must be specified")
+		os.Exit(1)
+	}
+	if *email == "" {
+		fmt.Println("the email (-email) must be specified")
+		os.Exit(1)
+	}
+	if *displayName == "" {
+		fmt.Println("the display name (-displayname) must be specified")
+		os.Exit(1)
+	}
+	if *file == "" {
+		fmt.Println("the argument -sqlite is empty. Please specify the location of the sqlite3 database file")
+		os.Exit(1)
+	}
 
 	if flag.Parsed() {
 		initUser := createUserFlag{
@@ -55,16 +71,13 @@ func main() {
 			sqlite:      *file,
 		}
 
-		if err := initUser.validate(); err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
-
 		fmt.Printf("Password: ")
 		pw, err := terminal.ReadPassword(int(syscall.Stdin))
 
+		fmt.Println("")
+
 		if err != nil {
-			fmt.Printf("could not read password %v", err)
+			fmt.Printf("could not read password %v\n", err)
 			os.Exit(1)
 		}
 
@@ -85,26 +98,7 @@ func main() {
 	}
 }
 
-func (userFlags createUserFlag) validate() error {
-	if utils.TrimmedStringIsEmpty(userFlags.username) {
-		return fmt.Errorf("the username (-username) must be specified")
-	}
-
-	if utils.TrimmedStringIsEmpty(userFlags.email) {
-		return fmt.Errorf("the email (-email) must be specified")
-	}
-	if utils.TrimmedStringIsEmpty(userFlags.displayName) {
-		return fmt.Errorf("the display name (-displayname) must be specified")
-	}
-	if utils.TrimmedStringIsEmpty(userFlags.sqlite) {
-		return fmt.Errorf("the argument -sqlite is empty. Please specify the location of the sqlite3 database file")
-	}
-
-	return nil
-}
-
 func (userFlags createUserFlag) CreateUser() error {
-
 	var userService models.UserService
 
 	dbConfig := database.SQLiteConfig{

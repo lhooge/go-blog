@@ -7,9 +7,9 @@ import (
 	"net/http"
 	"time"
 
-	"git.hoogi.eu/snafu/go-blog/components/httperror"
-	"git.hoogi.eu/snafu/go-blog/components/logger"
-	"git.hoogi.eu/snafu/go-blog/utils"
+	"git.hoogi.eu/snafu/go-blog/crypt"
+	"git.hoogi.eu/snafu/go-blog/httperror"
+	"git.hoogi.eu/snafu/go-blog/logger"
 )
 
 //TokenDatasourceService defines an interface for CRUD operations for tokens
@@ -68,11 +68,13 @@ type TokenService struct {
 
 //Create creates a new token
 func (ts TokenService) Create(t *Token) error {
-	t.Hash = utils.RandomHash(32)
+	t.Hash = crypt.RandomHash(32)
 
-	_, err := ts.Datasource.Create(t)
+	if _, err := ts.Datasource.Create(t); err != nil {
+		return err
+	}
 
-	return err
+	return nil
 }
 
 //Get token for a defined token type expires after a defined time
@@ -106,7 +108,7 @@ func (ts TokenService) RateLimit(userID int, tt TokenType) error {
 
 	now := time.Now()
 
-	rate := []Token{}
+	var rate []Token
 	for _, t := range tokens {
 		if now.Sub(t.RequestedAt) < time.Minute*15 {
 			rate = append(rate, t)

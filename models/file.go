@@ -11,11 +11,11 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
+	"unicode"
 
-	"git.hoogi.eu/snafu/go-blog/components/httperror"
-	"git.hoogi.eu/snafu/go-blog/components/logger"
+	"git.hoogi.eu/snafu/go-blog/httperror"
+	"git.hoogi.eu/snafu/go-blog/logger"
 	"git.hoogi.eu/snafu/go-blog/settings"
-	"git.hoogi.eu/snafu/go-blog/utils"
 )
 
 //File represents a file
@@ -67,7 +67,7 @@ func (f *File) validate() error {
 
 func (f File) randomFilename() string {
 	var buf bytes.Buffer
-	sanFilename := utils.SanitizeFilename(f.FileInfo.Name)
+	sanFilename := sanitizeFilename(f.FileInfo.Name)
 	if len(sanFilename) == 0 {
 		sanFilename = "unnamed"
 	}
@@ -237,4 +237,37 @@ func (fs FileService) Upload(f *File) (int, error) {
 	f.Data = nil
 
 	return i, nil
+}
+
+var filenameSubs = map[rune]string{
+	'/':  "",
+	'\\': "",
+	':':  "",
+	'*':  "",
+	'?':  "",
+	'"':  "",
+	'<':  "",
+	'>':  "",
+	'|':  "",
+	' ':  "",
+}
+
+func isDot(r rune) bool {
+	return '.' == r
+}
+
+//SanitizeFilename sanitizes a filename for safe use when serving file
+func sanitizeFilename(s string) string {
+	s = strings.ToValidUTF8(s, "")
+	s = strings.TrimFunc(s, unicode.IsSpace)
+
+	s = strings.Map(func(r rune) rune {
+		if _, ok := filenameSubs[r]; ok {
+			return -1
+		}
+		return r
+	}, s)
+
+	s = strings.TrimLeftFunc(s, isDot)
+	return s
 }

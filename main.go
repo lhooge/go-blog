@@ -13,9 +13,9 @@ import (
 	"time"
 
 	"git.hoogi.eu/snafu/cfg"
-	"git.hoogi.eu/snafu/go-blog/components/database"
-	"git.hoogi.eu/snafu/go-blog/components/logger"
-	"git.hoogi.eu/snafu/go-blog/components/mail"
+	"git.hoogi.eu/snafu/go-blog/database"
+	"git.hoogi.eu/snafu/go-blog/logger"
+	"git.hoogi.eu/snafu/go-blog/mail"
 	m "git.hoogi.eu/snafu/go-blog/middleware"
 	"git.hoogi.eu/snafu/go-blog/models"
 	"git.hoogi.eu/snafu/go-blog/routers"

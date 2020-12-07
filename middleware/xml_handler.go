@@ -5,7 +5,7 @@ import (
 	"encoding/xml"
 	"net/http"
 
-	"git.hoogi.eu/snafu/go-blog/components/logger"
+	"git.hoogi.eu/snafu/go-blog/logger"
 	"git.hoogi.eu/snafu/go-blog/models"
 )
 
@@ -26,11 +26,11 @@ func (fn XMLHandler) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		logger.Log.Error(err)
 
-		x, err2 := xml.Marshal(err)
+		x, err := xml.Marshal(err)
 
-		if err2 != nil {
-			logger.Log.Error(err2)
-			http.Error(rw, err2.Error(), http.StatusInternalServerError)
+		if err != nil {
+			logger.Log.Error(err)
+			http.Error(rw, err.Error(), http.StatusInternalServerError)
 			return
 		}
 

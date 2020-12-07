@@ -29,7 +29,7 @@ const (
 	All
 )
 
-//NullTime reprensents a time which may not valid if time is null
+//NullTime represents a time which may not valid if time is null
 type NullTime struct {
 	Time  time.Time
 	Valid bool

@@ -16,11 +16,10 @@ import (
 	"time"
 
 	"git.hoogi.eu/snafu/cfg"
-	"git.hoogi.eu/snafu/go-blog/components/httperror"
-	"git.hoogi.eu/snafu/go-blog/components/logger"
+	"git.hoogi.eu/snafu/go-blog/httperror"
+	"git.hoogi.eu/snafu/go-blog/logger"
 	"git.hoogi.eu/snafu/go-blog/models"
 	"git.hoogi.eu/snafu/go-blog/settings"
-	"git.hoogi.eu/snafu/go-blog/utils"
 )
 
 // Template contains the information about the template to render.
@@ -50,6 +49,7 @@ func NotFound(ctx *AppContext, rw http.ResponseWriter, r *http.Request) *Templat
 	getFlash(rw, r, "SuccessMsg")
 
 	session, _ := ctx.SessionService.Get(rw, r)
+
 	if session != nil && strings.HasPrefix(r.URL.EscapedPath(), "/admin") {
 		return &Template{
 			Name: "admin/error",
@@ -157,8 +157,7 @@ func FuncMap(ss models.SiteService, settings *settings.Settings) template.FuncMa
 			return t.Time.In(time.Local).Format("January 2, 2006 at 3:04 PM")
 		},
 		"HumanizeFilesize": func(size int64) string {
-			fs := cfg.FileSize(size)
-			return fs.HumanReadable()
+			return cfg.FileSize(size).HumanReadable()
 		},
 		"FormatDateTime": func(t time.Time) string {
 			return t.In(time.Local).Format("January 2, 2006 at 3:04 PM")
@@ -185,8 +184,7 @@ func FuncMap(ss models.SiteService, settings *settings.Settings) template.FuncMa
 			return template.HTML(models.MarkdownToHTML([]byte(s)))
 		},
 		"NToBr": func(in string) template.HTML {
-			out := models.NewlineToBr(models.EscapeHTML(in))
-			return template.HTML(out)
+			return template.HTML(models.NewlineToBr(models.EscapeHTML(in)))
 		},
 		"EscapeHTML": func(in string) string {
 			return html.EscapeString(in)
@@ -234,5 +232,5 @@ func (t Template) RedirectURL() string {
 	if t.RedirectPath[0] == byte('/') {
 		return t.RedirectPath
 	}
-	return utils.AppendString("/", t.RedirectPath)
+	return "/" + t.RedirectPath
 }

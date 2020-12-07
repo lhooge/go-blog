@@ -1,7 +1,13 @@
 BINARYNAME=go-blog
 TMP=tmp
+DIST=release
 GITHASH=$(shell git rev-parse HEAD)
 BUILD_VERSION=$(shell git describe --tags)
+
+ifndef $(GOPATH)
+    GOPATH=$(shell go env GOPATH)
+    export GOPATH
+endif
 
 RELEASE="releases"
 
@@ -24,7 +30,7 @@ install:
 package:
 	-rm -r ${TMP}
 	mkdir -p ${TMP}/clt
-	-mkdir -p releases
+	-mkdir -p releases/custom
 	cp ${GOPATH}/bin/go-blog ${TMP}/
 	cp ${GOPATH}/bin/create_user ${TMP}/clt
 	cp ${GOPATH}/bin/init_database ${TMP}/clt

@@ -12,10 +12,10 @@ import (
 	"strings"
 	"time"
 
-	"git.hoogi.eu/snafu/go-blog/components/httperror"
-	"git.hoogi.eu/snafu/go-blog/components/logger"
+	"git.hoogi.eu/snafu/go-blog/crypt"
+	"git.hoogi.eu/snafu/go-blog/httperror"
+	"git.hoogi.eu/snafu/go-blog/logger"
 	"git.hoogi.eu/snafu/go-blog/settings"
-	"git.hoogi.eu/snafu/go-blog/utils"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -133,8 +133,9 @@ func (u *User) validate(us UserService, minPasswordLength int, v Validations) er
 
 func (us UserService) duplicateMail(mail string) error {
 	user, err := us.Datasource.GetByMail(mail)
+
 	if err != nil {
-		if err != sql.ErrNoRows {
+		if !errors.Is(err, sql.ErrNoRows) {
 			return err
 		}
 	}
@@ -149,7 +150,7 @@ func (us UserService) duplicateMail(mail string) error {
 func (us UserService) duplicateUsername(username string) error {
 	user, err := us.Datasource.GetByUsername(username)
 	if err != nil {
-		if err != sql.ErrNoRows {
+		if !errors.Is(err, sql.ErrNoRows) {
 			return err
 		}
 	}
@@ -175,8 +176,9 @@ func (us UserService) List(p *Pagination) ([]User, error) {
 //GetByID gets the user based on the given id; will not contain the user password
 func (us UserService) GetByID(userID int) (*User, error) {
 	u, err := us.Datasource.Get(userID)
+
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if errors.Is(err, sql.ErrNoRows) {
 			return nil, httperror.NotFound("user", fmt.Errorf("the user with id %d was not found", userID))
 		}
 		return nil, err
@@ -189,7 +191,7 @@ func (us UserService) GetByID(userID int) (*User, error) {
 func (us UserService) GetByUsername(username string) (*User, error) {
 	u, err := us.Datasource.GetByUsername(username)
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if errors.Is(err, sql.ErrNoRows) {
 			return nil, httperror.NotFound("user", err)
 		}
 		return nil, err
@@ -203,7 +205,7 @@ func (us UserService) GetByMail(mail string) (*User, error) {
 	u, err := us.Datasource.GetByMail(mail)
 
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if errors.Is(err, sql.ErrNoRows) {
 			return nil, httperror.NotFound("user", err)
 		}
 
@@ -225,9 +227,9 @@ func (us UserService) Create(u *User) (int, error) {
 		return -1, err
 	}
 
-	salt := utils.GenerateSalt()
-	saltedPassword := utils.AppendBytes(u.PlainPassword, salt)
-	password, err := utils.CryptPassword([]byte(saltedPassword), bcryptRounds)
+	salt := crypt.GenerateSalt()
+	saltedPassword := append(u.PlainPassword[:], salt[:]...)
+	password, err := crypt.CryptPassword([]byte(saltedPassword), bcryptRounds)
 
 	if err != nil {
 		return -1, err
@@ -270,7 +272,6 @@ func (us UserService) Update(u *User, changePassword bool) error {
 	}
 
 	if us.UserInterceptor != nil {
-
 		if err := us.UserInterceptor.PreUpdate(oldUser, u); err != nil {
 			return httperror.InternalServerError(fmt.Errorf("error while executing user interceptor 'PreUpdate' error %v", err))
 		}
@@ -309,9 +310,9 @@ func (us UserService) Update(u *User, changePassword bool) error {
 	}
 
 	if changePassword {
-		salt := utils.GenerateSalt()
-		saltedPassword := utils.AppendBytes(u.PlainPassword, salt)
-		password, err := utils.CryptPassword([]byte(saltedPassword), bcryptRounds)
+		salt := crypt.GenerateSalt()
+		saltedPassword := append(u.PlainPassword[:], salt[:]...)
+		password, err := crypt.CryptPassword([]byte(saltedPassword), bcryptRounds)
 
 		if err != nil {
 			return err
@@ -321,7 +322,9 @@ func (us UserService) Update(u *User, changePassword bool) error {
 		u.Salt = salt
 	}
 
-	err = us.Datasource.Update(u, changePassword)
+	if err = us.Datasource.Update(u, changePassword); err != nil {
+		return err
+	}
 
 	u.Password = nil
 
@@ -330,9 +333,10 @@ func (us UserService) Update(u *User, changePassword bool) error {
 			logger.Log.Errorf("error while executing PostUpdate user interceptor method %v", err)
 		}
 	}
+
 	u.PlainPassword = nil
 
-	return err
+	return nil
 }
 
 // Authenticate authenticates the user by the given login method (email or username)
@@ -353,7 +357,7 @@ func (us UserService) Authenticate(u *User, loginMethod settings.LoginMethod) (*
 	}
 
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if errors.Is(err, sql.ErrNoRows) {
 			//Do some extra work
 			bcrypt.CompareHashAndPassword([]byte("$2a$12$bQlRnXTNZMp6kCyoAlnf3uZW5vtmSj9CHP7pYplRUVK2n0C5xBHBa"), password)
 			return nil, httperror.New(http.StatusUnauthorized, "Your username or password is invalid.", err)
@@ -429,5 +433,5 @@ func (us UserService) OneAdmin() (bool, error) {
 }
 
 func (u User) comparePassword() error {
-	return bcrypt.CompareHashAndPassword(u.Password, utils.AppendBytes(u.PlainPassword, u.Salt))
+	return bcrypt.CompareHashAndPassword(u.Password, append(u.PlainPassword[:], u.Salt[:]...))
 }

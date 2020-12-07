@@ -14,6 +14,9 @@ type SQLiteUserInviteDatasource struct {
 func (rdb SQLiteUserInviteDatasource) List() ([]UserInvite, error) {
 	var stmt bytes.Buffer
 	var args []interface{}
+	var invites []UserInvite
+	var ui UserInvite
+	var u User
 
 	stmt.WriteString("SELECT ui.id, ui.username, ui.email, ui.display_name, ui.created_at, ui.is_admin, ")
 	stmt.WriteString("u.id, u.username, u.email, u.display_name ")
@@ -29,11 +32,6 @@ func (rdb SQLiteUserInviteDatasource) List() ([]UserInvite, error) {
 	}
 
 	defer rows.Close()
-
-	invites := []UserInvite{}
-
-	var ui UserInvite
-	var u User
 
 	for rows.Next() {
 		if err = rows.Scan(&ui.ID, &ui.Username, &ui.Email, &ui.DisplayName, &ui.CreatedAt, &ui.IsAdmin, &u.ID, &u.Username, &u.Email, &u.DisplayName); err != nil {
@@ -111,6 +109,7 @@ func (rdb SQLiteUserInviteDatasource) Create(ui *UserInvite) (int, error) {
 	if err != nil {
 		return -1, err
 	}
+
 	return int(i), nil
 }
 
@@ -127,11 +126,7 @@ func (rdb SQLiteUserInviteDatasource) Count() (int, error) {
 
 //Removes an user invitation
 func (rdb SQLiteUserInviteDatasource) Remove(inviteID int) error {
-	var stmt bytes.Buffer
-
-	stmt.WriteString("DELETE FROM user_invite WHERE id=?")
-
-	if _, err := rdb.SQLConn.Exec(stmt.String(), inviteID); err != nil {
+	if _, err := rdb.SQLConn.Exec("DELETE FROM user_invite WHERE id=?", inviteID); err != nil {
 		return err
 	}
 

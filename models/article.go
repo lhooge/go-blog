@@ -14,9 +14,9 @@ import (
 	"strings"
 	"time"
 
-	"git.hoogi.eu/snafu/go-blog/components/httperror"
+	"git.hoogi.eu/snafu/go-blog/httperror"
 	"git.hoogi.eu/snafu/go-blog/settings"
-	"git.hoogi.eu/snafu/go-blog/utils"
+	"git.hoogi.eu/snafu/go-blog/slug"
 )
 
 // Article represents an article
@@ -60,17 +60,21 @@ func (a Article) SlugEscape() string {
 }
 
 func (a *Article) buildSlug(now time.Time, suffix int) string {
-	return utils.AppendString(strconv.Itoa(now.Year()), "/", strconv.Itoa(int(now.Month())), "/", utils.CreateURLSafeSlug(a.Headline, suffix))
+	var sb strings.Builder
+	sb.WriteString(strconv.Itoa(now.Year()))
+	sb.WriteString("/")
+	sb.WriteString(strconv.Itoa(int(now.Month())))
+	sb.WriteString("/")
+	sb.WriteString(slug.CreateURLSafeSlug(a.Headline, suffix))
+	return sb.String()
 }
 
 func (a *Article) slug(as ArticleService, now time.Time) error {
 	for i := 0; i < 10; i++ {
 		a.Slug = a.buildSlug(now, i)
 
-		_, err := as.Datasource.GetBySlug(a.Slug, nil, All)
-
-		if err != nil {
-			if err == sql.ErrNoRows {
+		if _, err := as.Datasource.GetBySlug(a.Slug, nil, All); err != nil {
+			if errors.Is(err, sql.ErrNoRows) {
 				break
 			}
 			return err
@@ -118,18 +122,11 @@ func (as ArticleService) Create(a *Article) (int, error) {
 		return 0, err
 	}
 
-	err := a.slug(as, now)
-
-	if err != nil {
+	if err := a.slug(as, now); err != nil {
 		return -1, err
 	}
 
-	artID, err := as.Datasource.Create(a)
-	if err != nil {
-		return 0, err
-	}
-
-	return artID, nil
+	return as.Datasource.Create(a)
 }
 
 //Update updates an article
@@ -204,7 +201,7 @@ func (as ArticleService) GetBySlug(s string, u *User, pc PublishedCriteria) (*Ar
 	a, err := as.Datasource.GetBySlug(s, u, pc)
 
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if errors.Is(err, sql.ErrNoRows) {
 			return nil, httperror.NotFound("article", err)
 		}
 		return nil, err
@@ -227,7 +224,7 @@ func (as ArticleService) GetByID(id int, u *User, pc PublishedCriteria) (*Articl
 	a, err := as.Datasource.Get(id, u, pc)
 
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if errors.Is(err, sql.ErrNoRows) {
 			return nil, httperror.NotFound("article", fmt.Errorf("the article with id %d was not found", id))
 		}
 		return nil, err
@@ -272,7 +269,8 @@ func (as ArticleService) RSSFeed(p *Pagination, pc PublishedCriteria) (RSS, erro
 		return RSS{}, err
 	}
 
-	items := []RSSItem{}
+	var items []RSSItem
+
 	for _, a := range articles {
 		link := fmt.Sprint(as.AppConfig.Domain, "/article/by-id/", a.ID)
 		item := RSSItem{

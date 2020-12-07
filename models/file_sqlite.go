@@ -15,7 +15,6 @@ type SQLiteFileDatasource struct {
 //only file specific to this user is returned
 func (rdb SQLiteFileDatasource) GetByUniqueName(uniqueName string, u *User) (*File, error) {
 	var stmt bytes.Buffer
-
 	var args []interface{}
 
 	stmt.WriteString("SELECT f.id, f.filename, f.unique_name, f.content_type, f.inline, f.size, f.last_modified, f.user_id, ")
@@ -51,7 +50,6 @@ func (rdb SQLiteFileDatasource) GetByUniqueName(uniqueName string, u *User) (*Fi
 //only file specific to this user is returned
 func (rdb SQLiteFileDatasource) Get(fileID int, u *User) (*File, error) {
 	var stmt bytes.Buffer
-
 	var args []interface{}
 
 	stmt.WriteString("SELECT f.id, f.filename, f.unique_name, f.content_type, f.inline, f.size, f.last_modified, f.user_id, ")
@@ -144,8 +142,7 @@ func (rdb SQLiteFileDatasource) List(u *User, p *Pagination) ([]File, error) {
 
 	defer rows.Close()
 
-	files := []File{}
-
+	var files []File
 	var f File
 	var us User
 

@@ -8,8 +8,8 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"git.hoogi.eu/snafu/go-blog/components/httperror"
-	"git.hoogi.eu/snafu/go-blog/components/logger"
+	"git.hoogi.eu/snafu/go-blog/httperror"
+	"git.hoogi.eu/snafu/go-blog/logger"
 	"git.hoogi.eu/snafu/go-blog/models"
 )
 
@@ -23,7 +23,7 @@ type JSONHandler struct {
 type JHandler func(*AppContext, http.ResponseWriter, *http.Request) (*models.JSONData, error)
 
 func (fn JSONHandler) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
-	statusCode := 200
+	code := http.StatusOK
 
 	rw.Header().Set("Content-Type", "application/json")
 
@@ -32,34 +32,34 @@ func (fn JSONHandler) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		switch e := err.(type) {
 		case *httperror.Error:
-			statusCode = e.HTTPStatus
+			code = e.HTTPStatus
 		default:
-			statusCode = 500
+			code = http.StatusInternalServerError
 			logger.Log.Error(e)
 		}
 
 		logger.Log.Error(err)
 
-		mjson, err2 := json.Marshal(err)
-		if err2 != nil {
-			logger.Log.Error(err2)
-			http.Error(rw, err2.Error(), http.StatusInternalServerError)
+		j, err := json.Marshal(err)
+		if err != nil {
+			logger.Log.Error(err)
+			http.Error(rw, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
-		rw.WriteHeader(statusCode)
-		rw.Write(mjson)
+		rw.WriteHeader(code)
+		rw.Write(j)
 		return
 	}
 
-	mjson, err2 := json.Marshal(data)
+	j, err := json.Marshal(data)
 
-	if err2 != nil {
-		http.Error(rw, err2.Error(), http.StatusInternalServerError)
-		rw.WriteHeader(500)
+	if err != nil {
+		http.Error(rw, err.Error(), http.StatusInternalServerError)
+		rw.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	rw.WriteHeader(statusCode)
-	rw.Write(mjson)
+	rw.WriteHeader(code)
+	rw.Write(j)
 }

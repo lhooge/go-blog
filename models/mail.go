@@ -3,9 +3,8 @@ package models
 import (
 	"fmt"
 
-	"git.hoogi.eu/snafu/go-blog/components/mail"
+	"git.hoogi.eu/snafu/go-blog/mail"
 	"git.hoogi.eu/snafu/go-blog/settings"
-	"git.hoogi.eu/snafu/go-blog/utils"
 )
 
 type Mailer struct {
@@ -14,7 +13,7 @@ type Mailer struct {
 }
 
 func (m Mailer) SendActivationLink(ui *UserInvite) {
-	activation := utils.AppendString(m.AppConfig.Domain, "/admin/activate-account/", ui.Hash)
+	activation := m.AppConfig.Domain + "/admin/activate-account/" + ui.Hash
 
 	mail := mail.Mail{
 		To:      ui.Email,
@@ -36,7 +35,7 @@ func (m Mailer) SendPasswordChangeConfirmation(u *User) {
 }
 
 func (m Mailer) SendPasswordResetLink(u *User, t *Token) {
-	resetLink := utils.AppendString(m.AppConfig.Domain, "/admin/reset-password/", t.Hash)
+	resetLink := m.AppConfig.Domain + "/admin/reset-password/" + t.Hash
 
 	mail := mail.Mail{
 		To:      u.Email,
