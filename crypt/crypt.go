@@ -16,6 +16,8 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+const bcryptRounds = 12
+
 var (
 	//AlphaUpper all upper alphas chars
 	AlphaUpper = RandomSource("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
@@ -54,8 +56,8 @@ func RandomSecureKey(length int) []byte {
 }
 
 //CryptPassword hashes a password with bcrypt and a given cost
-func CryptPassword(password []byte, cost int) ([]byte, error) {
-	s, err := bcrypt.GenerateFromPassword(password, cost)
+func CryptPassword(password []byte) ([]byte, error) {
+	s, err := bcrypt.GenerateFromPassword(password, bcryptRounds)
 
 	if err != nil {
 		return nil, err

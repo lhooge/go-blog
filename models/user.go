@@ -45,10 +45,6 @@ type User struct {
 	IsAdmin       bool
 }
 
-const (
-	bcryptRounds = 12
-)
-
 //UserService containing the service to access users
 type UserService struct {
 	Datasource      UserDatasourceService
@@ -229,7 +225,7 @@ func (us UserService) Create(u *User) (int, error) {
 
 	salt := crypt.GenerateSalt()
 	saltedPassword := append(u.PlainPassword[:], salt[:]...)
-	password, err := crypt.CryptPassword([]byte(saltedPassword), bcryptRounds)
+	password, err := crypt.CryptPassword([]byte(saltedPassword))
 
 	if err != nil {
 		return -1, err
@@ -312,7 +308,7 @@ func (us UserService) Update(u *User, changePassword bool) error {
 	if changePassword {
 		salt := crypt.GenerateSalt()
 		saltedPassword := append(u.PlainPassword[:], salt[:]...)
-		password, err := crypt.CryptPassword([]byte(saltedPassword), bcryptRounds)
+		password, err := crypt.CryptPassword([]byte(saltedPassword))
 
 		if err != nil {
 			return err
