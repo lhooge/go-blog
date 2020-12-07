@@ -142,5 +142,6 @@ func InitTables(db *sql.DB) error {
 		");"); err != nil {
 		return err
 	}
+
 	return nil
 }

@@ -57,7 +57,7 @@ func AdminProfilePostHandler(ctx *middleware.AppContext, w http.ResponseWriter, 
 
 	if len(u.PlainPassword) > 0 {
 		changePassword = true
-		// Password change
+
 		u.PlainPassword = []byte(r.FormValue("password"))
 
 		if !bytes.Equal(u.PlainPassword, []byte(r.FormValue("retyped_password"))) {
@@ -81,11 +81,11 @@ func AdminProfilePostHandler(ctx *middleware.AppContext, w http.ResponseWriter, 
 
 		session.SetValue("userid", u.ID)
 
-		sids := ctx.SessionService.SessionProvider.SessionIDsFromValues("userid", u.ID)
+		sessions := ctx.SessionService.SessionProvider.FindSessionsByValue("userid", u.ID)
 
-		for _, sid := range sids {
-			if sid != session.SessionID() {
-				ctx.SessionService.SessionProvider.Remove(sid)
+		for _, sid := range sessions {
+			if sid.SessionID() != session.SessionID() {
+				ctx.SessionService.SessionProvider.Remove(sid.SessionID())
 			}
 		}
 	}

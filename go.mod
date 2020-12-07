@@ -4,7 +4,7 @@ go 1.15
 
 require (
 	git.hoogi.eu/snafu/cfg v1.0.6
-	git.hoogi.eu/snafu/session v1.1.2
+	git.hoogi.eu/snafu/session v1.2.0
 	github.com/gorilla/csrf v1.7.0
 	github.com/gorilla/handlers v1.5.1
 	github.com/gorilla/mux v1.8.0
