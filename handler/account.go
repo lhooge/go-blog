@@ -297,7 +297,7 @@ func ForgotPasswordPostHandler(ctx *middleware.AppContext, w http.ResponseWriter
 	u, err := ctx.UserService.GetByMail(email)
 
 	if err != nil {
-		if httperror.Equals(err, sql.ErrNoRows) {
+		if errors.Is(err, sql.ErrNoRows) {
 			logger.Log.Error(err)
 			return &middleware.Template{
 				RedirectPath: "admin",
