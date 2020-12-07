@@ -174,6 +174,7 @@ func (ss SiteService) Update(s *Site) error {
 	}
 
 	changeLink := false
+
 	if oldSite.Link != s.Link {
 		changeLink = true
 		s.Link = s.safeLink()

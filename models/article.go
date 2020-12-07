@@ -73,9 +73,7 @@ func (a *Article) slug(as ArticleService, now time.Time) error {
 	for i := 0; i < 10; i++ {
 		a.Slug = a.buildSlug(now, i)
 
-		_, err := as.Datasource.GetBySlug(a.Slug, nil, All)
-
-		if err != nil {
+		if _, err := as.Datasource.GetBySlug(a.Slug, nil, All); err != nil {
 			if errors.Is(err, sql.ErrNoRows) {
 				break
 			}
@@ -124,18 +122,11 @@ func (as ArticleService) Create(a *Article) (int, error) {
 		return 0, err
 	}
 
-	err := a.slug(as, now)
-
-	if err != nil {
+	if err := a.slug(as, now); err != nil {
 		return -1, err
 	}
 
-	artID, err := as.Datasource.Create(a)
-	if err != nil {
-		return 0, err
-	}
-
-	return artID, nil
+	return as.Datasource.Create(a)
 }
 
 //Update updates an article
@@ -278,7 +269,8 @@ func (as ArticleService) RSSFeed(p *Pagination, pc PublishedCriteria) (RSS, erro
 		return RSS{}, err
 	}
 
-	items := []RSSItem{}
+	var items []RSSItem
+
 	for _, a := range articles {
 		link := fmt.Sprint(as.AppConfig.Domain, "/article/by-id/", a.ID)
 		item := RSSItem{

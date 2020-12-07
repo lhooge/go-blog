@@ -7,7 +7,7 @@ import (
 	"git.hoogi.eu/snafu/go-blog/mail"
 )
 
-//User represents a user
+//UserInvite represents a new invited user
 type UserInvite struct {
 	ID          int
 	Hash        string

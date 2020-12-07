@@ -33,9 +33,8 @@ func (rdb SQLiteCategoryDatasource) Create(c *Category) (int, error) {
 }
 
 func (rdb SQLiteCategoryDatasource) List(fc FilterCriteria) ([]Category, error) {
-	var stmt bytes.Buffer
-
 	var args []interface{}
+	var stmt bytes.Buffer
 
 	stmt.WriteString("SELECT DISTINCT c.id, c.name, c.slug, c.last_modified, ")
 	stmt.WriteString("u.id, u.display_name, u.username, u.email, u.is_admin ")
@@ -63,7 +62,7 @@ func (rdb SQLiteCategoryDatasource) List(fc FilterCriteria) ([]Category, error) 
 
 	defer rows.Close()
 
-	cs := []Category{}
+	var cs []Category
 
 	for rows.Next() {
 		var c Category
@@ -139,6 +138,7 @@ func (rdb SQLiteCategoryDatasource) GetBySlug(slug string, fc FilterCriteria) (*
 	stmt.WriteString("FROM category as c ")
 	stmt.WriteString("INNER JOIN user as u ")
 	stmt.WriteString("ON u.id = c.user_id ")
+
 	if fc == CategoriesWithPublishedArticles {
 		stmt.WriteString("INNER JOIN article as a ")
 		stmt.WriteString("ON c.id = a.category_id ")

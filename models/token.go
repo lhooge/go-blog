@@ -70,9 +70,11 @@ type TokenService struct {
 func (ts TokenService) Create(t *Token) error {
 	t.Hash = crypt.RandomHash(32)
 
-	_, err := ts.Datasource.Create(t)
+	if _, err := ts.Datasource.Create(t); err != nil {
+		return err
+	}
 
-	return err
+	return nil
 }
 
 //Get token for a defined token type expires after a defined time
@@ -106,7 +108,7 @@ func (ts TokenService) RateLimit(userID int, tt TokenType) error {
 
 	now := time.Now()
 
-	rate := []Token{}
+	var rate []Token
 	for _, t := range tokens {
 		if now.Sub(t.RequestedAt) < time.Minute*15 {
 			rate = append(rate, t)

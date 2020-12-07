@@ -16,7 +16,6 @@ type SQLiteSiteDatasource struct {
 //List returns a array of sites
 func (rdb SQLiteSiteDatasource) List(pc PublishedCriteria, p *Pagination) ([]Site, error) {
 	var stmt bytes.Buffer
-
 	var args []interface{}
 
 	stmt.WriteString("SELECT s.id, s.title, s.link, s.section, s.content, s.published, s.published_on, s.last_modified, s.order_no, u.id, u.display_name, u.email, u.username ")
@@ -40,14 +39,14 @@ func (rdb SQLiteSiteDatasource) List(pc PublishedCriteria, p *Pagination) ([]Sit
 	}
 
 	rows, err := rdb.SQLConn.Query(stmt.String(), args...)
+
 	if err != nil {
 		return nil, err
 	}
 
 	defer rows.Close()
 
-	sites := []Site{}
-
+	var sites []Site
 	var s Site
 	var u User
 
@@ -129,6 +128,7 @@ func (rdb SQLiteSiteDatasource) GetByLink(link string, pc PublishedCriteria) (*S
 //Publish publishes or unpublishes a site
 func (rdb SQLiteSiteDatasource) Publish(s *Site) error {
 	publishOn := NullTime{Valid: false}
+
 	if !s.Published {
 		publishOn = NullTime{Time: time.Now(), Valid: true}
 	}
@@ -171,10 +171,6 @@ func (rdb SQLiteSiteDatasource) Order(id int, d Direction) error {
 			tx.Rollback()
 		}
 	}()
-
-	if err != nil {
-		return err
-	}
 
 	if d == Up {
 		if _, err = tx.Exec("UPDATE site "+

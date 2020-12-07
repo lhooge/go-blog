@@ -14,7 +14,7 @@ import (
 )
 
 // Defines the extensions that are used
-var exts = bf.NoIntraEmphasis | bf.Tables | bf.FencedCode | bf.Autolink |
+var ext = bf.NoIntraEmphasis | bf.Tables | bf.FencedCode | bf.Autolink |
 	bf.Strikethrough | bf.SpaceHeadings | bf.BackslashLineBreak |
 	bf.DefinitionLists | bf.Footnotes | bf.HardLineBreak
 
@@ -33,7 +33,7 @@ func init() {
 //MarkdownToHTML sanitizes and parses markdown to HTML
 func MarkdownToHTML(md []byte) []byte {
 	md = bytes.Replace(md, []byte("\r\n"), []byte("\n"), -1)
-	unsafe := bf.Run((md), bf.WithExtensions(exts))
+	unsafe := bf.Run((md), bf.WithExtensions(ext))
 
 	return sanitize(unsafe)
 }
