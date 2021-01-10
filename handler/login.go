@@ -12,7 +12,7 @@ import (
 )
 
 // LoginHandler shows the login form;
-// if the user is already logged in the user will be redirected to the administration page of aricles
+// if the user is already logged in the user will be redirected to the administration articles page
 func LoginHandler(ctx *middleware.AppContext, rw http.ResponseWriter, r *http.Request) *middleware.Template {
 	_, err := ctx.SessionService.Get(rw, r)
 
