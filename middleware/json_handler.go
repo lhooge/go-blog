@@ -19,7 +19,7 @@ type JSONHandler struct {
 	Handler JHandler
 }
 
-//JHandler enriches handler with the AppContext
+// JHandler enriches handler with the AppContext
 type JHandler func(*AppContext, http.ResponseWriter, *http.Request) (*models.JSONData, error)
 
 func (fn JSONHandler) ServeHTTP(rw http.ResponseWriter, r *http.Request) {

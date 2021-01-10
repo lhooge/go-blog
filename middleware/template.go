@@ -36,13 +36,13 @@ type Template struct {
 	Err          error
 }
 
-//Templates defines in which directory should be looked for template
+// Templates defines in which directory should be looked for template
 type Templates struct {
 	Directory string
 	FuncMap   template.FuncMap
 }
 
-//NotFound returned if no route matches
+// NotFound returned if no route matches
 func NotFound(ctx *AppContext, rw http.ResponseWriter, r *http.Request) *Template {
 	//For deleting flash cookies
 	getFlash(rw, r, "ErrorMsg")
@@ -63,7 +63,7 @@ func NotFound(ctx *AppContext, rw http.ResponseWriter, r *http.Request) *Templat
 	}
 }
 
-//FuncMap some function that can be used in templates
+// FuncMap some function that can be used in templates
 func FuncMap(ss models.SiteService, settings *settings.Settings) template.FuncMap {
 	return template.FuncMap{
 		"GetMetadata": func(data map[string]interface{}) template.HTML {
@@ -202,7 +202,7 @@ func FuncMap(ss models.SiteService, settings *settings.Settings) template.FuncMa
 	}
 }
 
-//Load walks threw directory and parses templates ending with html
+// Load walks threw directory and parses templates ending with html
 func (ts Templates) Load() (*template.Template, error) {
 	tpl := template.New("").Funcs(ts.FuncMap)
 
@@ -227,7 +227,7 @@ func (ts Templates) Load() (*template.Template, error) {
 	return tpl, err
 }
 
-//RedirectURL builds a URL for redirecting
+// RedirectURL builds a URL for redirecting
 func (t Template) RedirectURL() string {
 	if t.RedirectPath[0] == byte('/') {
 		return t.RedirectPath

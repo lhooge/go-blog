@@ -15,7 +15,7 @@ type XMLHandler struct {
 	Handler XHandler
 }
 
-//XNLHandler enriches handler with the AppContext
+// XHandler enriches handler with the AppContext
 type XHandler func(*AppContext, http.ResponseWriter, *http.Request) (*models.XMLData, error)
 
 func (fn XMLHandler) ServeHTTP(rw http.ResponseWriter, r *http.Request) {

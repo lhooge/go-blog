@@ -7,6 +7,8 @@ package handler
 import (
 	"net/http"
 
+	"git.hoogi.eu/snafu/go-blog/logger"
+
 	"git.hoogi.eu/snafu/go-blog/middleware"
 	"git.hoogi.eu/snafu/go-blog/models"
 )
@@ -75,7 +77,9 @@ func LoginPostHandler(ctx *middleware.AppContext, rw http.ResponseWriter, r *htt
 
 // LogoutHandler logs the user out by removing the cookie and removing the session from the session store
 func LogoutHandler(ctx *middleware.AppContext, rw http.ResponseWriter, r *http.Request) *middleware.Template {
-	ctx.SessionService.Remove(rw, r)
+	if err := ctx.SessionService.Remove(rw, r); err != nil {
+		logger.Log.Infof("LogoutHandler: unable to remove session, err: %v", err)
+	}
 
 	return &middleware.Template{
 		RedirectPath: "admin",
@@ -85,9 +89,7 @@ func LogoutHandler(ctx *middleware.AppContext, rw http.ResponseWriter, r *http.R
 
 // KeepAliveSessionHandler keeps a session alive.
 func KeepAliveSessionHandler(ctx *middleware.AppContext, rw http.ResponseWriter, r *http.Request) (*models.JSONData, error) {
-	_, err := ctx.SessionService.Get(rw, r)
-
-	if err != nil {
+	if _, err := ctx.SessionService.Get(rw, r); err != nil {
 		return nil, err
 	}
 

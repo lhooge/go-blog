@@ -13,12 +13,12 @@ import (
 	bf "github.com/russross/blackfriday/v2"
 )
 
-// Defines the extensions that are used
+// ext Defines the extensions that are used
 var ext = bf.NoIntraEmphasis | bf.Tables | bf.FencedCode | bf.Autolink |
 	bf.Strikethrough | bf.SpaceHeadings | bf.BackslashLineBreak |
 	bf.DefinitionLists | bf.Footnotes | bf.HardLineBreak
 
-// Defines the HTML rendering flags that are used
+// flags Defines the HTML rendering flags that are used
 var flags = bf.UseXHTML | bf.Smartypants | bf.SmartypantsFractions |
 	bf.SmartypantsDashes | bf.SmartypantsLatexDashes | bf.TOC
 
@@ -30,7 +30,7 @@ func init() {
 	p.AllowAttrs("style").OnElements("span")
 }
 
-//MarkdownToHTML sanitizes and parses markdown to HTML
+// MarkdownToHTML sanitizes and parses markdown to HTML
 func MarkdownToHTML(md []byte) []byte {
 	md = bytes.Replace(md, []byte("\r\n"), []byte("\n"), -1)
 	unsafe := bf.Run((md), bf.WithExtensions(ext))

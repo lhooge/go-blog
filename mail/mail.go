@@ -9,8 +9,8 @@ import (
 	"git.hoogi.eu/snafu/go-blog/logger"
 )
 
-//Service holds configuration for the SMTP server
-//The sender address and an optional subject prefix
+// Service holds configuration for the SMTP server
+// The sender address and an optional subject prefix
 type Service struct {
 	SubjectPrefix string
 	SMTPConfig    SMTPConfig
@@ -25,7 +25,7 @@ func (m Mail) validate() error {
 	return nil
 }
 
-//NewMailService returns a new Service with specified config
+// NewMailService returns a new Service with specified config
 func NewMailService(subjectPrefix, from string, smtpConfig SMTPConfig) Service {
 	s := Service{
 		SubjectPrefix: subjectPrefix,
@@ -44,16 +44,16 @@ type Sender interface {
 	SendAsync(m Mail)
 }
 
-//SMTPConfig holds the configuration for the SMTP server
+// SMTPConfig holds the configuration for the SMTP server
 type SMTPConfig struct {
 	Address  string
 	Port     int
 	User     string
-	Helo     string
+	HELO     string
 	Password []byte
 }
 
-//Mail represents a mail
+// Mail represents a mail
 type Mail struct {
 	To      string
 	Subject string
@@ -89,7 +89,7 @@ func (s Service) SendAsync(m Mail) {
 	}()
 }
 
-//Send sends a mail over the configured SMTP server
+// Send sends a mail over the configured SMTP server
 func (s Service) Send(m Mail) error {
 	if len(s.SMTPConfig.User) > 0 && len(s.SMTPConfig.Password) > 0 {
 		auth := smtp.PlainAuth("", s.SMTPConfig.User, string(s.SMTPConfig.Password), s.SMTPConfig.Address)
@@ -109,8 +109,8 @@ func (s Service) Send(m Mail) error {
 			return err
 		}
 
-		if len(s.SMTPConfig.Helo) > 0 {
-			if err := c.Hello(s.SMTPConfig.Helo); err != nil {
+		if len(s.SMTPConfig.HELO) > 0 {
+			if err := c.Hello(s.SMTPConfig.HELO); err != nil {
 				return err
 			}
 		}

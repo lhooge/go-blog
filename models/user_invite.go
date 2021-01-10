@@ -7,7 +7,7 @@ import (
 	"git.hoogi.eu/snafu/go-blog/mail"
 )
 
-//UserInvite represents a new invited user
+// UserInvite represents a new invited user
 type UserInvite struct {
 	ID          int
 	Hash        string
@@ -29,7 +29,7 @@ func (ui UserInvite) Copy() *User {
 	}
 }
 
-//UserInviteDatasourceService defines an interface for CRUD operations for users
+// UserInviteDatasourceService defines an interface for CRUD operations for users
 type UserInviteDatasourceService interface {
 	List() ([]UserInvite, error)
 	Get(inviteID int) (*UserInvite, error)
@@ -39,7 +39,7 @@ type UserInviteDatasourceService interface {
 	Remove(inviteID int) error
 }
 
-//UserInviteService
+// UserInviteService
 type UserInviteService struct {
 	Datasource  UserInviteDatasourceService
 	UserService UserService

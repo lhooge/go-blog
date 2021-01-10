@@ -8,6 +8,7 @@ import (
 	"git.hoogi.eu/snafu/go-blog/models"
 )
 
+// AdminUserInviteNewHandler shows the form to invite an user
 func AdminUserInviteNewHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
 	return &middleware.Template{
 		Name:   tplAdminUserInviteNew,
@@ -15,6 +16,7 @@ func AdminUserInviteNewHandler(ctx *middleware.AppContext, w http.ResponseWriter
 	}
 }
 
+// AdminUserInviteNewHandler handles the invitation, sends an activation mail to the invited user
 func AdminUserInviteNewPostHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
 	user, _ := middleware.User(r)
 
@@ -52,6 +54,7 @@ func AdminUserInviteNewPostHandler(ctx *middleware.AppContext, w http.ResponseWr
 	}
 }
 
+// AdminUserInviteResendPostHandler resends the activation link to the user
 func AdminUserInviteResendPostHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
 	inviteID, err := parseInt(getVar(r, "inviteID"))
 
@@ -86,6 +89,7 @@ func AdminUserInviteResendPostHandler(ctx *middleware.AppContext, w http.Respons
 	}
 }
 
+// AdminUserInviteDeleteHandler shows the form to remove an user invitation
 func AdminUserInviteDeleteHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
 	inviteID, err := parseInt(getVar(r, "inviteID"))
 
@@ -124,6 +128,7 @@ func AdminUserInviteDeleteHandler(ctx *middleware.AppContext, w http.ResponseWri
 	}
 }
 
+// AdminUserInviteDeletePostHandler handles the removing of an user invitation
 func AdminUserInviteDeletePostHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
 	inviteID, err := parseInt(getVar(r, "inviteID"))
 

@@ -52,12 +52,12 @@ type CategoryDatasourceService interface {
 	Delete(categoryID int) error
 }
 
-//CategoryService containing the service to access categories
+// CategoryService containing the service to access categories
 type CategoryService struct {
 	Datasource CategoryDatasourceService
 }
 
-//SlugEscape escapes the slug for use in URLs
+// SlugEscape escapes the slug for use in URLs
 func (c Category) SlugEscape() string {
 	return url.PathEscape(c.Slug)
 }
@@ -96,7 +96,7 @@ func (cs CategoryService) List(fc FilterCriteria) ([]Category, error) {
 	return cs.Datasource.List(fc)
 }
 
-//Create creates a category
+// Create creates a category
 func (cs CategoryService) Create(c *Category) (int, error) {
 	for i := 0; i < 10; i++ {
 		c.Slug = slug.CreateURLSafeSlug(c.Name, i)
@@ -122,7 +122,7 @@ func (cs CategoryService) Create(c *Category) (int, error) {
 	return cid, nil
 }
 
-//Update updates a category
+// Update updates a category
 func (cs CategoryService) Update(c *Category) error {
 	if err := c.validate(); err != nil {
 		return err
@@ -131,7 +131,7 @@ func (cs CategoryService) Update(c *Category) error {
 	return cs.Datasource.Update(c)
 }
 
-//Delete removes a category
+// Delete removes a category
 func (cs CategoryService) Delete(id int) error {
 	c, err := cs.Datasource.Get(id, AllCategories)
 

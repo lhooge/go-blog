@@ -13,7 +13,7 @@ import (
 	"git.hoogi.eu/snafu/go-blog/models"
 )
 
-//AdminUsersHandler returns an overview of the created users  (admin only action)
+// AdminUsersHandler returns an overview of the created users
 func AdminUsersHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
 	page := getPageParam(r)
 
@@ -73,7 +73,7 @@ func AdminUsersHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *htt
 	}
 }
 
-//AdminUserNewHandler returns the form for adding new user (admin only action)
+// AdminUserNewHandler returns the form for adding new user
 func AdminUserNewHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
 	return &middleware.Template{
 		Name:   tplAdminUserNew,
@@ -81,7 +81,7 @@ func AdminUserNewHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *h
 	}
 }
 
-//AdminUserNewPostHandler handles the creation of new users (admin only action)
+// AdminUserNewPostHandler handles the creation of new users
 func AdminUserNewPostHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
 	u := &models.User{
 		DisplayName:   r.FormValue("displayname"),
@@ -114,7 +114,7 @@ func AdminUserNewPostHandler(ctx *middleware.AppContext, w http.ResponseWriter, 
 	}
 }
 
-//AdminUserEditHandler returns the form for editing an user (admin only action)
+// AdminUserEditHandler returns the form for editing an user
 func AdminUserEditHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
 	userID, err := parseInt(getVar(r, "userID"))
 
@@ -143,7 +143,7 @@ func AdminUserEditHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *
 	}
 }
 
-//AdminUserEditPostHandler handles the updating of an user (admin only action)
+// AdminUserEditPostHandler handles the updating of an user
 func AdminUserEditPostHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
 	userID, err := parseInt(getVar(r, "userID"))
 
@@ -212,7 +212,7 @@ func AdminUserEditPostHandler(ctx *middleware.AppContext, w http.ResponseWriter,
 	}
 }
 
-//AdminUserDeleteHandler returns the form for removing user (admin only action)
+// AdminUserDeleteHandler returns the form for removing a user
 func AdminUserDeleteHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
 	userID, err := parseInt(getVar(r, "userID"))
 
@@ -256,7 +256,7 @@ func AdminUserDeleteHandler(ctx *middleware.AppContext, w http.ResponseWriter, r
 	}
 }
 
-//AdminUserDeletePostHandler handles removing of a user (admin only action)
+// AdminUserDeletePostHandler handles removing of a user
 func AdminUserDeletePostHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
 	userID, err := parseInt(getVar(r, "userID"))
 

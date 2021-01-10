@@ -12,7 +12,7 @@ import (
 	"git.hoogi.eu/snafu/go-blog/logger"
 )
 
-//TokenDatasourceService defines an interface for CRUD operations for tokens
+// TokenDatasourceService defines an interface for CRUD operations for tokens
 type TokenDatasourceService interface {
 	Create(t *Token) (int, error)
 	Get(hash string, tt TokenType) (*Token, error)
@@ -20,7 +20,7 @@ type TokenDatasourceService interface {
 	Remove(hash string, tt TokenType) error
 }
 
-//Token represents a token
+// Token represents a token
 type Token struct {
 	ID          int
 	Hash        string
@@ -31,13 +31,13 @@ type Token struct {
 }
 
 const (
-	//PasswordReset token generated for resetting passwords
+	// PasswordReset token generated for resetting passwords
 	PasswordReset = iota
 )
 
 var types = [...]string{"password_reset"}
 
-//TokenType specifies the type where token can be used
+// TokenType specifies the type where token can be used
 type TokenType int
 
 // Scan implements the Scanner interface.
@@ -61,12 +61,12 @@ func (tt TokenType) String() string {
 	return types[tt]
 }
 
-//TokenService containing the service to access tokens
+// TokenService containing the service to access tokens
 type TokenService struct {
 	Datasource TokenDatasourceService
 }
 
-//Create creates a new token
+// Create creates a new token
 func (ts TokenService) Create(t *Token) error {
 	t.Hash = crypt.RandomHash(32)
 
@@ -77,8 +77,8 @@ func (ts TokenService) Create(t *Token) error {
 	return nil
 }
 
-//Get token for a defined token type expires after a defined time
-//Expired token will be removed
+// Get token for a defined token type expires after a defined time
+// Expired token will be removed
 func (ts TokenService) Get(hash string, tt TokenType, expireAfter time.Duration) (*Token, error) {
 	token, err := ts.Datasource.Get(hash, tt)
 
@@ -98,7 +98,7 @@ func (ts TokenService) Get(hash string, tt TokenType, expireAfter time.Duration)
 	return token, nil
 }
 
-//RateLimit returns an error if a token is requested greater three times in a time span of 15 minutes
+// RateLimit returns an error if a token is requested greater three times in a time span of 15 minutes
 func (ts TokenService) RateLimit(userID int, tt TokenType) error {
 	tokens, err := ts.Datasource.ListByUser(userID, tt)
 
@@ -122,7 +122,7 @@ func (ts TokenService) RateLimit(userID int, tt TokenType) error {
 	return nil
 }
 
-//Remove removes a token
+// Remove removes a token
 func (ts TokenService) Remove(hash string, tt TokenType) error {
 	return ts.Datasource.Remove(hash, tt)
 }

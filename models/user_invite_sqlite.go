@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-//SQLiteUserInviteDatasource
+// SQLiteUserInviteDatasource
 type SQLiteUserInviteDatasource struct {
 	SQLConn *sql.DB
 }
@@ -113,7 +113,7 @@ func (rdb SQLiteUserInviteDatasource) Create(ui *UserInvite) (int, error) {
 	return int(i), nil
 }
 
-//Count retuns the amount of users invitations
+// Count retuns the amount of users invitations
 func (rdb SQLiteUserInviteDatasource) Count() (int, error) {
 	var total int
 
@@ -124,7 +124,7 @@ func (rdb SQLiteUserInviteDatasource) Count() (int, error) {
 	return total, nil
 }
 
-//Removes an user invitation
+// Remove removes an user invitation
 func (rdb SQLiteUserInviteDatasource) Remove(inviteID int) error {
 	if _, err := rdb.SQLConn.Exec("DELETE FROM user_invite WHERE id=?", inviteID); err != nil {
 		return err

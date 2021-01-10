@@ -11,12 +11,12 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-//Log returns a new logrus instance
+// Log returns a new logrus instance
 var Log = logrus.New()
 
-//InitLogger initializes the logger
-//Valid log levels are: debug|info|warn|error|fatal|panic
-//Fallback: info
+// InitLogger initializes the logger
+// Valid log levels are: debug|info|warn|error|fatal|panic
+// Fallback: info
 func InitLogger(w io.Writer, level string) {
 	level = strings.ToLower(level)
 

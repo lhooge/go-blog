@@ -11,7 +11,7 @@ import (
 	"git.hoogi.eu/snafu/go-blog/slug"
 )
 
-//SiteDatasourceService defines an interface for CRUD operations on sites
+// SiteDatasourceService defines an interface for CRUD operations on sites
 type SiteDatasourceService interface {
 	Create(s *Site) (int, error)
 	List(pc PublishedCriteria, p *Pagination) ([]Site, error)
@@ -25,17 +25,17 @@ type SiteDatasourceService interface {
 	Count(pc PublishedCriteria) (int, error)
 }
 
-//Direction type to distinct if a site should be moved up or down
+// Direction type to distinct if a site should be moved up or down
 type Direction int
 
 const (
-	//Up for moving the site one up
+	// Up for moving the site one up
 	Up = iota
-	//Down for moving the site one down
+	// Down for moving the site one down
 	Down
 )
 
-//Site represents a site
+// Site represents a site
 type Site struct {
 	ID           int
 	Title        string
@@ -114,17 +114,17 @@ func (s *Site) validate(ds SiteDatasourceService, changeLink bool) error {
 	return nil
 }
 
-//SiteService containing the service to access site
+// SiteService containing the service to access site
 type SiteService struct {
 	Datasource SiteDatasourceService
 }
 
-//List returns all sites
+// List returns all sites
 func (ss SiteService) List(pc PublishedCriteria, p *Pagination) ([]Site, error) {
 	return ss.Datasource.List(pc, p)
 }
 
-//Publish switches the publish state of the site
+// Publish switches the publish state of the site
 func (ss SiteService) Publish(siteID int) error {
 	s, err := ss.Datasource.Get(siteID, All)
 
@@ -141,7 +141,7 @@ func (ss SiteService) Publish(siteID int) error {
 	return nil
 }
 
-//Create creates a site
+// Create creates a site
 func (ss SiteService) Create(s *Site) (int, error) {
 	if err := s.validate(ss.Datasource, true); err != nil {
 		return -1, err
@@ -160,12 +160,12 @@ func (ss SiteService) Create(s *Site) (int, error) {
 	return ss.Datasource.Create(s)
 }
 
-//Order reorder the site
+// Order reorder the site
 func (ss SiteService) Order(siteID int, dir Direction) error {
 	return ss.Datasource.Order(siteID, dir)
 }
 
-//Update updates a site
+// Update updates a site
 func (ss SiteService) Update(s *Site) error {
 	oldSite, err := ss.GetByID(s.ID, All)
 
@@ -187,7 +187,7 @@ func (ss SiteService) Update(s *Site) error {
 	return ss.Datasource.Update(s)
 }
 
-//Delete deletes a site
+// Delete deletes a site
 func (ss SiteService) Delete(siteID int) error {
 	s, err := ss.GetByID(siteID, All)
 

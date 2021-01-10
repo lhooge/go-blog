@@ -11,7 +11,7 @@ import (
 	"strings"
 )
 
-//Pagination type is used to provide a page selector
+// Pagination type is used to provide a page selector
 type Pagination struct {
 	Total       int
 	Limit       int
@@ -19,12 +19,12 @@ type Pagination struct {
 	RelURL      string
 }
 
-//Offset returns the offset where to start
+// Offset returns the offset where to start
 func (p Pagination) Offset() int {
 	return (p.CurrentPage - 1) * p.Limit
 }
 
-//url returns the absolute url
+// url returns the absolute url
 func (p Pagination) url() string {
 	if p.RelURL[0] == '/' {
 		return p.RelURL
@@ -32,12 +32,12 @@ func (p Pagination) url() string {
 	return "/" + p.RelURL
 }
 
-//pages returns the amount of pages
+// pages returns the amount of pages
 func (p Pagination) pages() int {
 	return int(math.Ceil(float64(p.Total) / float64(p.Limit)))
 }
 
-//hasNext returns true if a next page is available
+// hasNext returns true if a next page is available
 func (p Pagination) hasNext() bool {
 	if p.CurrentPage*p.Limit >= p.Total {
 		return false
@@ -45,17 +45,17 @@ func (p Pagination) hasNext() bool {
 	return true
 }
 
-//hasMoreThanOnePage returns true if the bar has more than one page
+// hasMoreThanOnePage returns true if the bar has more than one page
 func (p Pagination) hasMoreThanOnePage() bool {
 	return p.Limit < p.Total
 }
 
-//hasPrevious returns true if a previous page is available
+// hasPrevious returns true if a previous page is available
 func (p Pagination) hasPrevious() bool {
 	return !(p.CurrentPage == 1)
 }
 
-//nextPage returns the next page
+// nextPage returns the next page
 func (p Pagination) nextPage() int {
 	if !p.hasNext() {
 		return p.CurrentPage
@@ -63,7 +63,7 @@ func (p Pagination) nextPage() int {
 	return p.CurrentPage + 1
 }
 
-//previousPage returns the previous page
+// previousPage returns the previous page
 func (p Pagination) previousPage() int {
 	if !p.hasPrevious() {
 		return p.CurrentPage
@@ -71,7 +71,7 @@ func (p Pagination) previousPage() int {
 	return p.CurrentPage - 1
 }
 
-//PaginationBar returns the HTML for the pagination bar which can be embedded
+// PaginationBar returns the HTML for the pagination bar which can be embedded
 func (p Pagination) PaginationBar() template.HTML {
 	var sb strings.Builder
 

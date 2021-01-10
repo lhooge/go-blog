@@ -6,12 +6,12 @@ import (
 	"time"
 )
 
-//SQLiteUserDatasource providing an implementation of UserDatasourceService using SQLite
+// SQLiteUserDatasource providing an implementation of UserDatasourceService using SQLite
 type SQLiteUserDatasource struct {
 	SQLConn *sql.DB
 }
 
-//List returns a list of user
+// List returns a list of user
 func (rdb SQLiteUserDatasource) List(p *Pagination) ([]User, error) {
 	var stmt bytes.Buffer
 	var args []interface{}
@@ -48,7 +48,7 @@ func (rdb SQLiteUserDatasource) List(p *Pagination) ([]User, error) {
 	return users, nil
 }
 
-//Get gets an user by his userID
+// Get gets an user by his userID
 func (rdb SQLiteUserDatasource) Get(userID int) (*User, error) {
 	var u User
 
@@ -62,7 +62,7 @@ func (rdb SQLiteUserDatasource) Get(userID int) (*User, error) {
 	return &u, nil
 }
 
-//GetByMail gets an user by his mail, includes the password and salt
+// GetByMail gets an user by his mail, includes the password and salt
 func (rdb SQLiteUserDatasource) GetByMail(mail string) (*User, error) {
 	var u User
 
@@ -73,7 +73,7 @@ func (rdb SQLiteUserDatasource) GetByMail(mail string) (*User, error) {
 	return &u, nil
 }
 
-//GetByUsername gets an user by his username, includes the password and salt
+// GetByUsername gets an user by his username, includes the password and salt
 func (rdb SQLiteUserDatasource) GetByUsername(username string) (*User, error) {
 	var u User
 
@@ -84,7 +84,7 @@ func (rdb SQLiteUserDatasource) GetByUsername(username string) (*User, error) {
 	return &u, nil
 }
 
-//Create creates an new user
+// Create creates an new user
 func (rdb SQLiteUserDatasource) Create(u *User) (int, error) {
 	res, err := rdb.SQLConn.Exec("INSERT INTO user (salt, password, username, email, display_name, last_modified, active, is_admin) VALUES(?, ?, ?, ?, ?, ?, ?, ?);",
 		u.Salt, u.Password, u.Username, u.Email, u.DisplayName, time.Now(), u.Active, u.IsAdmin)
@@ -101,7 +101,7 @@ func (rdb SQLiteUserDatasource) Create(u *User) (int, error) {
 	return int(i), nil
 }
 
-//Update updates an user
+// Update updates an user
 func (rdb SQLiteUserDatasource) Update(u *User, changePassword bool) error {
 	var stmt bytes.Buffer
 	var args []interface{}
@@ -125,7 +125,7 @@ func (rdb SQLiteUserDatasource) Update(u *User, changePassword bool) error {
 	return nil
 }
 
-//Count returns the amount of users matches the AdminCriteria
+// Count returns the amount of users matches the AdminCriteria
 func (rdb SQLiteUserDatasource) Count(ac AdminCriteria) (int, error) {
 	var stmt bytes.Buffer
 	stmt.WriteString("SELECT count(id) FROM user ")
@@ -145,7 +145,7 @@ func (rdb SQLiteUserDatasource) Count(ac AdminCriteria) (int, error) {
 	return total, nil
 }
 
-//Removes an user
+// Remove removes an user
 func (rdb SQLiteUserDatasource) Remove(userID int) error {
 	if _, err := rdb.SQLConn.Exec("DELETE FROM user WHERE id=?", userID); err != nil {
 		return err
