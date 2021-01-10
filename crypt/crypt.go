@@ -57,13 +57,7 @@ func RandomSecureKey(length int) []byte {
 
 //CryptPassword hashes a password with bcrypt and a given cost
 func CryptPassword(password []byte) ([]byte, error) {
-	s, err := bcrypt.GenerateFromPassword(password, bcryptRounds)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return s, nil
+	return bcrypt.GenerateFromPassword(password, bcryptRounds)
 }
 
 //GenerateSalt generates a random salt with alphanumerics and some special characters
