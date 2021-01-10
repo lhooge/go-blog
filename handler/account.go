@@ -14,7 +14,7 @@ import (
 	"git.hoogi.eu/snafu/go-blog/models"
 )
 
-//AdminProfileHandler returns page for updating the profile of the currently logged-in user
+// AdminProfileHandler returns the page for updating the profile of the currently logged-in user
 func AdminProfileHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
 	user, _ := middleware.User(r)
 
@@ -27,7 +27,7 @@ func AdminProfileHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *h
 	}
 }
 
-//AdminProfilePostHandler handles the updating of the user profile which is currently logged in
+// AdminProfilePostHandler handles the updating of the user profile which is currently logged in
 func AdminProfilePostHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
 	ctxUser, _ := middleware.User(r)
 	ctxUser.PlainPassword = []byte(r.FormValue("current_password"))
@@ -111,7 +111,7 @@ func AdminProfilePostHandler(ctx *middleware.AppContext, w http.ResponseWriter, 
 	}
 }
 
-//ActivateAccountHandler shows the form to activate an account.
+// ActivateAccountHandler shows the form to activate an account
 func ActivateAccountHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
 	hash := getVar(r, "hash")
 
@@ -139,9 +139,9 @@ func ActivateAccountHandler(ctx *middleware.AppContext, w http.ResponseWriter, r
 	}
 }
 
-//ActivateAccountPostHandler activates an user account
+// ActivateAccountPostHandler activates an user account
 func ActivateAccountPostHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
-	// Delete any cookies if an user is logged in
+	// Delete cookie if the user is logged in
 	ctx.SessionService.Remove(w, r)
 
 	password := r.FormValue("password")
@@ -196,11 +196,11 @@ func ActivateAccountPostHandler(ctx *middleware.AppContext, w http.ResponseWrite
 
 	return &middleware.Template{
 		RedirectPath: "admin",
-		SuccessMsg:   "The account was successfully activated. You can now log in.",
+		SuccessMsg:   "The account was successfully activated. You can now login.",
 	}
 }
 
-//ResetPasswordHandler returns the form for resetting the password
+// ResetPasswordHandler returns the form to reset the password
 func ResetPasswordHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
 	hash := getVar(r, "hash")
 
@@ -227,7 +227,7 @@ func ResetPasswordHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *
 	}
 }
 
-//ResetPasswordPostHandler handles the resetting of the password
+// ResetPasswordPostHandler handles a password reset
 func ResetPasswordPostHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
 	password := r.FormValue("password")
 	password2 := r.FormValue("password_repeat")
@@ -283,14 +283,14 @@ func ResetPasswordPostHandler(ctx *middleware.AppContext, w http.ResponseWriter,
 	}
 }
 
-//ForgotPasswordHandler returns the form for the reset password form
+// ForgotPasswordHandler returns the form for the password reset
 func ForgotPasswordHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
 	return &middleware.Template{
 		Name: tplAdminForgotPassword,
 	}
 }
 
-//ForgotPasswordPostHandler handles the processing of the reset password function
+// ForgotPasswordPostHandler handles the processing for the password reset
 func ForgotPasswordPostHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
 	email := r.FormValue("email")
 
