@@ -3,6 +3,7 @@ package models
 import (
 	"bytes"
 	"database/sql"
+	"git.hoogi.eu/snafu/go-blog/logger"
 	"time"
 )
 
@@ -47,7 +48,11 @@ func (rdb SQLiteArticleDatasource) List(u *User, c *Category, p *Pagination, pc 
 		return nil, err
 	}
 
-	defer rows.Close()
+	defer func() {
+		if err := rows.Close(); err != nil {
+			logger.Log.Error(err)
+		}
+	}()
 
 	articles := []Article{}
 

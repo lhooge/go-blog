@@ -24,7 +24,7 @@ func InitRoutes(ctx *m.AppContext, cfg *settings.Settings) *mux.Router {
 	router = router.StrictSlash(false)
 	sr := router.PathPrefix("/").Subrouter()
 
-	csrf :=
+	rf :=
 		csrf.Protect([]byte(cfg.CSRF.RandomKey),
 			csrf.Secure(cfg.CSRF.CookieSecure),
 			csrf.FieldName(cfg.CSRF.CookieName),
@@ -45,7 +45,7 @@ func InitRoutes(ctx *m.AppContext, cfg *settings.Settings) *mux.Router {
 
 	ar := router.PathPrefix("/admin").Subrouter()
 
-	restrictedChain := chain.Append(csrf).Append(ctx.AuthHandler)
+	restrictedChain := chain.Append(rf).Append(ctx.AuthHandler)
 
 	restrictedRoutes(ctx, ar, restrictedChain)
 

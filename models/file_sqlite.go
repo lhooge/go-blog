@@ -3,6 +3,7 @@ package models
 import (
 	"bytes"
 	"database/sql"
+	"git.hoogi.eu/snafu/go-blog/logger"
 	"time"
 )
 
@@ -140,7 +141,13 @@ func (rdb SQLiteFileDatasource) List(u *User, p *Pagination) ([]File, error) {
 		return nil, err
 	}
 
-	defer rows.Close()
+	defer func() {
+		err := rows.Close()
+
+		if err != nil {
+			logger.Log.Error(err)
+		}
+	}()
 
 	var files []File
 	var f File

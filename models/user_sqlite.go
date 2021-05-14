@@ -3,6 +3,7 @@ package models
 import (
 	"bytes"
 	"database/sql"
+	"git.hoogi.eu/snafu/go-blog/logger"
 	"time"
 )
 
@@ -31,7 +32,11 @@ func (rdb SQLiteUserDatasource) List(p *Pagination) ([]User, error) {
 		return nil, err
 	}
 
-	defer rows.Close()
+	defer func() {
+		if err := rows.Close(); err != nil {
+			logger.Log.Error(err)
+		}
+	}()
 
 	for rows.Next() {
 		if err = rows.Scan(&u.ID, &u.Username, &u.Email, &u.DisplayName, &u.LastModified, &u.Active, &u.IsAdmin); err != nil {

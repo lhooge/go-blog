@@ -2,7 +2,7 @@
 // Use of this source code is governed by a MIT-style
 // license that can be found in the LICENSE file.
 
-//Package cfg parses and validates the configuration
+// Package settings parses and validates the configuration
 package settings
 
 import (
@@ -55,7 +55,7 @@ func (afe *AllowedFileExts) Unmarshal(value string) error {
 
 		kv[trimmed] = trimmed
 
-		*afe = AllowedFileExts(kv)
+		*afe = kv
 	}
 
 	return nil

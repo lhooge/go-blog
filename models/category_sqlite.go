@@ -3,6 +3,7 @@ package models
 import (
 	"bytes"
 	"database/sql"
+	"git.hoogi.eu/snafu/go-blog/logger"
 	"time"
 )
 
@@ -60,7 +61,11 @@ func (rdb SQLiteCategoryDatasource) List(fc FilterCriteria) ([]Category, error) 
 		return nil, err
 	}
 
-	defer rows.Close()
+	defer func() {
+		if err := rows.Close(); err != nil {
+			logger.Log.Error(err)
+		}
+	}()
 
 	var cs []Category
 

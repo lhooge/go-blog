@@ -16,7 +16,7 @@ func AdminUserInviteNewHandler(ctx *middleware.AppContext, w http.ResponseWriter
 	}
 }
 
-// AdminUserInviteNewHandler handles the invitation, sends an activation mail to the invited user
+// AdminUserInviteNewPostHandler handles the invitation, sends an activation mail to the invited user
 func AdminUserInviteNewPostHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
 	user, _ := middleware.User(r)
 

@@ -19,15 +19,15 @@ import (
 const bcryptRounds = 12
 
 var (
-	//AlphaUpper all upper alphas chars
+	// AlphaUpper all upper alphas chars
 	AlphaUpper = RandomSource("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
-	//AlphaLower all lowers alphas chars
+	// AlphaLower all lowers alphas chars
 	AlphaLower = RandomSource("abcdefghijklmnopqrstuvwxyz")
-	//AlphaUpperLower all upper and lowers aplhas chars
+	// AlphaUpperLower all upper and lowers aplhas chars
 	AlphaUpperLower = RandomSource("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz")
-	//AlphaUpperLowerNumeric all upper lowers alphas and numerics
+	// AlphaUpperLowerNumeric all upper lowers alphas and numerics
 	AlphaUpperLowerNumeric = RandomSource("ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890abcdefghijklmnopqrstuvwxyz")
-	//AlphaUpperLowerNumericSpecial all upper lowers alphas, numerics and special chars
+	// AlphaUpperLowerNumericSpecial all upper lowers alphas, numerics and special chars
 	AlphaUpperLowerNumericSpecial = RandomSource("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz123456890" +
 		"!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~")
 )
@@ -65,6 +65,7 @@ func GenerateSalt() []byte {
 	return AlphaUpperLowerNumericSpecial.RandomSequence(32)
 }
 
+// RandomHash returns a random SHA-512 hash
 func RandomHash(length int) string {
 	hash := sha512.New()
 	hash.Write(RandomSecureKey(length))

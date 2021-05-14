@@ -3,6 +3,7 @@ package models
 import (
 	"bytes"
 	"database/sql"
+	"git.hoogi.eu/snafu/go-blog/logger"
 	"time"
 )
 
@@ -31,7 +32,11 @@ func (rdb SQLiteUserInviteDatasource) List() ([]UserInvite, error) {
 		return nil, err
 	}
 
-	defer rows.Close()
+	defer func() {
+		if err := rows.Close(); err != nil {
+			logger.Log.Error(err)
+		}
+	}()
 
 	for rows.Next() {
 		if err = rows.Scan(&ui.ID, &ui.Username, &ui.Email, &ui.DisplayName, &ui.CreatedAt, &ui.IsAdmin, &u.ID, &u.Username, &u.Email, &u.DisplayName); err != nil {
@@ -95,7 +100,7 @@ func (rdb SQLiteUserInviteDatasource) Update(ui *UserInvite) error {
 	return nil
 }
 
-//Create creates an new user invitation
+// Create creates an new user invitation
 func (rdb SQLiteUserInviteDatasource) Create(ui *UserInvite) (int, error) {
 	res, err := rdb.SQLConn.Exec("INSERT INTO user_invite (hash, username, email, display_name, is_admin, created_at, created_by) VALUES(?, ?, ?, ?, ?, ?, ?);",
 		ui.Hash, ui.Username, ui.Email, ui.DisplayName, ui.IsAdmin, time.Now(), ui.CreatedBy.ID)

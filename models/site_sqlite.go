@@ -44,7 +44,11 @@ func (rdb SQLiteSiteDatasource) List(pc PublishedCriteria, p *Pagination) ([]Sit
 		return nil, err
 	}
 
-	defer rows.Close()
+	defer func() {
+		if err := rows.Close(); err != nil {
+			logger.Log.Error(err)
+		}
+	}()
 
 	var sites []Site
 	var s Site
@@ -168,7 +172,12 @@ func (rdb SQLiteSiteDatasource) Order(id int, d Direction) error {
 	defer func() {
 		if err != nil {
 			logger.Log.Error("error during ordering of sites ", err)
-			tx.Rollback()
+
+			err := tx.Rollback()
+
+			if err != nil {
+				logger.Log.Error("error during transaction rollback ", err)
+			}
 		}
 	}()
 
@@ -185,7 +194,9 @@ func (rdb SQLiteSiteDatasource) Order(id int, d Direction) error {
 	} else if d == Down {
 		var max int
 
-		tx.QueryRow("SELECT MAX(order_no) AS max FROM site").Scan(&max)
+		if err := tx.QueryRow("SELECT MAX(order_no) AS max FROM site").Scan(&max); err != nil {
+			return err
+		}
 
 		if _, err = tx.Exec("UPDATE site "+
 			"SET order_no=(SELECT order_no AS swap_el FROM site WHERE id=?) "+
@@ -265,8 +276,11 @@ func (rdb SQLiteSiteDatasource) Delete(s *Site) error {
 
 	defer func() {
 		if err != nil {
-			logger.Log.Error("error during delete transaction", err)
-			tx.Rollback()
+			logger.Log.Errorf("error site removal not successful %v", err)
+			if err := tx.Rollback(); err != nil {
+				logger.Log.Errorf("could not rollback transaction during site removal %v", err)
+				return
+			}
 			return
 		}
 	}()

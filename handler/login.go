@@ -31,7 +31,7 @@ func LoginHandler(ctx *middleware.AppContext, rw http.ResponseWriter, r *http.Re
 }
 
 // LoginPostHandler receives the login information from the form; checks the login and
-// starts a session for the user. The sesion will be stored in a cookie
+// starts a session for the user. The session will be stored in a cookie
 func LoginPostHandler(ctx *middleware.AppContext, rw http.ResponseWriter, r *http.Request) *middleware.Template {
 	if err := r.ParseForm(); err != nil {
 		return &middleware.Template{

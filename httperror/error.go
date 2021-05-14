@@ -55,11 +55,11 @@ func ValueTooLong(param string, nchars int) *Error {
 }
 
 // InternalServerError returns a internal server error message with code 500.
-// Display message: "An internal server error occured."
+// Display message: "An internal server error occurred."
 func InternalServerError(err error) *Error {
 	return &Error{
 		HTTPStatus: http.StatusInternalServerError,
-		DisplayMsg: "An internal server error occured.",
+		DisplayMsg: "An internal server error occurred.",
 		Err:        err,
 	}
 }

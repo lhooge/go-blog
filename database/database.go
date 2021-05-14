@@ -10,17 +10,17 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-//SQLiteConfig represents sqlite configuration type
+// SQLiteConfig represents sqlite configuration type
 type SQLiteConfig struct {
 	File string
 }
 
-//Open receives handle for sqlite database, returns an error if connection failed
+// Open receives handle for sqlite database, returns an error if connection failed
 func (d SQLiteConfig) Open() (*sql.DB, error) {
 	return sql.Open("sqlite3", d.File)
 }
 
-//InitTables creates the tables
+// InitTables creates the tables
 func InitTables(db *sql.DB) error {
 	if _, err := db.Exec("CREATE TABLE user " +
 		"(" +

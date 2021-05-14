@@ -51,7 +51,7 @@ func GetArticleHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *htt
 		}}
 }
 
-// GetArticleHandler returns a specific article by the ID
+// GetArticleByIDHandler returns a specific article by the ID
 func GetArticleByIDHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
 	id, err := parseInt(getVar(r, "articleID"))
 
@@ -570,6 +570,14 @@ func AdminArticlePublishHandler(ctx *middleware.AppContext, w http.ResponseWrite
 	}
 
 	a, err := ctx.ArticleService.GetByID(id, u, models.All)
+
+	if err != nil {
+		return &middleware.Template{
+			Name:   tplAdminArticles,
+			Err:    err,
+			Active: "articles",
+		}
+	}
 
 	var action models.Action
 
