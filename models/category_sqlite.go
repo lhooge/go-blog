@@ -4,10 +4,11 @@ import (
 	"bytes"
 	"database/sql"
 	"git.hoogi.eu/snafu/go-blog/logger"
+	"strings"
 	"time"
 )
 
-// SQLiteArticleDatasource providing an implementation of ArticleDatasourceService for SQLite
+// SQLiteCategoryDatasource providing an implementation of CategoryDatasourceService for SQLite
 type SQLiteCategoryDatasource struct {
 	SQLConn *sql.DB
 }
@@ -35,7 +36,7 @@ func (rdb SQLiteCategoryDatasource) Create(c *Category) (int, error) {
 
 func (rdb SQLiteCategoryDatasource) List(fc FilterCriteria) ([]Category, error) {
 	var args []interface{}
-	var stmt bytes.Buffer
+	var stmt strings.Builder
 
 	stmt.WriteString("SELECT DISTINCT c.id, c.name, c.slug, c.last_modified, ")
 	stmt.WriteString("u.id, u.display_name, u.username, u.email, u.is_admin ")
@@ -136,7 +137,7 @@ func (rdb SQLiteCategoryDatasource) Get(categoryID int, fc FilterCriteria) (*Cat
 }
 
 func (rdb SQLiteCategoryDatasource) GetBySlug(slug string, fc FilterCriteria) (*Category, error) {
-	var stmt bytes.Buffer
+	var stmt strings.Builder
 
 	stmt.WriteString("SELECT c.id, c.name, c.slug, c.last_modified, ")
 	stmt.WriteString("u.id, u.display_name, u.username, u.email, u.is_admin ")

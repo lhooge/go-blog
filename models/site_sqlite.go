@@ -1,8 +1,8 @@
 package models
 
 import (
-	"bytes"
 	"database/sql"
+	"strings"
 	"time"
 
 	"git.hoogi.eu/snafu/go-blog/logger"
@@ -15,7 +15,7 @@ type SQLiteSiteDatasource struct {
 
 // List returns a array of sites
 func (rdb SQLiteSiteDatasource) List(pc PublishedCriteria, p *Pagination) ([]Site, error) {
-	var stmt bytes.Buffer
+	var stmt strings.Builder
 	var args []interface{}
 
 	stmt.WriteString("SELECT s.id, s.title, s.link, s.section, s.content, s.published, s.published_on, s.last_modified, s.order_no, u.id, u.display_name, u.email, u.username ")
@@ -73,7 +73,7 @@ func (rdb SQLiteSiteDatasource) List(pc PublishedCriteria, p *Pagination) ([]Sit
 
 // Get returns a site based on the site id
 func (rdb SQLiteSiteDatasource) Get(siteID int, pc PublishedCriteria) (*Site, error) {
-	var stmt bytes.Buffer
+	var stmt strings.Builder
 	var args []interface{}
 
 	stmt.WriteString("SELECT s.id, s.title, s.link, s.section, s.content, s.published, s.published_on, s.last_modified, s.order_no, u.id, u.display_name, u.email, u.username FROM site as s ")
@@ -102,7 +102,7 @@ func (rdb SQLiteSiteDatasource) Get(siteID int, pc PublishedCriteria) (*Site, er
 
 // GetByLink returns a site based on the provided link
 func (rdb SQLiteSiteDatasource) GetByLink(link string, pc PublishedCriteria) (*Site, error) {
-	var stmt bytes.Buffer
+	var stmt strings.Builder
 	var args []interface{}
 
 	stmt.WriteString("SELECT s.id, s.title, s.link, s.section, s.content, s.published, s.published_on, s.order_no, s.last_modified, u.id, u.display_name, u.email, u.username FROM site as s ")
@@ -232,7 +232,7 @@ func (rdb SQLiteSiteDatasource) Update(s *Site) error {
 
 // Count returns the amount of sites
 func (rdb SQLiteSiteDatasource) Count(pc PublishedCriteria) (int, error) {
-	var stmt bytes.Buffer
+	var stmt strings.Builder
 
 	stmt.WriteString("SELECT count(id) FROM site ")
 

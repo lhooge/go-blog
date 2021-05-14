@@ -1,9 +1,9 @@
 package models
 
 import (
-	"bytes"
 	"database/sql"
 	"git.hoogi.eu/snafu/go-blog/logger"
+	"strings"
 	"time"
 )
 
@@ -14,7 +14,7 @@ type SQLiteUserDatasource struct {
 
 // List returns a list of user
 func (rdb SQLiteUserDatasource) List(p *Pagination) ([]User, error) {
-	var stmt bytes.Buffer
+	var stmt strings.Builder
 	var args []interface{}
 	var users []User
 	var u User
@@ -108,7 +108,7 @@ func (rdb SQLiteUserDatasource) Create(u *User) (int, error) {
 
 // Update updates an user
 func (rdb SQLiteUserDatasource) Update(u *User, changePassword bool) error {
-	var stmt bytes.Buffer
+	var stmt strings.Builder
 	var args []interface{}
 
 	stmt.WriteString("UPDATE user SET display_name=?, username=?, email=?, last_modified=?, active=?, is_admin=? ")
@@ -132,7 +132,7 @@ func (rdb SQLiteUserDatasource) Update(u *User, changePassword bool) error {
 
 // Count returns the amount of users matches the AdminCriteria
 func (rdb SQLiteUserDatasource) Count(ac AdminCriteria) (int, error) {
-	var stmt bytes.Buffer
+	var stmt strings.Builder
 	stmt.WriteString("SELECT count(id) FROM user ")
 
 	if ac == OnlyAdmins {

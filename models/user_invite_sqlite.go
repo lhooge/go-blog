@@ -1,7 +1,6 @@
 package models
 
 import (
-	"bytes"
 	"database/sql"
 	"git.hoogi.eu/snafu/go-blog/logger"
 	"time"
@@ -13,20 +12,12 @@ type SQLiteUserInviteDatasource struct {
 }
 
 func (rdb SQLiteUserInviteDatasource) List() ([]UserInvite, error) {
-	var stmt bytes.Buffer
-	var args []interface{}
 	var invites []UserInvite
 	var ui UserInvite
 	var u User
 
-	stmt.WriteString("SELECT ui.id, ui.username, ui.email, ui.display_name, ui.created_at, ui.is_admin, ")
-	stmt.WriteString("u.id, u.username, u.email, u.display_name ")
-	stmt.WriteString("FROM user_invite as ui ")
-	stmt.WriteString("INNER JOIN user as u ")
-	stmt.WriteString("ON u.id = ui.created_by ")
-	stmt.WriteString("ORDER BY ui.username ASC ")
-
-	rows, err := rdb.SQLConn.Query(stmt.String(), args...)
+	rows, err := rdb.SQLConn.Query("SELECT ui.id, ui.username, ui.email, ui.display_name, ui.created_at, ui.is_admin," +
+		" u.id, u.username, u.email, u.display_name FROM user_invite as ui INNER JOIN user as u ON u.id = ui.created_by ORDER BY ui.username ASC")
 
 	if err != nil {
 		return nil, err
