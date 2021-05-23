@@ -66,7 +66,7 @@ func (fn TemplateHandler) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 			errorMsg = e.DisplayMsg
 		default:
 			en.Error(e)
-			errorMsg = "Sorry, an internal server error occured"
+			errorMsg = "Sorry, an internal server error occurred"
 		}
 
 		t.Data["ErrorMsg"] = errorMsg
@@ -127,11 +127,14 @@ func (ctx AppContext) AuthHandler(handler http.Handler) http.Handler {
 		if err != nil {
 			logger.Log.Error(err)
 			rw.WriteHeader(http.StatusUnauthorized)
-			ctx.Templates.ExecuteTemplate(rw, "admin/login", map[string]interface{}{
+			if err := ctx.Templates.ExecuteTemplate(rw, "admin/login", map[string]interface{}{
 				"ErrorMsg":       "Please provide login credentials.",
 				"state":          r.URL.EscapedPath(),
 				csrf.TemplateTag: csrf.TemplateField(r),
-			})
+			}); err != nil {
+				logger.Log.Errorf("error while executing the template %v", err)
+				return
+			}
 			return
 		}
 
@@ -141,11 +144,15 @@ func (ctx AppContext) AuthHandler(handler http.Handler) http.Handler {
 			logger.Log.Errorf("userid is not an integer %v", userid)
 
 			rw.WriteHeader(http.StatusUnauthorized)
-			ctx.Templates.ExecuteTemplate(rw, "admin/login", map[string]interface{}{
+			if err := ctx.Templates.ExecuteTemplate(rw, "admin/login", map[string]interface{}{
 				"ErrorMsg":       "Please provide login credentials.",
 				"state":          r.URL.EscapedPath(),
 				csrf.TemplateTag: csrf.TemplateField(r),
-			})
+			}); err != nil {
+				logger.Log.Errorf("error while executing the template %v", err)
+				return
+			}
+
 			return
 		}
 
@@ -154,11 +161,14 @@ func (ctx AppContext) AuthHandler(handler http.Handler) http.Handler {
 		if err != nil {
 			logger.Log.Error(err)
 			rw.WriteHeader(http.StatusUnauthorized)
-			ctx.Templates.ExecuteTemplate(rw, "admin/login", map[string]interface{}{
+			if err := ctx.Templates.ExecuteTemplate(rw, "admin/login", map[string]interface{}{
 				"ErrorMsg":       "Please provide login credentials.",
 				"state":          r.URL.EscapedPath(),
 				csrf.TemplateTag: csrf.TemplateField(r),
-			})
+			}); err != nil {
+				logger.Log.Errorf("error while executing the template %v", err)
+				return
+			}
 			return
 		}
 
@@ -174,17 +184,23 @@ func (ctx AppContext) RequireAdmin(handler http.Handler) http.Handler {
 
 		if err != nil {
 			logger.Log.Error(err)
-			ctx.Templates.ExecuteTemplate(rw, "admin/error", map[string]interface{}{
-				"ErrorMsg": "An internal server error occured",
-			})
+			if err := ctx.Templates.ExecuteTemplate(rw, "admin/error", map[string]interface{}{
+				"ErrorMsg": "An internal server error occurred",
+			}); err != nil {
+				logger.Log.Errorf("error while executing the template %v", err)
+				return
+			}
 			return
 		}
 
 		if u.IsAdmin == false {
-			ctx.Templates.ExecuteTemplate(rw, "admin/error", map[string]interface{}{
+			if err := ctx.Templates.ExecuteTemplate(rw, "admin/error", map[string]interface{}{
 				"ErrorMsg":    "You have not the permissions to execute this action",
 				"currentUser": u,
-			})
+			}); err != nil {
+				logger.Log.Errorf("error while executing the template %v", err)
+				return
+			}
 			return
 		}
 

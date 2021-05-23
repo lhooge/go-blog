@@ -2,6 +2,7 @@ package models
 
 import (
 	"database/sql"
+	"git.hoogi.eu/snafu/go-blog/logger"
 	"time"
 )
 
@@ -51,7 +52,11 @@ func (rdb SQLiteTokenDatasource) ListByUser(userID int, tt TokenType) ([]Token, 
 		return nil, err
 	}
 
-	defer rows.Close()
+	defer func() {
+		if err := rows.Close(); err != nil {
+			logger.Log.Error(err)
+		}
+	}()
 
 	tokens := []Token{}
 

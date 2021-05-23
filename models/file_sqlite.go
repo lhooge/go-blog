@@ -1,8 +1,9 @@
 package models
 
 import (
-	"bytes"
 	"database/sql"
+	"git.hoogi.eu/snafu/go-blog/logger"
+	"strings"
 	"time"
 )
 
@@ -14,7 +15,7 @@ type SQLiteFileDatasource struct {
 // GetByUniqueName returns the file based on the unique filename; it the user is given and it is a non admin
 // only file specific to this user is returned
 func (rdb SQLiteFileDatasource) GetByUniqueName(uniqueName string, u *User) (*File, error) {
-	var stmt bytes.Buffer
+	var stmt strings.Builder
 	var args []interface{}
 
 	stmt.WriteString("SELECT f.id, f.filename, f.unique_name, f.content_type, f.inline, f.size, f.last_modified, f.user_id, ")
@@ -49,7 +50,7 @@ func (rdb SQLiteFileDatasource) GetByUniqueName(uniqueName string, u *User) (*Fi
 // Get returns the file based on the filename; it the user is given and it is a non admin
 // only file specific to this user is returned
 func (rdb SQLiteFileDatasource) Get(fileID int, u *User) (*File, error) {
-	var stmt bytes.Buffer
+	var stmt strings.Builder
 	var args []interface{}
 
 	stmt.WriteString("SELECT f.id, f.filename, f.unique_name, f.content_type, f.inline, f.size, f.last_modified, f.user_id, ")
@@ -110,7 +111,7 @@ func (rdb SQLiteFileDatasource) Update(f *File) error {
 // List returns a list of files based on the filename; it the user is given and it is a non admin
 // only files specific to this user are returned
 func (rdb SQLiteFileDatasource) List(u *User, p *Pagination) ([]File, error) {
-	var stmt bytes.Buffer
+	var stmt strings.Builder
 
 	var args []interface{}
 
@@ -140,7 +141,13 @@ func (rdb SQLiteFileDatasource) List(u *User, p *Pagination) ([]File, error) {
 		return nil, err
 	}
 
-	defer rows.Close()
+	defer func() {
+		err := rows.Close()
+
+		if err != nil {
+			logger.Log.Error(err)
+		}
+	}()
 
 	var files []File
 	var f File
@@ -168,7 +175,7 @@ func (rdb SQLiteFileDatasource) List(u *User, p *Pagination) ([]File, error) {
 // Count returns a number of files based on the filename; it the user is given and it is a non admin
 // only files specific to this user are counted
 func (rdb SQLiteFileDatasource) Count(u *User) (int, error) {
-	var stmt bytes.Buffer
+	var stmt strings.Builder
 
 	var args []interface{}
 

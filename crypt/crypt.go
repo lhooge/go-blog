@@ -2,7 +2,7 @@
 // Use of this source code is governed by a MIT-style
 // license that can be found in the LICENSE file.
 
-//package crypt
+// Package crypt provides utilities for creating hashes, random strings, password encryption
 package crypt
 
 import (
@@ -19,23 +19,23 @@ import (
 const bcryptRounds = 12
 
 var (
-	//AlphaUpper all upper alphas chars
+	// AlphaUpper all upper alphas chars
 	AlphaUpper = RandomSource("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
-	//AlphaLower all lowers alphas chars
+	// AlphaLower all lowers alphas chars
 	AlphaLower = RandomSource("abcdefghijklmnopqrstuvwxyz")
-	//AlphaUpperLower all upper and lowers aplhas chars
+	// AlphaUpperLower all upper and lowers aplhas chars
 	AlphaUpperLower = RandomSource("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz")
-	//AlphaUpperLowerNumeric all upper lowers alphas and numerics
+	// AlphaUpperLowerNumeric all upper lowers alphas and numerics
 	AlphaUpperLowerNumeric = RandomSource("ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890abcdefghijklmnopqrstuvwxyz")
-	//AlphaUpperLowerNumericSpecial all upper lowers alphas, numerics and special chars
+	// AlphaUpperLowerNumericSpecial all upper lowers alphas, numerics and special chars
 	AlphaUpperLowerNumericSpecial = RandomSource("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz123456890" +
 		"!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~")
 )
 
-//RandomSource string containing which characters should be considered when generating random sequences
+// RandomSource string containing which characters should be considered when generating random sequences
 type RandomSource string
 
-//RandomSequence returns random character with given length;
+// RandomSequence returns random character with given length;
 func (r RandomSource) RandomSequence(length int) []byte {
 	result := make([]byte, length)
 	for i := 0; i < length; i++ {
@@ -46,7 +46,7 @@ func (r RandomSource) RandomSequence(length int) []byte {
 	return result
 }
 
-//RandomSecureKey returns random character with given length
+// RandomSecureKey returns random character with given length
 func RandomSecureKey(length int) []byte {
 	k := make([]byte, length)
 	if _, err := io.ReadFull(rand.Reader, k); err != nil {
@@ -55,16 +55,17 @@ func RandomSecureKey(length int) []byte {
 	return k
 }
 
-//CryptPassword hashes a password with bcrypt and a given cost
+// CryptPassword hashes a password with bcrypt and a given cost
 func CryptPassword(password []byte) ([]byte, error) {
 	return bcrypt.GenerateFromPassword(password, bcryptRounds)
 }
 
-//GenerateSalt generates a random salt with alphanumerics and some special characters
+// GenerateSalt generates a random salt with alphanumerics and some special characters
 func GenerateSalt() []byte {
 	return AlphaUpperLowerNumericSpecial.RandomSequence(32)
 }
 
+// RandomHash returns a random SHA-512 hash
 func RandomHash(length int) string {
 	hash := sha512.New()
 	hash.Write(RandomSecureKey(length))

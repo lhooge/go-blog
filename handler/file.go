@@ -55,7 +55,14 @@ func (fh FileHandler) FileGetHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "500 Internal Server Error", http.StatusInternalServerError)
 	}
 
-	defer rf.Close()
+	defer func(rf *os.File) {
+		err := rf.Close()
+
+		if err != nil {
+			logger.Log.Errorf("error while closing the file %v", err)
+			http.Error(w, "500 Internal Server Error", http.StatusInternalServerError)
+		}
+	}(rf)
 
 	http.ServeContent(w, r, loc, f.LastModified, rf)
 }

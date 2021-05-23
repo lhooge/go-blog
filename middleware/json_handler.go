@@ -41,6 +41,7 @@ func (fn JSONHandler) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 		logger.Log.Error(err)
 
 		j, err := json.Marshal(err)
+
 		if err != nil {
 			logger.Log.Error(err)
 			http.Error(rw, err.Error(), http.StatusInternalServerError)
@@ -48,7 +49,14 @@ func (fn JSONHandler) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 		}
 
 		rw.WriteHeader(code)
-		rw.Write(j)
+
+		_, err = rw.Write(j)
+
+		if err != nil {
+			logger.Log.Error(err)
+			http.Error(rw, err.Error(), http.StatusInternalServerError)
+			return
+		}
 		return
 	}
 
@@ -61,5 +69,12 @@ func (fn JSONHandler) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	rw.WriteHeader(code)
-	rw.Write(j)
+
+	_, err = rw.Write(j)
+
+	if err != nil {
+		http.Error(rw, err.Error(), http.StatusInternalServerError)
+		rw.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 }

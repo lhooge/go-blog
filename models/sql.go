@@ -21,11 +21,11 @@ const (
 type PublishedCriteria int
 
 const (
-	// OnlyPublished conider only published
+	// OnlyPublished consider only published
 	OnlyPublished = iota
-	// NotPublished conider only not published
+	// NotPublished consider only not published
 	NotPublished
-	// All conider both published and not published
+	// All consider both published and not published
 	All
 )
 

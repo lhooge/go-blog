@@ -1,7 +1,6 @@
 package slug
 
 import (
-	"bytes"
 	"regexp"
 	"strconv"
 	"strings"
@@ -34,17 +33,4 @@ func CreateURLSafeSlug(input string, suffix int) string {
 	}
 
 	return input
-}
-
-func substitute(input string, subs map[rune]string) string {
-	var b bytes.Buffer
-
-	for _, c := range input {
-		if _, ok := subs[c]; ok {
-			b.WriteString(subs[c])
-		} else {
-			b.WriteRune(c)
-		}
-	}
-	return b.String()
 }

@@ -18,10 +18,6 @@ var ext = bf.NoIntraEmphasis | bf.Tables | bf.FencedCode | bf.Autolink |
 	bf.Strikethrough | bf.SpaceHeadings | bf.BackslashLineBreak |
 	bf.DefinitionLists | bf.Footnotes | bf.HardLineBreak
 
-// flags Defines the HTML rendering flags that are used
-var flags = bf.UseXHTML | bf.Smartypants | bf.SmartypantsFractions |
-	bf.SmartypantsDashes | bf.SmartypantsLatexDashes | bf.TOC
-
 var p *bluemonday.Policy
 
 func init() {
