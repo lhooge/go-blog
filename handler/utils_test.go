@@ -115,7 +115,7 @@ func setup(t *testing.T) {
 		AppConfig: &cfg.Application,
 	}
 
-	sessionService := session.SessionService{
+	sessionService := session.Service{
 		Path:            "/admin",
 		Name:            "test-session",
 		HTTPOnly:        true,
