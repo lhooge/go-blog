@@ -4,8 +4,7 @@ go 1.15
 
 require (
 	git.hoogi.eu/snafu/cfg v1.0.6
-	git.hoogi.eu/snafu/session v1.2.0
-	github.com/chris-ramon/douceur v0.2.0 // indirect
+	git.hoogi.eu/snafu/session v1.3.0
 	github.com/felixge/httpsnoop v1.0.2 // indirect
 	github.com/gorilla/csrf v1.7.0
 	github.com/gorilla/handlers v1.5.1

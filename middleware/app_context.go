@@ -14,7 +14,7 @@ import (
 
 // AppContext contains the services, session store, templates, ...
 type AppContext struct {
-	SessionService    *session.SessionService
+	SessionService    *session.Service
 	ArticleService    models.ArticleService
 	CategoryService   models.CategoryService
 	UserService       models.UserService

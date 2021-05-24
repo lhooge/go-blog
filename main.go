@@ -221,7 +221,7 @@ func context(db *sql.DB, cfg *settings.Settings) (*m.AppContext, error) {
 		return nil, err
 	}
 
-	sessionService := session.SessionService{
+	sessionService := session.Service{
 		Path:            cfg.Session.CookiePath,
 		Name:            cfg.Session.CookieName,
 		Secure:          cfg.Session.CookieSecure,

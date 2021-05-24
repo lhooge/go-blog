@@ -81,7 +81,7 @@ func AdminProfilePostHandler(ctx *middleware.AppContext, w http.ResponseWriter, 
 
 		session.SetValue("userid", u.ID)
 
-		sessions := ctx.SessionService.SessionProvider.FindSessionsByValue("userid", u.ID)
+		sessions := ctx.SessionService.SessionProvider.FindByValue("userid", u.ID)
 
 		for _, sid := range sessions {
 			if sid.SessionID() != session.SessionID() {

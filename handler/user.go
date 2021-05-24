@@ -196,7 +196,7 @@ func AdminUserEditPostHandler(ctx *middleware.AppContext, w http.ResponseWriter,
 			}
 		}
 
-		sessions := ctx.SessionService.SessionProvider.FindSessionsByValue("userid", u.ID)
+		sessions := ctx.SessionService.SessionProvider.FindByValue("userid", u.ID)
 
 		for _, s := range sessions {
 			if session.SessionID() != s.SessionID() {
