@@ -2,7 +2,7 @@
 // Use of this source code is governed by a MIT-style
 // license that can be found in the LICENSE file.
 
-//Package cfg parses and validates the configuration
+// Package settings parses and validates the configuration
 package settings
 
 import (
@@ -55,7 +55,7 @@ func (afe *AllowedFileExts) Unmarshal(value string) error {
 
 		kv[trimmed] = trimmed
 
-		*afe = AllowedFileExts(kv)
+		*afe = kv
 	}
 
 	return nil
@@ -183,7 +183,7 @@ func LoadConfig(filename string) (*Settings, error) {
 }
 
 func (cfg *Settings) CheckConfig() error {
-	//check log file is rw in production mode
+	// check log file is rw in production mode
 	if cfg.Environment != "dev" {
 		if _, err := os.OpenFile(cfg.Log.File, os.O_RDONLY|os.O_CREATE, 0640); err != nil {
 			return fmt.Errorf("config 'log_file': could not open log file %s error %v", cfg.Log.File, err)
@@ -258,7 +258,7 @@ func (cfg *Settings) CheckConfig() error {
 		cfg.Application.Favicon = "assets/favicon.ico"
 	}
 
-	//server settings
+	// server settings
 	if cfg.Server.UseTLS {
 		if _, err := os.Open(cfg.Server.Cert); err != nil {
 			return fmt.Errorf("config: could not open certificate %s error %v", cfg.Server.Cert, err)
@@ -285,7 +285,7 @@ func (cfg *Settings) GenerateCSRF() (bool, error) {
 		var b []byte
 
 		if _, err := os.Stat(csrfTokenFilename); os.IsNotExist(err) {
-			//create a random csrf token
+			// create a random csrf token
 			b = crypt.AlphaUpperLowerNumericSpecial.RandomSequence(32)
 
 			err := ioutil.WriteFile(csrfTokenFilename, b, 0640)
@@ -298,7 +298,7 @@ func (cfg *Settings) GenerateCSRF() (bool, error) {
 
 			return true, nil
 		} else {
-			//read existing csrf token
+			// read existing csrf token
 			b, err = ioutil.ReadFile(csrfTokenFilename)
 
 			if err != nil {

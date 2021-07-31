@@ -1,7 +1,6 @@
 package slug
 
 import (
-	"bytes"
 	"regexp"
 	"strconv"
 	"strings"
@@ -10,7 +9,7 @@ import (
 
 var multipleDashes = regexp.MustCompile(`[-]{2,}`)
 
-//CreateURLSafeSlug creates a URL safe slug to use in URL
+// CreateURLSafeSlug creates a URL safe slug to use in URL
 func CreateURLSafeSlug(input string, suffix int) string {
 	input = strings.Replace(input, "-", "", -1)
 
@@ -34,17 +33,4 @@ func CreateURLSafeSlug(input string, suffix int) string {
 	}
 
 	return input
-}
-
-func substitute(input string, subs map[rune]string) string {
-	var b bytes.Buffer
-
-	for _, c := range input {
-		if _, ok := subs[c]; ok {
-			b.WriteString(subs[c])
-		} else {
-			b.WriteRune(c)
-		}
-	}
-	return b.String()
 }

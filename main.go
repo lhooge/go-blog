@@ -36,19 +36,19 @@ func main() {
 	}()
 
 	configFiles := []cfg.File{
-		cfg.File{
+		{
 			Name:     "go-blog.conf",
 			Path:     ".",
 			Required: true,
 		},
-		cfg.File{
+		{
 			Name:     "go-blog.conf",
 			Path:     "./custom",
 			Required: false,
 		},
 	}
 
-	cfg, err := settings.MergeConfigs(configFiles)
+	config, err := settings.MergeConfigs(configFiles)
 
 	if err != nil {
 		exitCode = 1
@@ -56,29 +56,29 @@ func main() {
 		return
 	}
 
-	cfg.BuildVersion = BuildVersion
-	cfg.BuildGitHash = GitHash
+	config.BuildVersion = BuildVersion
+	config.BuildGitHash = GitHash
 
-	if err = cfg.CheckConfig(); err != nil {
+	if err = config.CheckConfig(); err != nil {
 		exitCode = 1
 		fmt.Println(err)
 		return
 	}
 
-	if cfg.Environment == "prod" {
-		logFile, err := os.OpenFile(cfg.Log.File, os.O_APPEND|os.O_WRONLY, os.ModeAppend)
+	if config.Environment == "prod" {
+		logFile, err := os.OpenFile(config.Log.File, os.O_APPEND|os.O_WRONLY, os.ModeAppend)
 
 		if err != nil {
 			fmt.Println(err)
 			exitCode = 1
 		}
 
-		logger.InitLogger(logFile, cfg.Log.Level)
+		logger.InitLogger(logFile, config.Log.Level)
 	} else {
-		logger.InitLogger(os.Stdout, cfg.Log.Level)
+		logger.InitLogger(os.Stdout, config.Log.Level)
 	}
 
-	csrf, err := cfg.GenerateCSRF()
+	csrf, err := config.GenerateCSRF()
 
 	if err != nil {
 		exitCode = 1
@@ -91,10 +91,10 @@ func main() {
 	}
 
 	logger.Log.Infof("Go-Blog version: %s, commit: %s", BuildVersion, GitHash)
-	logger.Log.Infof("running in %s mode", cfg.Environment)
+	logger.Log.Infof("running in %s mode", config.Environment)
 
 	dbConf := database.SQLiteConfig{
-		File: cfg.Database.File,
+		File: config.Database.File,
 	}
 
 	db, err := dbConf.Open()
@@ -112,7 +112,7 @@ func main() {
 		}
 	}()
 
-	ctx, err := context(db, cfg)
+	ctx, err := context(db, config)
 
 	if err != nil {
 		logger.Log.Error(err)
@@ -120,20 +120,20 @@ func main() {
 		return
 	}
 
-	r := routers.InitRoutes(ctx, cfg)
+	r := routers.InitRoutes(ctx, config)
 
 	s := &http.Server{
-		Addr:           fmt.Sprintf("%s:%d", cfg.Server.Address, cfg.Server.Port),
+		Addr:           fmt.Sprintf("%s:%d", config.Server.Address, config.Server.Port),
 		Handler:        r,
 		ReadTimeout:    15 * time.Second,
 		WriteTimeout:   20 * time.Second,
 		MaxHeaderBytes: 1 << 20,
 	}
 
-	logger.Log.Infof("server will start at %s on port %d", cfg.Server.Address, cfg.Server.Port)
+	logger.Log.Infof("server will start at %s on port %d", config.Server.Address, config.Server.Port)
 
-	if cfg.Server.UseTLS {
-		err = s.ListenAndServeTLS(cfg.Server.Cert, cfg.Server.Key)
+	if config.Server.UseTLS {
+		err = s.ListenAndServeTLS(config.Server.Cert, config.Server.Key)
 
 	} else {
 		err = s.ListenAndServe()
@@ -221,7 +221,7 @@ func context(db *sql.DB, cfg *settings.Settings) (*m.AppContext, error) {
 		return nil, err
 	}
 
-	sessionService := session.SessionService{
+	sessionService := session.Service{
 		Path:            cfg.Session.CookiePath,
 		Name:            cfg.Session.CookieName,
 		Secure:          cfg.Session.CookieSecure,

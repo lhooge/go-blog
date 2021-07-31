@@ -1,8 +1,9 @@
 package models
 
 import (
-	"bytes"
 	"database/sql"
+	"git.hoogi.eu/snafu/go-blog/logger"
+	"strings"
 	"time"
 )
 
@@ -38,8 +39,8 @@ func (rdb SQLiteArticleDatasource) Create(a *Article) (int, error) {
 	return int(id), nil
 }
 
-//List returns a slice of articles; if the user is not nil the number of articles for this explcit user is returned
-//the PublishedCritera specifies which articles should be considered
+// List returns a slice of articles; if the user is not nil the number of articles for this explcit user is returned
+// the PublishedCritera specifies which articles should be considered
 func (rdb SQLiteArticleDatasource) List(u *User, c *Category, p *Pagination, pc PublishedCriteria) ([]Article, error) {
 	rows, err := selectArticlesStmt(rdb.SQLConn, u, c, p, pc)
 
@@ -47,7 +48,11 @@ func (rdb SQLiteArticleDatasource) List(u *User, c *Category, p *Pagination, pc 
 		return nil, err
 	}
 
-	defer rows.Close()
+	defer func() {
+		if err := rows.Close(); err != nil {
+			logger.Log.Error(err)
+		}
+	}()
 
 	articles := []Article{}
 
@@ -72,12 +77,12 @@ func (rdb SQLiteArticleDatasource) List(u *User, c *Category, p *Pagination, pc 
 
 }
 
-//Count returns the number of article found; if the user is not nil the number of articles for this explcit user is returned
-//the PublishedCritera specifies which articles should be considered
+// Count returns the number of article found; if the user is not nil the number of articles for this explcit user is returned
+// the PublishedCritera specifies which articles should be considered
 func (rdb SQLiteArticleDatasource) Count(u *User, c *Category, pc PublishedCriteria) (int, error) {
 	var total int
+	var stmt strings.Builder
 	var args []interface{}
-	var stmt bytes.Buffer
 
 	stmt.WriteString("SELECT count(a.id) FROM article a ")
 
@@ -116,8 +121,8 @@ func (rdb SQLiteArticleDatasource) Count(u *User, c *Category, pc PublishedCrite
 	return total, nil
 }
 
-//Get returns a article by its id; if the user is not nil the article for this explcit user is returned
-//the PublishedCritera specifies which articles should be considered
+// Get returns a article by its id; if the user is not nil the article for this explcit user is returned
+// the PublishedCritera specifies which articles should be considered
 func (rdb SQLiteArticleDatasource) Get(articleID int, u *User, pc PublishedCriteria) (*Article, error) {
 	var a Article
 	var ru User
@@ -132,8 +137,8 @@ func (rdb SQLiteArticleDatasource) Get(articleID int, u *User, pc PublishedCrite
 	return &a, nil
 }
 
-//GetBySlug returns a article by its slug; if the user is not nil the article for this explcit user is returned
-//the PublishedCritera specifies which articles should be considered
+// GetBySlug returns a article by its slug; if the user is not nil the article for this explcit user is returned
+// the PublishedCritera specifies which articles should be considered
 func (rdb SQLiteArticleDatasource) GetBySlug(slug string, u *User, pc PublishedCriteria) (*Article, error) {
 	var a Article
 	var ru User
@@ -183,7 +188,7 @@ func (rdb SQLiteArticleDatasource) Delete(articleID int) error {
 }
 
 func selectArticleStmt(db *sql.DB, articleID int, slug string, u *User, pc PublishedCriteria) *sql.Row {
-	var stmt bytes.Buffer
+	var stmt strings.Builder
 
 	var args []interface{}
 
@@ -224,7 +229,7 @@ func selectArticleStmt(db *sql.DB, articleID int, slug string, u *User, pc Publi
 }
 
 func selectArticlesStmt(db *sql.DB, u *User, c *Category, p *Pagination, pc PublishedCriteria) (*sql.Rows, error) {
-	var stmt bytes.Buffer
+	var stmt strings.Builder
 	var args []interface{}
 
 	stmt.WriteString("SELECT a.id, a.headline, a.teaser, a.content, a.published, a.published_on, a.slug, a.last_modified, ")

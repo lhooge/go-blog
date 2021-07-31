@@ -15,7 +15,7 @@ import (
 	"git.hoogi.eu/snafu/go-blog/models"
 )
 
-//GetSiteHandler returns the site template - only published sites are considered
+// GetSiteHandler returns the published sites
 func GetSiteHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
 	site, err := ctx.SiteService.GetByLink(getVar(r, "site"), models.OnlyPublished)
 
@@ -40,7 +40,7 @@ func GetSiteHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.R
 	}
 }
 
-//AdminGetSiteHandler returns the template containing the sites
+// AdminGetSiteHandler returns a specific site by the ID
 func AdminGetSiteHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
 	reqVar := getVar(r, "siteID")
 
@@ -76,7 +76,7 @@ func AdminGetSiteHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *h
 	}
 }
 
-//AdminSitesHandler returns the template containing the sites overview in the administration
+// AdminSitesHandler returns all sites
 func AdminSitesHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
 	page := getPageParam(r)
 
@@ -121,7 +121,7 @@ func AdminSitesHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *htt
 	}
 }
 
-//AdminSiteNewHandler returns the template for adding a new site
+// AdminSiteNewHandler returns the form for adding a new site
 func AdminSiteNewHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
 	return &middleware.Template{
 		Name:   tplAdminSiteNew,
@@ -129,8 +129,8 @@ func AdminSiteNewHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *h
 	}
 }
 
-//AdminSiteNewPostHandler receives the form values and creating the site; on success the user is redirected with a success message
-//to the site overview
+// AdminSiteNewPostHandler receives the form values and creating the site; on success the user is redirected with a success message
+// to the site overview
 func AdminSiteNewPostHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
 	user, _ := middleware.User(r)
 
@@ -169,7 +169,7 @@ func AdminSiteNewPostHandler(ctx *middleware.AppContext, w http.ResponseWriter, 
 	}
 }
 
-//AdminSiteEditHandler returns the template for editing an existing site
+// AdminSiteEditHandler returns the form for changing an existing site
 func AdminSiteEditHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
 	siteID, err := parseInt(getVar(r, "siteID"))
 
@@ -198,8 +198,8 @@ func AdminSiteEditHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *
 	}
 }
 
-//AdminSiteEditPostHandler receives the form values and updates the site; on success the user is redirected with a success message
-//to the site overview
+// AdminSiteEditPostHandler receives the form values and updates the site; on success the user is redirected with a success message
+// to the site overview
 func AdminSiteEditPostHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
 	u, _ := middleware.User(r)
 
@@ -244,7 +244,7 @@ func AdminSiteEditPostHandler(ctx *middleware.AppContext, w http.ResponseWriter,
 	}
 }
 
-//AdminSiteOrderHandler moves the site with site id down or up
+// AdminSiteOrderHandler moves the site with site ID down or up
 func AdminSiteOrderHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
 	siteID, err := parseInt(getVar(r, "siteID"))
 
@@ -286,7 +286,7 @@ func AdminSiteOrderHandler(ctx *middleware.AppContext, w http.ResponseWriter, r 
 	}
 }
 
-//AdminSitePublishHandler returns the action template which asks the user if the site should be published / unpublished
+// AdminSitePublishHandler returns the action template which asks the user if the site should be published / unpublished
 func AdminSitePublishHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
 	reqVar := getVar(r, "siteID")
 
@@ -338,7 +338,7 @@ func AdminSitePublishHandler(ctx *middleware.AppContext, w http.ResponseWriter, 
 	}
 }
 
-//AdminSitePublishPostHandler handles the un-/publishing of a site
+// AdminSitePublishPostHandler handles the un-/publishing of a site
 func AdminSitePublishPostHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
 	reqVar := getVar(r, "siteID")
 
@@ -367,7 +367,7 @@ func AdminSitePublishPostHandler(ctx *middleware.AppContext, w http.ResponseWrit
 	}
 }
 
-//AdminSiteDeleteHandler returns the action template which asks the user if the site should be removed
+// AdminSiteDeleteHandler returns the action which asks the user if the site should be removed
 func AdminSiteDeleteHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
 	reqVar := getVar(r, "siteID")
 
@@ -408,7 +408,7 @@ func AdminSiteDeleteHandler(ctx *middleware.AppContext, w http.ResponseWriter, r
 	}
 }
 
-//AdminSiteDeletePostHandler handles the removing of a site
+// AdminSiteDeletePostHandler handles the removing of a site
 func AdminSiteDeletePostHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
 	reqVar := getVar(r, "siteID")
 

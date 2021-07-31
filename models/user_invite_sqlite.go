@@ -1,37 +1,33 @@
 package models
 
 import (
-	"bytes"
 	"database/sql"
+	"git.hoogi.eu/snafu/go-blog/logger"
 	"time"
 )
 
-//SQLiteUserInviteDatasource
+// SQLiteUserInviteDatasource
 type SQLiteUserInviteDatasource struct {
 	SQLConn *sql.DB
 }
 
 func (rdb SQLiteUserInviteDatasource) List() ([]UserInvite, error) {
-	var stmt bytes.Buffer
-	var args []interface{}
 	var invites []UserInvite
 	var ui UserInvite
 	var u User
 
-	stmt.WriteString("SELECT ui.id, ui.username, ui.email, ui.display_name, ui.created_at, ui.is_admin, ")
-	stmt.WriteString("u.id, u.username, u.email, u.display_name ")
-	stmt.WriteString("FROM user_invite as ui ")
-	stmt.WriteString("INNER JOIN user as u ")
-	stmt.WriteString("ON u.id = ui.created_by ")
-	stmt.WriteString("ORDER BY ui.username ASC ")
-
-	rows, err := rdb.SQLConn.Query(stmt.String(), args...)
+	rows, err := rdb.SQLConn.Query("SELECT ui.id, ui.username, ui.email, ui.display_name, ui.created_at, ui.is_admin," +
+		" u.id, u.username, u.email, u.display_name FROM user_invite as ui INNER JOIN user as u ON u.id = ui.created_by ORDER BY ui.username ASC")
 
 	if err != nil {
 		return nil, err
 	}
 
-	defer rows.Close()
+	defer func() {
+		if err := rows.Close(); err != nil {
+			logger.Log.Error(err)
+		}
+	}()
 
 	for rows.Next() {
 		if err = rows.Scan(&ui.ID, &ui.Username, &ui.Email, &ui.DisplayName, &ui.CreatedAt, &ui.IsAdmin, &u.ID, &u.Username, &u.Email, &u.DisplayName); err != nil {
@@ -95,7 +91,7 @@ func (rdb SQLiteUserInviteDatasource) Update(ui *UserInvite) error {
 	return nil
 }
 
-//Create creates an new user invitation
+// Create creates an new user invitation
 func (rdb SQLiteUserInviteDatasource) Create(ui *UserInvite) (int, error) {
 	res, err := rdb.SQLConn.Exec("INSERT INTO user_invite (hash, username, email, display_name, is_admin, created_at, created_by) VALUES(?, ?, ?, ?, ?, ?, ?);",
 		ui.Hash, ui.Username, ui.Email, ui.DisplayName, ui.IsAdmin, time.Now(), ui.CreatedBy.ID)
@@ -113,7 +109,7 @@ func (rdb SQLiteUserInviteDatasource) Create(ui *UserInvite) (int, error) {
 	return int(i), nil
 }
 
-//Count retuns the amount of users invitations
+// Count retuns the amount of users invitations
 func (rdb SQLiteUserInviteDatasource) Count() (int, error) {
 	var total int
 
@@ -124,7 +120,7 @@ func (rdb SQLiteUserInviteDatasource) Count() (int, error) {
 	return total, nil
 }
 
-//Removes an user invitation
+// Remove removes an user invitation
 func (rdb SQLiteUserInviteDatasource) Remove(inviteID int) error {
 	if _, err := rdb.SQLConn.Exec("DELETE FROM user_invite WHERE id=?", inviteID); err != nil {
 		return err

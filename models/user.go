@@ -19,7 +19,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-//UserDatasourceService defines an interface for CRUD operations for users
+// UserDatasourceService defines an interface for CRUD operations for users
 type UserDatasourceService interface {
 	Create(u *User) (int, error)
 	List(p *Pagination) ([]User, error)
@@ -31,7 +31,7 @@ type UserDatasourceService interface {
 	Remove(userID int) error
 }
 
-//User represents a user
+// User represents a user
 type User struct {
 	ID            int
 	Username      string
@@ -45,18 +45,14 @@ type User struct {
 	IsAdmin       bool
 }
 
-const (
-	bcryptRounds = 12
-)
-
-//UserService containing the service to access users
+// UserService containing the service to access users
 type UserService struct {
 	Datasource      UserDatasourceService
 	Config          settings.User
 	UserInterceptor UserInterceptor
 }
 
-//UserInterceptor will be executed before and after updating/creating users
+// UserInterceptor will be executed before and after updating/creating users
 type UserInterceptor interface {
 	PreCreate(user *User) error
 	PostCreate(user *User) error
@@ -163,17 +159,17 @@ func (us UserService) duplicateUsername(username string) error {
 	return nil
 }
 
-//Count returns the amount of users
+// Count returns the amount of users
 func (us UserService) Count(a AdminCriteria) (int, error) {
 	return us.Datasource.Count(a)
 }
 
-//List returns a list of users. Limits the amount based on the defined pagination
+// List returns a list of users. Limits the amount based on the defined pagination
 func (us UserService) List(p *Pagination) ([]User, error) {
 	return us.Datasource.List(p)
 }
 
-//GetByID gets the user based on the given id; will not contain the user password
+// GetByID gets the user based on the given id; will not contain the user password
 func (us UserService) GetByID(userID int) (*User, error) {
 	u, err := us.Datasource.Get(userID)
 
@@ -187,7 +183,7 @@ func (us UserService) GetByID(userID int) (*User, error) {
 	return u, nil
 }
 
-//GetByUsername gets the user based on the given username; will contain the user password
+// GetByUsername gets the user based on the given username; will contain the user password
 func (us UserService) GetByUsername(username string) (*User, error) {
 	u, err := us.Datasource.GetByUsername(username)
 	if err != nil {
@@ -200,7 +196,7 @@ func (us UserService) GetByUsername(username string) (*User, error) {
 	return u, nil
 }
 
-//GetByMail gets the user based on the given mail; will contain the user password
+// GetByMail gets the user based on the given mail; will contain the user password
 func (us UserService) GetByMail(mail string) (*User, error) {
 	u, err := us.Datasource.GetByMail(mail)
 
@@ -214,8 +210,8 @@ func (us UserService) GetByMail(mail string) (*User, error) {
 	return u, nil
 }
 
-//Create creates the user
-//If an UserInterceptor is available the action PreCreate is executed before creating and PostCreate after creating the user
+// Create creates the user
+// If an UserInterceptor is available the action PreCreate is executed before creating and PostCreate after creating the user
 func (us UserService) Create(u *User) (int, error) {
 	if us.UserInterceptor != nil {
 		if err := us.UserInterceptor.PreCreate(u); err != nil {
@@ -229,7 +225,7 @@ func (us UserService) Create(u *User) (int, error) {
 
 	salt := crypt.GenerateSalt()
 	saltedPassword := append(u.PlainPassword[:], salt[:]...)
-	password, err := crypt.CryptPassword([]byte(saltedPassword), bcryptRounds)
+	password, err := crypt.CryptPassword([]byte(saltedPassword))
 
 	if err != nil {
 		return -1, err
@@ -312,7 +308,7 @@ func (us UserService) Update(u *User, changePassword bool) error {
 	if changePassword {
 		salt := crypt.GenerateSalt()
 		saltedPassword := append(u.PlainPassword[:], salt[:]...)
-		password, err := crypt.CryptPassword([]byte(saltedPassword), bcryptRounds)
+		password, err := crypt.CryptPassword([]byte(saltedPassword))
 
 		if err != nil {
 			return err
@@ -417,7 +413,7 @@ func (us UserService) Remove(u *User) error {
 	return err
 }
 
-//OneAdmin returns true if there is only one admin
+// OneAdmin returns true if there is only one admin
 func (us UserService) OneAdmin() (bool, error) {
 	c, err := us.Datasource.Count(OnlyAdmins)
 

@@ -15,7 +15,7 @@ type XMLHandler struct {
 	Handler XHandler
 }
 
-//XNLHandler enriches handler with the AppContext
+// XHandler enriches handler with the AppContext
 type XHandler func(*AppContext, http.ResponseWriter, *http.Request) (*models.XMLData, error)
 
 func (fn XMLHandler) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
@@ -34,7 +34,12 @@ func (fn XMLHandler) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		rw.Write(x)
+		if _, err = rw.Write(x); err != nil {
+			logger.Log.Error(err)
+			http.Error(rw, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
 		return
 	}
 
@@ -55,5 +60,9 @@ func (fn XMLHandler) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 		x = bytes.Replace(x, []byte("&gt;"), []byte("&#x3e;"), -1)  // >
 	}
 
-	rw.Write(x)
+	if _, err := rw.Write(x); err != nil {
+		logger.Log.Error(err)
+		http.Error(rw, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }

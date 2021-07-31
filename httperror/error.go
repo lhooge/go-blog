@@ -9,23 +9,23 @@ import (
 	"net/http"
 )
 
-//Error enriches the original go error type with
-//DisplayMsg the description for the displaying message
-//HTTPStatus the HTTP status code
-//Err the internal error it should not be shown to the user
+// Error enriches the original go error type with
+// 	DisplayMsg the human readable display message
+// 	HTTPStatus the HTTP status code
+// 	Err the internal error
 type Error struct {
 	DisplayMsg string `json:"display_message"`
 	HTTPStatus int    `json:"status"`
 	Err        error  `json:"-"`
 }
 
-//New returns a new error
+// New returns a new error
 func New(httpStatus int, displayMsg string, err error) *Error {
 	return &Error{DisplayMsg: displayMsg, Err: err, HTTPStatus: httpStatus}
 }
 
-//PermissionDenied returns a permission denied message with code 403.
-//The following display message is returned: "You are not allowed to [action] the [subject]."
+// PermissionDenied returns a permission denied message with code 403.
+// The following display message is returned: "You are not allowed to [action] the [subject]."
 func PermissionDenied(action, subject string, err error) *Error {
 	return &Error{
 		HTTPStatus: http.StatusForbidden,
@@ -34,8 +34,8 @@ func PermissionDenied(action, subject string, err error) *Error {
 	}
 }
 
-//NotFound returns a not found message with code 404.
-//The following display message is returned: "The [res] was not found."
+// NotFound returns a not found message with code 404.
+// The following display message is returned: "The [res] was not found."
 func NotFound(res string, err error) *Error {
 	return &Error{
 		HTTPStatus: http.StatusNotFound,
@@ -44,8 +44,8 @@ func NotFound(res string, err error) *Error {
 	}
 }
 
-//ValueTooLong returns the following display message with code 422.
-//Display message: "The value of [param] is too long. Maximum [nchars] characters are allowed."
+// ValueTooLong returns the following display message with code 422.
+// Display message: "The value of [param] is too long. Maximum [nchars] characters are allowed."
 func ValueTooLong(param string, nchars int) *Error {
 	return &Error{
 		HTTPStatus: http.StatusUnprocessableEntity,
@@ -54,18 +54,18 @@ func ValueTooLong(param string, nchars int) *Error {
 	}
 }
 
-//InternalServerError returns a internal server error message with code 500.
-//Display message: "An internal server error occured."
+// InternalServerError returns a internal server error message with code 500.
+// Display message: "An internal server error occurred."
 func InternalServerError(err error) *Error {
 	return &Error{
 		HTTPStatus: http.StatusInternalServerError,
-		DisplayMsg: "An internal server error occured.",
+		DisplayMsg: "An internal server error occurred.",
 		Err:        err,
 	}
 }
 
-//ParameterMissing returns a parameter missing message with code 422.
-//Display message: "The parameter [param] is invalid."
+// ParameterMissing returns a parameter missing message with code 422.
+// Display message: "The parameter [param] is invalid."
 func ParameterMissing(param string, err error) *Error {
 	return &Error{
 		HTTPStatus: http.StatusUnprocessableEntity,
@@ -74,8 +74,8 @@ func ParameterMissing(param string, err error) *Error {
 	}
 }
 
-//ValueRequired returns a value required message with code 422.
-//Display message: "Please fill out the field [param]."
+// ValueRequired returns a value required message with code 422.
+// Display message: "Please fill out the field [param]."
 func ValueRequired(param string) *Error {
 	return &Error{
 		HTTPStatus: http.StatusUnprocessableEntity,

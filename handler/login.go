@@ -7,12 +7,14 @@ package handler
 import (
 	"net/http"
 
+	"git.hoogi.eu/snafu/go-blog/logger"
+
 	"git.hoogi.eu/snafu/go-blog/middleware"
 	"git.hoogi.eu/snafu/go-blog/models"
 )
 
 // LoginHandler shows the login form;
-// if the user is already logged in the user will be redirected to the administration page of aricles
+// if the user is already logged in the user will be redirected to the administration articles page
 func LoginHandler(ctx *middleware.AppContext, rw http.ResponseWriter, r *http.Request) *middleware.Template {
 	_, err := ctx.SessionService.Get(rw, r)
 
@@ -29,7 +31,7 @@ func LoginHandler(ctx *middleware.AppContext, rw http.ResponseWriter, r *http.Re
 }
 
 // LoginPostHandler receives the login information from the form; checks the login and
-// starts a session for the user. The sesion will be stored in a cookie
+// starts a session for the user. The session will be stored in a cookie
 func LoginPostHandler(ctx *middleware.AppContext, rw http.ResponseWriter, r *http.Request) *middleware.Template {
 	if err := r.ParseForm(); err != nil {
 		return &middleware.Template{
@@ -75,7 +77,9 @@ func LoginPostHandler(ctx *middleware.AppContext, rw http.ResponseWriter, r *htt
 
 // LogoutHandler logs the user out by removing the cookie and removing the session from the session store
 func LogoutHandler(ctx *middleware.AppContext, rw http.ResponseWriter, r *http.Request) *middleware.Template {
-	ctx.SessionService.Remove(rw, r)
+	if err := ctx.SessionService.Remove(rw, r); err != nil {
+		logger.Log.Infof("LogoutHandler: unable to remove session, err: %v", err)
+	}
 
 	return &middleware.Template{
 		RedirectPath: "admin",
@@ -85,9 +89,7 @@ func LogoutHandler(ctx *middleware.AppContext, rw http.ResponseWriter, r *http.R
 
 // KeepAliveSessionHandler keeps a session alive.
 func KeepAliveSessionHandler(ctx *middleware.AppContext, rw http.ResponseWriter, r *http.Request) (*models.JSONData, error) {
-	_, err := ctx.SessionService.Get(rw, r)
-
-	if err != nil {
+	if _, err := ctx.SessionService.Get(rw, r); err != nil {
 		return nil, err
 	}
 

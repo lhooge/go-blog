@@ -5,15 +5,15 @@ import (
 	"time"
 )
 
-//AdminCriteria specifies which type of users should be considered
+// AdminCriteria specifies which type of users should be considered
 type AdminCriteria int
 
 const (
-	//OnlyAdmins conider only published
+	// OnlyAdmins consider only admins
 	OnlyAdmins = iota
-	//NoAdmins conider no admins
+	// NoAdmins consider no admins
 	NoAdmins
-	//AllUser conider all users
+	// AllUser consider all users
 	AllUser
 )
 
@@ -21,15 +21,15 @@ const (
 type PublishedCriteria int
 
 const (
-	// OnlyPublished conider only published
+	// OnlyPublished consider only published
 	OnlyPublished = iota
-	// NotPublished conider only not published
+	// NotPublished consider only not published
 	NotPublished
-	// All conider both published and not published
+	// All consider both published and not published
 	All
 )
 
-//NullTime represents a time which may not valid if time is null
+// NullTime represents a time which may not valid if time is null
 type NullTime struct {
 	Time  time.Time
 	Valid bool

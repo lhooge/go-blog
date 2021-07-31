@@ -13,6 +13,7 @@ import (
 	"git.hoogi.eu/snafu/go-blog/models"
 )
 
+// AdminListCategoriesHandler returns a list of all categories
 func AdminListCategoriesHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
 	c, err := ctx.CategoryService.List(models.AllCategories)
 
@@ -31,6 +32,7 @@ func AdminListCategoriesHandler(ctx *middleware.AppContext, w http.ResponseWrite
 		}}
 }
 
+// AdminGetCategoryHandler get category by the ID
 func AdminGetCategoryHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
 	reqVar := getVar(r, "categoryID")
 	id, err := parseInt(reqVar)
@@ -59,7 +61,7 @@ func AdminGetCategoryHandler(ctx *middleware.AppContext, w http.ResponseWriter, 
 		}}
 }
 
-// AdminCategoryNewHandler returns the template which shows the form to create a new article
+// AdminCategoryNewHandler returns the form to create a new category
 func AdminCategoryNewHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
 	return &middleware.Template{
 		Active: "categories",
@@ -67,7 +69,7 @@ func AdminCategoryNewHandler(ctx *middleware.AppContext, w http.ResponseWriter, 
 	}
 }
 
-// AdminCategoryNewPostHandler handles the creation of a new article
+// AdminCategoryNewPostHandler handles the creation of a new category
 func AdminCategoryNewPostHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
 	u, _ := middleware.User(r)
 
@@ -99,7 +101,7 @@ func AdminCategoryNewPostHandler(ctx *middleware.AppContext, w http.ResponseWrit
 	}
 }
 
-//AdminCategoryEditHandler shows the form for changing an article
+// AdminCategoryEditHandler shows the form to change a category
 func AdminCategoryEditHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
 	id, err := parseInt(getVar(r, "categoryID"))
 
@@ -128,7 +130,7 @@ func AdminCategoryEditHandler(ctx *middleware.AppContext, w http.ResponseWriter,
 	}
 }
 
-//AdminArticleEditPostHandler handles the update of an article
+// AdminCategoryEditPostHandler handles the update of a category
 func AdminCategoryEditPostHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
 	u, _ := middleware.User(r)
 
@@ -168,7 +170,7 @@ func AdminCategoryEditPostHandler(ctx *middleware.AppContext, w http.ResponseWri
 	}
 }
 
-//AdminArticleDeleteHandler returns the action template which asks the user if the article should be removed
+// AdminCategoryDeleteHandler returns the action which asks the user if the category should be removed
 func AdminCategoryDeleteHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
 	reqVar := getVar(r, "categoryID")
 
@@ -209,7 +211,7 @@ func AdminCategoryDeleteHandler(ctx *middleware.AppContext, w http.ResponseWrite
 	}
 }
 
-//AdminArticleDeletePostHandler handles the removing of an article
+// AdminCategoryDeletePostHandler handles the removing of a category
 func AdminCategoryDeletePostHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
 	reqVar := getVar(r, "categoryID")
 

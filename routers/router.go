@@ -18,13 +18,13 @@ import (
 	"github.com/justinas/alice"
 )
 
-//InitRoutes initializes restricted and public routes
+// InitRoutes initializes restricted and public routes
 func InitRoutes(ctx *m.AppContext, cfg *settings.Settings) *mux.Router {
 	router := mux.NewRouter()
 	router = router.StrictSlash(false)
 	sr := router.PathPrefix("/").Subrouter()
 
-	csrf :=
+	rf :=
 		csrf.Protect([]byte(cfg.CSRF.RandomKey),
 			csrf.Secure(cfg.CSRF.CookieSecure),
 			csrf.FieldName(cfg.CSRF.CookieName),
@@ -45,7 +45,7 @@ func InitRoutes(ctx *m.AppContext, cfg *settings.Settings) *mux.Router {
 
 	ar := router.PathPrefix("/admin").Subrouter()
 
-	restrictedChain := chain.Append(csrf).Append(ctx.AuthHandler)
+	restrictedChain := chain.Append(rf).Append(ctx.AuthHandler)
 
 	restrictedRoutes(ctx, ar, restrictedChain)
 
@@ -89,7 +89,7 @@ func fileLoggingHandler(accessLogPath string) (flh func(http.Handler) http.Handl
 }
 
 func restrictedRoutes(ctx *m.AppContext, router *mux.Router, chain alice.Chain) {
-	//article
+	// article
 	router.Handle("/articles", chain.Then(useTemplateHandler(ctx, handler.AdminListArticlesHandler))).Methods("GET")
 	router.Handle("/articles/page/{page}", chain.Then(useTemplateHandler(ctx, handler.AdminListArticlesHandler))).Methods("GET")
 	router.Handle("/article/new", chain.Then(useTemplateHandler(ctx, handler.AdminArticleNewHandler))).Methods("GET")
@@ -102,7 +102,7 @@ func restrictedRoutes(ctx *m.AppContext, router *mux.Router, chain alice.Chain) 
 	router.Handle("/article/delete/{articleID}", chain.Then(useTemplateHandler(ctx, handler.AdminArticleDeletePostHandler))).Methods("POST")
 	router.Handle("/article/{articleID}", chain.Then(useTemplateHandler(ctx, handler.AdminPreviewArticleByIDHandler))).Methods("GET")
 
-	//user
+	// user
 	router.Handle("/user/profile", chain.Then(useTemplateHandler(ctx, handler.AdminProfileHandler))).Methods("GET")
 	router.Handle("/user/profile", chain.Then(useTemplateHandler(ctx, handler.AdminProfilePostHandler))).Methods("POST")
 	router.Handle("/users", chain.Append(ctx.RequireAdmin).Then(useTemplateHandler(ctx, handler.AdminUsersHandler))).Methods("GET")
@@ -114,14 +114,14 @@ func restrictedRoutes(ctx *m.AppContext, router *mux.Router, chain alice.Chain) 
 	router.Handle("/user/delete/{userID}", chain.Append(ctx.RequireAdmin).Then(useTemplateHandler(ctx, handler.AdminUserDeleteHandler))).Methods("GET")
 	router.Handle("/user/delete/{userID}", chain.Append(ctx.RequireAdmin).Then(useTemplateHandler(ctx, handler.AdminUserDeletePostHandler))).Methods("POST")
 
-	//user invites
+	// user invites
 	router.Handle("/user-invite/new", chain.Append(ctx.RequireAdmin).Then(useTemplateHandler(ctx, handler.AdminUserInviteNewHandler))).Methods("GET")
 	router.Handle("/user-invite/new", chain.Append(ctx.RequireAdmin).Then(useTemplateHandler(ctx, handler.AdminUserInviteNewPostHandler))).Methods("POST")
 	router.Handle("/user-invite/resend/{inviteID}", chain.Append(ctx.RequireAdmin).Then(useTemplateHandler(ctx, handler.AdminUserInviteResendPostHandler))).Methods("POST")
 	router.Handle("/user-invite/delete/{inviteID}", chain.Append(ctx.RequireAdmin).Then(useTemplateHandler(ctx, handler.AdminUserInviteDeleteHandler))).Methods("GET")
 	router.Handle("/user-invite/delete/{inviteID}", chain.Append(ctx.RequireAdmin).Then(useTemplateHandler(ctx, handler.AdminUserInviteDeletePostHandler))).Methods("POST")
 
-	//site
+	// site
 	router.Handle("/sites", chain.Append(ctx.RequireAdmin).Then(useTemplateHandler(ctx, handler.AdminSitesHandler))).Methods("GET")
 	router.Handle("/site/page/{page}", chain.Then(useTemplateHandler(ctx, handler.AdminSitesHandler))).Methods("GET")
 	router.Handle("/site/new", chain.Append(ctx.RequireAdmin).Then(useTemplateHandler(ctx, handler.AdminSiteNewHandler))).Methods("GET")
@@ -135,7 +135,7 @@ func restrictedRoutes(ctx *m.AppContext, router *mux.Router, chain alice.Chain) 
 	router.Handle("/site/order/{siteID}", chain.Append(ctx.RequireAdmin).Then(useTemplateHandler(ctx, handler.AdminSiteOrderHandler))).Methods("POST")
 	router.Handle("/site/{siteID:[0-9]+}}", chain.Then(useTemplateHandler(ctx, handler.AdminGetSiteHandler))).Methods("GET")
 
-	//article
+	// article
 	router.Handle("/categories", chain.Then(useTemplateHandler(ctx, handler.AdminListCategoriesHandler))).Methods("GET")
 	router.Handle("/category/{categoryID:[0-9]+}}", chain.Then(useTemplateHandler(ctx, handler.AdminGetCategoryHandler))).Methods("POST")
 	router.Handle("/category/new", chain.Then(useTemplateHandler(ctx, handler.AdminCategoryNewHandler))).Methods("GET")
@@ -145,7 +145,7 @@ func restrictedRoutes(ctx *m.AppContext, router *mux.Router, chain alice.Chain) 
 	router.Handle("/category/delete/{categoryID}", chain.Then(useTemplateHandler(ctx, handler.AdminCategoryDeleteHandler))).Methods("GET")
 	router.Handle("/category/delete/{categoryID}", chain.Then(useTemplateHandler(ctx, handler.AdminCategoryDeletePostHandler))).Methods("POST")
 
-	//file
+	// file
 	router.Handle("/files", chain.Then(useTemplateHandler(ctx, handler.AdminListFilesHandler))).Methods("GET")
 	router.Handle("/files/page/{page}", chain.Then(useTemplateHandler(ctx, handler.AdminListFilesHandler))).Methods("GET")
 	router.Handle("/file/upload", chain.Then(useTemplateHandler(ctx, handler.AdminUploadFileHandler))).Methods("GET")

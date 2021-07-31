@@ -1,21 +1,21 @@
 package models
 
 import (
-	"bytes"
 	"database/sql"
+	"strings"
 	"time"
 
 	"git.hoogi.eu/snafu/go-blog/logger"
 )
 
-//SQLiteSiteDatasource providing an implementation of SiteDatasourceService for sqlite
+// SQLiteSiteDatasource providing an implementation of SiteDatasourceService for sqlite
 type SQLiteSiteDatasource struct {
 	SQLConn *sql.DB
 }
 
-//List returns a array of sites
+// List returns a array of sites
 func (rdb SQLiteSiteDatasource) List(pc PublishedCriteria, p *Pagination) ([]Site, error) {
-	var stmt bytes.Buffer
+	var stmt strings.Builder
 	var args []interface{}
 
 	stmt.WriteString("SELECT s.id, s.title, s.link, s.section, s.content, s.published, s.published_on, s.last_modified, s.order_no, u.id, u.display_name, u.email, u.username ")
@@ -44,7 +44,11 @@ func (rdb SQLiteSiteDatasource) List(pc PublishedCriteria, p *Pagination) ([]Sit
 		return nil, err
 	}
 
-	defer rows.Close()
+	defer func() {
+		if err := rows.Close(); err != nil {
+			logger.Log.Error(err)
+		}
+	}()
 
 	var sites []Site
 	var s Site
@@ -67,9 +71,9 @@ func (rdb SQLiteSiteDatasource) List(pc PublishedCriteria, p *Pagination) ([]Sit
 	return sites, nil
 }
 
-//Get returns a site based on the site id
+// Get returns a site based on the site id
 func (rdb SQLiteSiteDatasource) Get(siteID int, pc PublishedCriteria) (*Site, error) {
-	var stmt bytes.Buffer
+	var stmt strings.Builder
 	var args []interface{}
 
 	stmt.WriteString("SELECT s.id, s.title, s.link, s.section, s.content, s.published, s.published_on, s.last_modified, s.order_no, u.id, u.display_name, u.email, u.username FROM site as s ")
@@ -96,9 +100,9 @@ func (rdb SQLiteSiteDatasource) Get(siteID int, pc PublishedCriteria) (*Site, er
 	return &s, nil
 }
 
-//GetByLink returns a site based on the provided link
+// GetByLink returns a site based on the provided link
 func (rdb SQLiteSiteDatasource) GetByLink(link string, pc PublishedCriteria) (*Site, error) {
-	var stmt bytes.Buffer
+	var stmt strings.Builder
 	var args []interface{}
 
 	stmt.WriteString("SELECT s.id, s.title, s.link, s.section, s.content, s.published, s.published_on, s.order_no, s.last_modified, u.id, u.display_name, u.email, u.username FROM site as s ")
@@ -125,7 +129,7 @@ func (rdb SQLiteSiteDatasource) GetByLink(link string, pc PublishedCriteria) (*S
 	return &s, nil
 }
 
-//Publish publishes or unpublishes a site
+// Publish publishes or unpublishes a site
 func (rdb SQLiteSiteDatasource) Publish(s *Site) error {
 	publishOn := NullTime{Valid: false}
 
@@ -139,7 +143,7 @@ func (rdb SQLiteSiteDatasource) Publish(s *Site) error {
 	return nil
 }
 
-//Create creates a site
+// Create creates a site
 func (rdb SQLiteSiteDatasource) Create(s *Site) (int, error) {
 	res, err := rdb.SQLConn.Exec("INSERT INTO site (title, link, section, content, published, published_on, last_modified, order_no, user_id) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)",
 		s.Title, s.Link, s.Section, s.Content, s.Published, s.PublishedOn, time.Now(), s.OrderNo, s.Author.ID)
@@ -157,7 +161,7 @@ func (rdb SQLiteSiteDatasource) Create(s *Site) (int, error) {
 	return int(i), nil
 }
 
-//Order moves a site up or down
+// Order moves a site up or down
 func (rdb SQLiteSiteDatasource) Order(id int, d Direction) error {
 	tx, err := rdb.SQLConn.Begin()
 
@@ -168,7 +172,12 @@ func (rdb SQLiteSiteDatasource) Order(id int, d Direction) error {
 	defer func() {
 		if err != nil {
 			logger.Log.Error("error during ordering of sites ", err)
-			tx.Rollback()
+
+			err := tx.Rollback()
+
+			if err != nil {
+				logger.Log.Error("error during transaction rollback ", err)
+			}
 		}
 	}()
 
@@ -185,7 +194,9 @@ func (rdb SQLiteSiteDatasource) Order(id int, d Direction) error {
 	} else if d == Down {
 		var max int
 
-		tx.QueryRow("SELECT MAX(order_no) AS max FROM site").Scan(&max)
+		if err := tx.QueryRow("SELECT MAX(order_no) AS max FROM site").Scan(&max); err != nil {
+			return err
+		}
 
 		if _, err = tx.Exec("UPDATE site "+
 			"SET order_no=(SELECT order_no AS swap_el FROM site WHERE id=?) "+
@@ -210,7 +221,7 @@ func (rdb SQLiteSiteDatasource) Order(id int, d Direction) error {
 	return nil
 }
 
-//Update updates a site
+// Update updates a site
 func (rdb SQLiteSiteDatasource) Update(s *Site) error {
 	if _, err := rdb.SQLConn.Exec("UPDATE site SET title=?, link=?, section=?, content=?, last_modified=? WHERE id=?", s.Title, s.Link, s.Section, s.Content, time.Now(), s.ID); err != nil {
 		return err
@@ -219,9 +230,9 @@ func (rdb SQLiteSiteDatasource) Update(s *Site) error {
 	return nil
 }
 
-//Count returns the amount of sites
+// Count returns the amount of sites
 func (rdb SQLiteSiteDatasource) Count(pc PublishedCriteria) (int, error) {
-	var stmt bytes.Buffer
+	var stmt strings.Builder
 
 	stmt.WriteString("SELECT count(id) FROM site ")
 
@@ -240,7 +251,7 @@ func (rdb SQLiteSiteDatasource) Count(pc PublishedCriteria) (int, error) {
 	return total, nil
 }
 
-//Max returns the maximum order number
+// Max returns the maximum order number
 func (rdb SQLiteSiteDatasource) Max() (int, error) {
 	var max sql.NullInt64
 
@@ -255,7 +266,7 @@ func (rdb SQLiteSiteDatasource) Max() (int, error) {
 	return int(max.Int64), nil
 }
 
-//Delete deletes a site and updates the order numbers
+// Delete deletes a site and updates the order numbers
 func (rdb SQLiteSiteDatasource) Delete(s *Site) error {
 	tx, err := rdb.SQLConn.Begin()
 
@@ -265,8 +276,11 @@ func (rdb SQLiteSiteDatasource) Delete(s *Site) error {
 
 	defer func() {
 		if err != nil {
-			logger.Log.Error("error during delete transaction", err)
-			tx.Rollback()
+			logger.Log.Errorf("error site removal not successful %v", err)
+			if err := tx.Rollback(); err != nil {
+				logger.Log.Errorf("could not rollback transaction during site removal %v", err)
+				return
+			}
 			return
 		}
 	}()

@@ -19,7 +19,7 @@ type FileHandler struct {
 	Context *middleware.AppContext
 }
 
-//FileGetHandler serves the file based on the url filename
+// FileGetHandler serves the file based on the unique filename
 func (fh FileHandler) FileGetHandler(w http.ResponseWriter, r *http.Request) {
 	rv := getVar(r, "uniquename")
 
@@ -55,12 +55,19 @@ func (fh FileHandler) FileGetHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "500 Internal Server Error", http.StatusInternalServerError)
 	}
 
-	defer rf.Close()
+	defer func(rf *os.File) {
+		err := rf.Close()
+
+		if err != nil {
+			logger.Log.Errorf("error while closing the file %v", err)
+			http.Error(w, "500 Internal Server Error", http.StatusInternalServerError)
+		}
+	}(rf)
 
 	http.ServeContent(w, r, loc, f.LastModified, rf)
 }
 
-//AdminListFilesHandler returns the template which lists all uploaded files belonging to a user, admins will see all files
+// AdminListFilesHandler returns the template which lists all uploaded files belonging to a user, admins will see all files
 func AdminListFilesHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
 	u, _ := middleware.User(r)
 
@@ -102,7 +109,7 @@ func AdminListFilesHandler(ctx *middleware.AppContext, w http.ResponseWriter, r 
 		}}
 }
 
-//AdminUploadFileHandler returns the form for uploading a file
+// AdminUploadFileHandler returns the form for uploading a file
 func AdminUploadFileHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
 	return &middleware.Template{
 		Name:   tplAdminFileUpload,
@@ -110,6 +117,7 @@ func AdminUploadFileHandler(ctx *middleware.AppContext, w http.ResponseWriter, r
 	}
 }
 
+// AdminToggleInlineFilePostHandler toggles the flag if the file should be inline or downloaded (toggles Content-Disposition header)
 func AdminToggleInlineFilePostHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
 	u, _ := middleware.User(r)
 
@@ -173,6 +181,7 @@ func AdminUploadFilePostHandler(ctx *middleware.AppContext, w http.ResponseWrite
 	}
 }
 
+// AdminUploadJSONFilePostHandler
 func AdminUploadJSONFilePostHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) (*models.JSONData, error) {
 	file, err := parseFileField(ctx, w, r)
 
@@ -197,7 +206,7 @@ func AdminUploadJSONFilePostHandler(ctx *middleware.AppContext, w http.ResponseW
 	return json, nil
 }
 
-//AdminUploadDeleteHandler returns the action template which asks the user if the file should be removed
+// AdminUploadDeleteHandler returns the action template which asks the user if the file should be removed
 func AdminUploadDeleteHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
 	u, _ := middleware.User(r)
 
@@ -239,7 +248,7 @@ func AdminUploadDeleteHandler(ctx *middleware.AppContext, w http.ResponseWriter,
 	}
 }
 
-//AdminUploadDeletePostHandler removes a file
+// AdminUploadDeletePostHandler removes a file
 func AdminUploadDeletePostHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
 	u, _ := middleware.User(r)
 

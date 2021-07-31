@@ -37,7 +37,7 @@ type Article struct {
 	CName sql.NullString
 }
 
-//ArticleDatasourceService defines an interface for CRUD operations of articles
+// ArticleDatasourceService defines an interface for CRUD operations of articles
 type ArticleDatasourceService interface {
 	Create(a *Article) (int, error)
 	List(u *User, c *Category, p *Pagination, pc PublishedCriteria) ([]Article, error)
@@ -53,7 +53,7 @@ const (
 	maxHeadlineSize = 150
 )
 
-//SlugEscape escapes the slug for use in URLs
+// SlugEscape escapes the slug for use in URLs
 func (a Article) SlugEscape() string {
 	spl := strings.Split(a.Slug, "/")
 	return fmt.Sprintf("%s/%s/%s", spl[0], spl[1], url.PathEscape(spl[2]))
@@ -106,7 +106,7 @@ func (a *Article) validate() error {
 	return nil
 }
 
-//ArticleService containing the service to access articles
+// ArticleService containing the service to access articles
 type ArticleService struct {
 	Datasource ArticleDatasourceService
 	AppConfig  settings.Application
@@ -129,7 +129,7 @@ func (as ArticleService) Create(a *Article) (int, error) {
 	return as.Datasource.Create(a)
 }
 
-//Update updates an article
+// Update updates an article
 func (as ArticleService) Update(a *Article, u *User, updateSlug bool) error {
 	if err := a.validate(); err != nil {
 		return err
@@ -161,7 +161,7 @@ func (as ArticleService) Update(a *Article, u *User, updateSlug bool) error {
 	return as.Datasource.Update(a)
 }
 
-//Publish publishes or 'unpublishes' an article
+// Publish publishes or 'unpublishes' an article
 func (as ArticleService) Publish(id int, u *User) error {
 	a, err := as.Datasource.Get(id, nil, All)
 
@@ -178,7 +178,7 @@ func (as ArticleService) Publish(id int, u *User) error {
 	return as.Datasource.Publish(a)
 }
 
-//Delete deletes an article
+// Delete deletes an article
 func (as ArticleService) Delete(id int, u *User) error {
 	a, err := as.Datasource.Get(id, nil, All)
 

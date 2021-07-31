@@ -18,7 +18,7 @@ import (
 	"git.hoogi.eu/snafu/go-blog/settings"
 )
 
-//File represents a file
+// File represents a file
 type File struct {
 	ID           int
 	UniqueName   string    `json:"unique_name"`
@@ -33,15 +33,15 @@ type File struct {
 	Author       *User
 }
 
-//FileInfo contains Path, Name and Extension of a file.
-//Use SplitFilename to split the information from a filename
+// FileInfo contains Path, Name and Extension of a file.
+// Use SplitFilename to split the information from a filename
 type FileInfo struct {
 	Path      string
 	Name      string
 	Extension string
 }
 
-//FileDatasourceService defines an interface for CRUD operations of files
+// FileDatasourceService defines an interface for CRUD operations of files
 type FileDatasourceService interface {
 	Create(f *File) (int, error)
 	Get(fileID int, u *User) (*File, error)
@@ -100,26 +100,26 @@ func SplitFilename(filename string) FileInfo {
 	}
 }
 
-//FileService containing the service to interact with files
+// FileService containing the service to interact with files
 type FileService struct {
 	Datasource FileDatasourceService
 	Config     settings.File
 }
 
-//GetByID returns the file based on the fileID; it the user is given and it is a non admin
-//only file specific to this user is returned
+// GetByID returns the file based on the fileID; it the user is given and it is a non admin
+// only file specific to this user is returned
 func (fs FileService) GetByID(fileID int, u *User) (*File, error) {
 	return fs.Datasource.Get(fileID, u)
 }
 
-//GetByUniqueName returns the file based on the unique name; it the user is given and it is a non admin
-//only file specific to this user is returned
+// GetByUniqueName returns the file based on the unique name; it the user is given and it is a non admin
+// only file specific to this user is returned
 func (fs FileService) GetByUniqueName(uniqueName string, u *User) (*File, error) {
 	return fs.Datasource.GetByUniqueName(uniqueName, u)
 }
 
-//List returns a list of files based on the filename; it the user is given and it is a non admin
-//only files specific to this user are returned
+// List returns a list of files based on the filename; it the user is given and it is a non admin
+// only files specific to this user are returned
 func (fs FileService) List(u *User, p *Pagination) ([]File, error) {
 	return fs.Datasource.List(u, p)
 }
@@ -152,7 +152,7 @@ func (fs FileService) ToggleInline(fileID int, u *User) error {
 	return fs.Datasource.Update(f)
 }
 
-//Delete deletes a file based on fileID; users which are not the owner are not allowed to remove files; except admins
+// Delete deletes a file based on fileID; users which are not the owner are not allowed to remove files; except admins
 func (fs FileService) Delete(fileID int, u *User) error {
 	file, err := fs.Datasource.Get(fileID, u)
 
@@ -175,7 +175,7 @@ func (fs FileService) Delete(fileID int, u *User) error {
 	return os.Remove(filepath.Join(fs.Config.Location, file.UniqueName))
 }
 
-//Upload uploaded files will be saved at the configured file location, filename is saved in the database
+// Upload uploaded files will be saved at the configured file location, filename is saved in the database
 func (fs FileService) Upload(f *File) (int, error) {
 	if err := f.validate(); err != nil {
 		return -1, err
@@ -256,7 +256,7 @@ func isDot(r rune) bool {
 	return '.' == r
 }
 
-//SanitizeFilename sanitizes a filename for safe use when serving file
+// sanitizeFilename sanitizes a filename for safe use when serving file
 func sanitizeFilename(s string) string {
 	s = strings.ToValidUTF8(s, "")
 	s = strings.TrimFunc(s, unicode.IsSpace)
