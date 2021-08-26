@@ -144,7 +144,7 @@ func (s Service) Send(m Mail) error {
 	}
 }
 
-var buffer = make(chan Mail, 10)
+var buffer = make(chan Mail, 5)
 
 func (s Service) readBuffer() {
 	for {

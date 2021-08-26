@@ -33,50 +33,47 @@ type TemplateHandler struct {
 type Handler func(*AppContext, http.ResponseWriter, *http.Request) *Template
 
 func (fn TemplateHandler) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
-	var errorMsg, warnMsg, successMsg string
-
-	code := http.StatusOK
-
-	ip := getIP(r)
-	en := logger.Log.WithField("ip", ip)
-
 	t := fn.Handler(fn.AppCtx, rw, r)
 
 	if t.Data == nil {
 		t.Data = make(map[string]interface{})
 	}
 
-	user, err := User(r)
-
-	if err == nil {
-		t.Data["currentUser"] = user
-	}
-
+	var errorMsg, warnMsg, successMsg string
 	successMsg = t.SuccessMsg
 	warnMsg = t.WarnMsg
+	code := http.StatusOK
+
+	logWithIP := logger.Log.WithField("ip", getIP(r))
 
 	t.Data["CSRFToken"] = csrf.Token(r)
 
 	if t.Err != nil {
-
 		switch e := t.Err.(type) {
 		case *httperror.Error:
 			code = e.HTTPStatus
-			en.Error(e)
+			logWithIP.Error(e)
 			errorMsg = e.DisplayMsg
 		default:
-			en.Error(e)
+			logWithIP.Error(e)
 			errorMsg = "Sorry, an internal server error occurred"
 		}
 
 		t.Data["ErrorMsg"] = errorMsg
 	}
 
+	if user, err := User(r); err == nil {
+		t.Data["currentUser"] = user
+	}
+
 	if len(t.RedirectPath) == 0 {
+		t.Data["SuccessMsg"] = successMsg
+		t.Data["WarnsMsg"] = warnMsg
+
 		fl, err := getFlash(rw, r, "SuccessMsg")
 
 		if err != nil {
-			logger.Log.Error(err)
+			logWithIP.Error(err)
 		} else if len(fl) > 0 {
 			t.Data["SuccessMsg"] = fl
 		}
@@ -84,7 +81,7 @@ func (fn TemplateHandler) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 		fl, err = getFlash(rw, r, "ErrorMsg")
 
 		if err != nil {
-			en.Error(err)
+			logWithIP.Error(err)
 		} else if len(fl) > 0 {
 			t.Data["ErrorMsg"] = fl
 		}
@@ -92,7 +89,7 @@ func (fn TemplateHandler) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 		fl, err = getFlash(rw, r, "WarnMsg")
 
 		if err != nil {
-			en.Error(err)
+			logWithIP.Error(err)
 		} else if len(fl) > 0 {
 			t.Data["WarnMsg"] = fl
 		}
@@ -103,7 +100,7 @@ func (fn TemplateHandler) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 		rw.WriteHeader(code)
 
 		if err := fn.AppCtx.Templates.ExecuteTemplate(rw, t.Name, t.Data); err != nil {
-			en.Error(err)
+			logWithIP.Error(err)
 			http.Error(rw, err.Error(), http.StatusInternalServerError)
 		}
 	} else {
@@ -177,7 +174,7 @@ func (ctx AppContext) AuthHandler(handler http.Handler) http.Handler {
 	return http.HandlerFunc(fn)
 }
 
-// RequireAdmin ensures that the user is an admin; if not next handler in chain is not called
+// RequireAdmin ensures that the user is an admin; if not next handler in chain is not called.
 func (ctx AppContext) RequireAdmin(handler http.Handler) http.Handler {
 	fn := func(rw http.ResponseWriter, r *http.Request) {
 		u, err := User(r)

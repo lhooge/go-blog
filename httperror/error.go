@@ -87,3 +87,7 @@ func ValueRequired(param string) *Error {
 func (e Error) Error() string {
 	return fmt.Sprintf("code=[%d], error=[%s], displayMsg=[%s]", e.HTTPStatus, e.Err.Error(), e.DisplayMsg)
 }
+
+func (e *Error) Unwrap() error {
+	return e.Err
+}
