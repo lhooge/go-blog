@@ -229,9 +229,9 @@ func ResetPasswordHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *
 
 // ResetPasswordPostHandler handles a password reset
 func ResetPasswordPostHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
+	hash := getVar(r, "hash")
 	password := r.FormValue("password")
 	password2 := r.FormValue("password_repeat")
-	hash := getVar(r, "hash")
 
 	t, err := ctx.TokenService.Get(hash, models.PasswordReset, time.Duration(1)*time.Hour)
 
@@ -277,6 +277,15 @@ func ResetPasswordPostHandler(ctx *middleware.AppContext, w http.ResponseWriter,
 
 	ctx.Mailer.SendPasswordChangeConfirmation(u)
 
+	if !u.Active {
+		logger.Log.Warnf("password reset for user '%s' was successful, but user is deactivated", u.Email)
+
+		return &middleware.Template{
+			Name:    tplAdminResetPassword,
+			WarnMsg: "Your password reset was successful, but your account is deactivated.",
+		}
+	}
+
 	return &middleware.Template{
 		RedirectPath: "admin",
 		SuccessMsg:   "Your password reset was successful.",
@@ -297,11 +306,14 @@ func ForgotPasswordPostHandler(ctx *middleware.AppContext, w http.ResponseWriter
 	u, err := ctx.UserService.GetByMail(email)
 
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			logger.Log.Error(err)
-			return &middleware.Template{
-				RedirectPath: "admin",
-				SuccessMsg:   "An email with password reset instructions is on the way.",
+		var e *httperror.Error
+		if errors.As(err, &e) {
+			if errors.Is(e.Err, sql.ErrNoRows) {
+				logger.Log.Error(err)
+				return &middleware.Template{
+					Name:       tplAdminForgotPassword,
+					SuccessMsg: fmt.Sprintf("An email to '%s' with password reset instructions is on the way.", email),
+				}
 			}
 		} else {
 			return &middleware.Template{
@@ -316,31 +328,16 @@ func ForgotPasswordPostHandler(ctx *middleware.AppContext, w http.ResponseWriter
 		}
 	}
 
-	if !u.Active {
-		return &middleware.Template{
-			Name: tplAdminForgotPassword,
-			Err:  httperror.New(http.StatusUnauthorized, "Your account is deactivated.", err),
-			Data: map[string]interface{}{
-				"user": models.User{
-					Email: email,
-				},
-			},
-		}
-	}
-
 	t := &models.Token{
 		Author: u,
 		Type:   models.PasswordReset,
 	}
 
-	err = ctx.TokenService.RateLimit(u.ID, models.PasswordReset)
-	if err != nil {
+	if err = ctx.TokenService.RateLimit(u.ID, models.PasswordReset); err != nil {
 		logger.Log.Error(err)
 	}
 
-	err = ctx.TokenService.Create(t)
-
-	if err != nil {
+	if err = ctx.TokenService.Create(t); err != nil {
 		return &middleware.Template{
 			Name: tplAdminForgotPassword,
 			Err:  err,
@@ -350,7 +347,7 @@ func ForgotPasswordPostHandler(ctx *middleware.AppContext, w http.ResponseWriter
 	ctx.Mailer.SendPasswordResetLink(u, t)
 
 	return &middleware.Template{
-		RedirectPath: "admin",
-		SuccessMsg:   "An email with password reset instructions is on the way.",
+		Name:       tplAdminForgotPassword,
+		SuccessMsg: fmt.Sprintf("An email to '%s' with password reset instructions is on the way.", email),
 	}
 }

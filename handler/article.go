@@ -16,7 +16,7 @@ import (
 )
 
 // GetArticleHandler returns a specific article
-// Parameters are in the form /year/month/slug e.g. 2016/3/my-headline
+// URL Parameters are in the form /year/month/slug e.g. 2016/3/my-
 func GetArticleHandler(ctx *middleware.AppContext, w http.ResponseWriter, r *http.Request) *middleware.Template {
 	year := getVar(r, "year")
 	month := getVar(r, "month")

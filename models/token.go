@@ -43,7 +43,7 @@ type TokenType int
 // Scan implements the Scanner interface.
 func (tt *TokenType) Scan(value interface{}) error {
 	for k, t := range types {
-		if t == string(value.([]byte)) {
+		if t == (value.(string)) {
 			tts := TokenType(k)
 			tt = &tts
 			return nil
