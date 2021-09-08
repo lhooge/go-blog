@@ -7,6 +7,7 @@ import (
 	"git.hoogi.eu/snafu/go-blog/mail"
 )
 
+// TODO: refactor
 // UserInvite represents a new invited user
 type UserInvite struct {
 	ID          int
@@ -50,13 +51,7 @@ type UserInviteService struct {
 func (ui UserInvite) validate(uis UserInviteService) error {
 	user := ui.Copy()
 
-	err := user.validate(uis.UserService, -1, VDupEmail|VDupUsername)
-
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return user.validate(uis.UserService, -1, VDupEmail|VDupUsername)
 }
 
 func (uis UserInviteService) List() ([]UserInvite, error) {

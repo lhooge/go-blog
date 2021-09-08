@@ -19,23 +19,25 @@ type XMLHandler struct {
 type XHandler func(*AppContext, http.ResponseWriter, *http.Request) (*models.XMLData, error)
 
 func (fn XMLHandler) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
+	logWithIP := logger.Log.WithField("ip", getIP(r))
+
 	rw.Header().Set("Content-Type", "application/xml")
 
 	h, err := fn.Handler(fn.AppCtx, rw, r)
 
 	if err != nil {
-		logger.Log.Error(err)
+		logWithIP.Error(err)
 
 		x, err := xml.Marshal(err)
 
 		if err != nil {
-			logger.Log.Error(err)
+			logWithIP.Error(err)
 			http.Error(rw, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
 		if _, err = rw.Write(x); err != nil {
-			logger.Log.Error(err)
+			logWithIP.Error(err)
 			http.Error(rw, err.Error(), http.StatusInternalServerError)
 			return
 		}
@@ -46,6 +48,7 @@ func (fn XMLHandler) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	x, err2 := xml.MarshalIndent(h.Data, "", "\t")
 
 	if err2 != nil {
+		logWithIP.Error(err)
 		http.Error(rw, err2.Error(), http.StatusInternalServerError)
 		return
 	}

@@ -12,7 +12,7 @@ type SQLiteUserDatasource struct {
 	SQLConn *sql.DB
 }
 
-// List returns a list of user
+// List returns a list of users
 func (rdb SQLiteUserDatasource) List(p *Pagination) ([]User, error) {
 	var stmt strings.Builder
 	var args []interface{}
@@ -53,7 +53,7 @@ func (rdb SQLiteUserDatasource) List(p *Pagination) ([]User, error) {
 	return users, nil
 }
 
-// Get gets an user by his userID
+// Get gets a user by his userID
 func (rdb SQLiteUserDatasource) Get(userID int) (*User, error) {
 	var u User
 
@@ -67,7 +67,7 @@ func (rdb SQLiteUserDatasource) Get(userID int) (*User, error) {
 	return &u, nil
 }
 
-// GetByMail gets an user by his mail, includes the password and salt
+// GetByMail gets a user by his mail, includes the password and salt
 func (rdb SQLiteUserDatasource) GetByMail(mail string) (*User, error) {
 	var u User
 
@@ -78,7 +78,7 @@ func (rdb SQLiteUserDatasource) GetByMail(mail string) (*User, error) {
 	return &u, nil
 }
 
-// GetByUsername gets an user by his username, includes the password and salt
+// GetByUsername gets a user by his username, includes the password and salt
 func (rdb SQLiteUserDatasource) GetByUsername(username string) (*User, error) {
 	var u User
 
@@ -89,7 +89,7 @@ func (rdb SQLiteUserDatasource) GetByUsername(username string) (*User, error) {
 	return &u, nil
 }
 
-// Create creates an new user
+// Create creates a new user
 func (rdb SQLiteUserDatasource) Create(u *User) (int, error) {
 	res, err := rdb.SQLConn.Exec("INSERT INTO user (salt, password, username, email, display_name, last_modified, active, is_admin) VALUES(?, ?, ?, ?, ?, ?, ?, ?);",
 		u.Salt, u.Password, u.Username, u.Email, u.DisplayName, time.Now(), u.Active, u.IsAdmin)
@@ -103,6 +103,7 @@ func (rdb SQLiteUserDatasource) Create(u *User) (int, error) {
 	if err != nil {
 		return -1, err
 	}
+
 	return int(i), nil
 }
 
@@ -116,9 +117,9 @@ func (rdb SQLiteUserDatasource) Update(u *User, changePassword bool) error {
 
 	if changePassword {
 		stmt.WriteString(", salt=?, password=? ")
-
 		args = append(args, u.Salt, u.Password)
 	}
+
 	stmt.WriteString("WHERE id=?;")
 
 	args = append(args, u.ID)

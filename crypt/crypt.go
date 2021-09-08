@@ -9,7 +9,6 @@ import (
 	"crypto/rand"
 	"crypto/sha512"
 	"encoding/hex"
-	"fmt"
 	"io"
 	"math/big"
 
@@ -38,20 +37,23 @@ type RandomSource string
 // RandomSequence returns random character with given length;
 func (r RandomSource) RandomSequence(length int) []byte {
 	result := make([]byte, length)
+
 	for i := 0; i < length; i++ {
 		char, _ := rand.Int(rand.Reader, big.NewInt(int64(len(r))))
 		result[i] = r[int(char.Int64())]
 	}
-	fmt.Println(result)
+
 	return result
 }
 
 // RandomSecureKey returns random character with given length
 func RandomSecureKey(length int) []byte {
 	k := make([]byte, length)
+
 	if _, err := io.ReadFull(rand.Reader, k); err != nil {
 		return nil
 	}
+
 	return k
 }
 

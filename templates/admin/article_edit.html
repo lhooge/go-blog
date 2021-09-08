@@ -10,7 +10,8 @@
 
 	{{with .article}}
 	<form id="autosave-form" action="/admin/article/edit/{{.ID}}" method="post">
-		<select name="categoryID">
+		<label for="category">Category</label>
+		<select id="category" name="categoryID">
 			<option></option>
 			{{range $.categories}}
 			<option{{if $.article.CID.Valid}}{{if eq $.article.CID.Int64 .ID}} selected="selected"{{end}}{{end}} value="{{.ID}}">{{.Name}}</option>

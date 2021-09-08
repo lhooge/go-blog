@@ -288,9 +288,7 @@ func (cfg *Settings) GenerateCSRF() (bool, error) {
 			// create a random csrf token
 			b = crypt.AlphaUpperLowerNumericSpecial.RandomSequence(32)
 
-			err := ioutil.WriteFile(csrfTokenFilename, b, 0640)
-
-			if err != nil {
+			if err := ioutil.WriteFile(csrfTokenFilename, b, 0640); err != nil {
 				return false, err
 			}
 

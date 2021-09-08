@@ -23,9 +23,13 @@ import (
 )
 
 // Template contains the information about the template to render.
-// The DisplayMsg in models.Error will be the ErrorMsg in the flash bubble,
-// the SuccessMsg is an optional variable which is also displayed as a green flash bubble,
-// both are appended to the data map with keys 'ErrorMsg' or 'SuccessMsg' in the AppHandler
+// Active contains the current active navigation.
+// Data the data which is injected into the templates.
+// SuccessMsg is an optional variable which is displayed as a green message.
+// WarnMsg is an optional variable which is displayed as an orange message.
+// RedirectPath contains the path where the request should be redirected.
+// Err will be shown as red message in templates. If it's a httperror, the display message will be shown,
+// otherwise generich 'An internal error occurred' is shown.
 type Template struct {
 	Name         string
 	Active       string
@@ -36,7 +40,8 @@ type Template struct {
 	Err          error
 }
 
-// Templates defines in which directory should be looked for template
+// Templates defines the directory where the templates are located, the FuncMap are additional functions, which can
+// be used in the templates.
 type Templates struct {
 	Directory string
 	FuncMap   template.FuncMap

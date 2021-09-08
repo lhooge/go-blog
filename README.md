@@ -28,7 +28,7 @@ Create the initial database (switch to folder clt/):
 Change the config file to point to the correct sqlite database
 
 ~~~
-  sqlite_file = /path/to/your/sqlite/database
+sqlite_file = /path/to/your/sqlite/database
 ~~~
 
 ### Create user with administration rights ###

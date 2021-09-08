@@ -10,7 +10,7 @@
 
     <form id="autosave-form" action="/admin/article/new" method="post">
 		<label for="category">Category</label>
-		<select name="categoryID">
+		<select id="category" name="categoryID">
 			<option></option>
 			{{range .categories}}
 			<option value="{{.ID}}">{{.Name}}</option>

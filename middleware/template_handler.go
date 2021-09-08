@@ -119,17 +119,19 @@ func (fn TemplateHandler) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 // AuthHandler checks if the user is authenticated; if not next handler in chain is not called
 func (ctx AppContext) AuthHandler(handler http.Handler) http.Handler {
 	fn := func(rw http.ResponseWriter, r *http.Request) {
+		logWithIP := logger.Log.WithField("ip", getIP(r))
+
 		session, err := ctx.SessionService.Get(rw, r)
 
 		if err != nil {
-			logger.Log.Error(err)
+			logWithIP.Error(err)
 			rw.WriteHeader(http.StatusUnauthorized)
 			if err := ctx.Templates.ExecuteTemplate(rw, "admin/login", map[string]interface{}{
 				"ErrorMsg":       "Please provide login credentials.",
 				"state":          r.URL.EscapedPath(),
 				csrf.TemplateTag: csrf.TemplateField(r),
 			}); err != nil {
-				logger.Log.Errorf("error while executing the template %v", err)
+				logWithIP.Errorf("error while executing the template %v", err)
 				return
 			}
 			return
@@ -138,7 +140,7 @@ func (ctx AppContext) AuthHandler(handler http.Handler) http.Handler {
 		userid, ok := session.GetValue("userid").(int)
 
 		if !ok {
-			logger.Log.Errorf("userid is not an integer %v", userid)
+			logWithIP.Error(err)
 
 			rw.WriteHeader(http.StatusUnauthorized)
 			if err := ctx.Templates.ExecuteTemplate(rw, "admin/login", map[string]interface{}{
@@ -146,7 +148,7 @@ func (ctx AppContext) AuthHandler(handler http.Handler) http.Handler {
 				"state":          r.URL.EscapedPath(),
 				csrf.TemplateTag: csrf.TemplateField(r),
 			}); err != nil {
-				logger.Log.Errorf("error while executing the template %v", err)
+				logWithIP.Error(err)
 				return
 			}
 
@@ -156,7 +158,7 @@ func (ctx AppContext) AuthHandler(handler http.Handler) http.Handler {
 		u, err := ctx.UserService.GetByID(userid)
 
 		if err != nil {
-			logger.Log.Error(err)
+			logWithIP.Error(err)
 			rw.WriteHeader(http.StatusUnauthorized)
 			if err := ctx.Templates.ExecuteTemplate(rw, "admin/login", map[string]interface{}{
 				"ErrorMsg":       "Please provide login credentials.",
@@ -174,17 +176,19 @@ func (ctx AppContext) AuthHandler(handler http.Handler) http.Handler {
 	return http.HandlerFunc(fn)
 }
 
-// RequireAdmin ensures that the user is an admin; if not next handler in chain is not called.
+// RequireAdmin ensures that the user is an admin, if not next handler in chain is not called.
 func (ctx AppContext) RequireAdmin(handler http.Handler) http.Handler {
 	fn := func(rw http.ResponseWriter, r *http.Request) {
+		logWithIP := logger.Log.WithField("ip", getIP(r))
+
 		u, err := User(r)
 
 		if err != nil {
-			logger.Log.Error(err)
+			logWithIP.Error(err)
 			if err := ctx.Templates.ExecuteTemplate(rw, "admin/error", map[string]interface{}{
 				"ErrorMsg": "An internal server error occurred",
 			}); err != nil {
-				logger.Log.Errorf("error while executing the template %v", err)
+				logWithIP.Errorf("error while executing the template %v", err)
 				return
 			}
 			return
@@ -195,7 +199,7 @@ func (ctx AppContext) RequireAdmin(handler http.Handler) http.Handler {
 				"ErrorMsg":    "You have not the permissions to execute this action",
 				"currentUser": u,
 			}); err != nil {
-				logger.Log.Errorf("error while executing the template %v", err)
+				logWithIP.Errorf("error while executing the template %v", err)
 				return
 			}
 			return
@@ -203,6 +207,7 @@ func (ctx AppContext) RequireAdmin(handler http.Handler) http.Handler {
 
 		handler.ServeHTTP(rw, r)
 	}
+
 	return http.HandlerFunc(fn)
 }
 

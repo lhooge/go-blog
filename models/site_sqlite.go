@@ -120,7 +120,8 @@ func (rdb SQLiteSiteDatasource) GetByLink(link string, pc PublishedCriteria) (*S
 	var s Site
 	var u User
 
-	if err := rdb.SQLConn.QueryRow(stmt.String(), link).Scan(&s.ID, &s.Title, &s.Link, &s.Section, &s.Content, &s.Published, &s.PublishedOn, &s.OrderNo, &s.LastModified, &u.ID, &u.DisplayName, &u.Email, &u.Username); err != nil {
+	if err := rdb.SQLConn.QueryRow(stmt.String(), link).Scan(&s.ID, &s.Title, &s.Link, &s.Section, &s.Content, &s.Published,
+		&s.PublishedOn, &s.OrderNo, &s.LastModified, &u.ID, &u.DisplayName, &u.Email, &u.Username); err != nil {
 		return nil, err
 	}
 
@@ -145,7 +146,8 @@ func (rdb SQLiteSiteDatasource) Publish(s *Site) error {
 
 // Create creates a site
 func (rdb SQLiteSiteDatasource) Create(s *Site) (int, error) {
-	res, err := rdb.SQLConn.Exec("INSERT INTO site (title, link, section, content, published, published_on, last_modified, order_no, user_id) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)",
+	res, err := rdb.SQLConn.Exec("INSERT INTO site (title, link, section, content, published, published_on, last_modified, order_no, user_id) "+
+		"VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)",
 		s.Title, s.Link, s.Section, s.Content, s.Published, s.PublishedOn, time.Now(), s.OrderNo, s.Author.ID)
 
 	if err != nil {
@@ -212,18 +214,13 @@ func (rdb SQLiteSiteDatasource) Order(id int, d Direction) error {
 		}
 	}
 
-	err = tx.Commit()
-
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return tx.Commit()
 }
 
 // Update updates a site
 func (rdb SQLiteSiteDatasource) Update(s *Site) error {
-	if _, err := rdb.SQLConn.Exec("UPDATE site SET title=?, link=?, section=?, content=?, last_modified=? WHERE id=?", s.Title, s.Link, s.Section, s.Content, time.Now(), s.ID); err != nil {
+	if _, err := rdb.SQLConn.Exec("UPDATE site SET title=?, link=?, section=?, content=?, last_modified=? WHERE id=?",
+		s.Title, s.Link, s.Section, s.Content, time.Now(), s.ID); err != nil {
 		return err
 	}
 
@@ -293,9 +290,7 @@ func (rdb SQLiteSiteDatasource) Delete(s *Site) error {
 		return err
 	}
 
-	err = tx.Commit()
-
-	if err != nil {
+	if err = tx.Commit(); err != nil {
 		return err
 	}
 

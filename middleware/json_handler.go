@@ -23,6 +23,7 @@ type JSONHandler struct {
 type JHandler func(*AppContext, http.ResponseWriter, *http.Request) (*models.JSONData, error)
 
 func (fn JSONHandler) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
+	logWithIP := logger.Log.WithField("ip", getIP(r))
 	code := http.StatusOK
 
 	rw.Header().Set("Content-Type", "application/json")
@@ -35,15 +36,14 @@ func (fn JSONHandler) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 			code = e.HTTPStatus
 		default:
 			code = http.StatusInternalServerError
-			logger.Log.Error(e)
 		}
 
-		logger.Log.Error(err)
+		logWithIP.Error(err)
 
 		j, err := json.Marshal(err)
 
 		if err != nil {
-			logger.Log.Error(err)
+			logWithIP.Error(err)
 			http.Error(rw, err.Error(), http.StatusInternalServerError)
 			return
 		}
@@ -53,7 +53,7 @@ func (fn JSONHandler) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 		_, err = rw.Write(j)
 
 		if err != nil {
-			logger.Log.Error(err)
+			logWithIP.Error(err)
 			http.Error(rw, err.Error(), http.StatusInternalServerError)
 			return
 		}
@@ -63,6 +63,7 @@ func (fn JSONHandler) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	j, err := json.Marshal(data)
 
 	if err != nil {
+		logWithIP.Error(err)
 		http.Error(rw, err.Error(), http.StatusInternalServerError)
 		rw.WriteHeader(http.StatusInternalServerError)
 		return
@@ -73,6 +74,7 @@ func (fn JSONHandler) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	_, err = rw.Write(j)
 
 	if err != nil {
+		logWithIP.Error(err)
 		http.Error(rw, err.Error(), http.StatusInternalServerError)
 		rw.WriteHeader(http.StatusInternalServerError)
 		return

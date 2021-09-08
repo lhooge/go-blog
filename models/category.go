@@ -39,6 +39,7 @@ func (c *Category) validate() error {
 	if c.Author == nil {
 		return httperror.InternalServerError(errors.New("category validation failed - the author is missing"))
 	}
+
 	return nil
 }
 
@@ -82,6 +83,7 @@ func (cs CategoryService) GetByID(id int, fc FilterCriteria) (*Category, error) 
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, httperror.NotFound("category", fmt.Errorf("the category with id %d was not found", id))
 		}
+
 		return nil, err
 	}
 
@@ -100,9 +102,7 @@ func (cs CategoryService) List(fc FilterCriteria) ([]Category, error) {
 func (cs CategoryService) Create(c *Category) (int, error) {
 	for i := 0; i < 10; i++ {
 		c.Slug = slug.CreateURLSafeSlug(c.Name, i)
-		_, err := cs.Datasource.GetBySlug(c.Slug, AllCategories)
-
-		if err != nil {
+		if _, err := cs.Datasource.GetBySlug(c.Slug, AllCategories); err != nil {
 			if errors.Is(err, sql.ErrNoRows) {
 				break
 			}
@@ -114,12 +114,7 @@ func (cs CategoryService) Create(c *Category) (int, error) {
 		return 0, err
 	}
 
-	cid, err := cs.Datasource.Create(c)
-	if err != nil {
-		return 0, err
-	}
-
-	return cid, nil
+	return cs.Datasource.Create(c)
 }
 
 // Update updates a category

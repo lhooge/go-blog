@@ -5,7 +5,7 @@
 	</footer>
 
 	<script type="text/javascript">
-		var directUpload = document.getElementById('direct-upload');
+		let directUpload = document.getElementById('direct-upload');
 
 		directUpload && directUpload.addEventListener("submit", function(e) {
 			e.preventDefault();
@@ -41,7 +41,7 @@
 
 				table.style.display = "table";
 
-				let tableBody = table.tBodies[0]
+				let tableBody = table.tBodies[0];
 
 				let row = tableBody.insertRow(-1);
 
@@ -70,11 +70,11 @@
 			});
 		});
 
-		var persistForm = function() {
+		let persistForm = function() {
 			let form = document.getElementById("autosave-form");
 
 			if(form === undefined) {
-				return
+				return;
 			}
 
 			let data = {};
@@ -99,7 +99,7 @@
 			localStorage.setItem('AUTOSAVE'+action.split('/').join('_'), JSON.stringify(data));
 		}
 
-		var autoSaveForm = document.getElementById('autosave-form');
+		let autoSaveForm = document.getElementById('autosave-form');
 
 		autoSaveForm && autoSaveForm.addEventListener("submit", function(e) {
 			let form = document.getElementById("autosave-form");
@@ -107,11 +107,11 @@
 			localStorage.removeItem('AUTOSAVE'+action.split('/').join('_'));
 		});
 
-		var loadForm = function() {
+		let loadForm = function() {
 			let form = document.getElementById("autosave-form");
 
 			if(form === undefined) {
-				return
+				return;
 			}
 
 			let action = form.getAttribute("action");
@@ -119,23 +119,25 @@
 			let json = localStorage.getItem('AUTOSAVE'+action.split('/').join('_'));
 			let obj = JSON.parse(json);
 
-      		if (typeof obj === 'object' && obj !== null) {
-  				if (Object.keys(obj).length > 0) {
-  					for (let key in obj) {
-  						if(key != "action") {
-  							form.elements[key].value = obj[key]
-  						}
-  					}
+			if (typeof obj !== 'function' && (typeof obj !== 'object' || obj === null)) {
+				return;
+			}
 
-					let div = document.createElement('div');
-					let main = document.querySelector('main');
-					div.innerHTML = '<div style="margin-top: 10px" class="alert alert-info" role="status">Unsaved changes were loaded.</div>';
-					main.prepend(div);
-  				}
-      		}
+			if (Object.keys(obj).length > 0) {
+				for (let key in obj) {
+					if(key != "action") {
+						form.elements[key].value = obj[key];
+					}
+				}
+
+				let div = document.createElement('div');
+				let main = document.querySelector('main');
+				div.innerHTML = '<div style="margin-top: 10px" class="alert alert-info" role="status">Unsaved changes were loaded. <button>Reset</button></div>';
+				main.prepend(div);
+			}
 		}
 
-		var doKeepAliveRequest = function() {
+		let doKeepAliveRequest = function() {
 			fetch('/admin/json/session/keep-alive',
 			{
 				method: 'POST',
@@ -144,8 +146,8 @@
 				},
 			})
 		};
-		
-		var toggleContainer = function() {
+
+		let toggleContainer = function() {
 			let ahref = document.getElementById('toggleContainer');
 			let val = ahref.text
 			
@@ -164,8 +166,8 @@
 		};
 
 		let curPath = window.location.pathname;
-		let autoSaveInterval=5*1000;
-		let keepAliveInterval={{KeepAliveInterval}}*1000;
+		let autoSaveInterval = 5*1000;
+		let keepAliveInterval = {{KeepAliveInterval}}*1000;
 
 		if (curPath === "/admin/article/new" || curPath.includes("/admin/article/edit")
 			|| curPath === "/admin/site/new" || curPath.includes("/admin/site/edit")) {
@@ -175,7 +177,6 @@
 			setInterval(persistForm, autoSaveInterval);
 		}
 	</script>
-</div>
 </body>
 </html>
 {{end}}
