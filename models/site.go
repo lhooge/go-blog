@@ -132,13 +132,7 @@ func (ss SiteService) Publish(siteID int) error {
 		return err
 	}
 
-	err = ss.Datasource.Publish(s)
-
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return ss.Datasource.Publish(s)
 }
 
 // Create creates a site

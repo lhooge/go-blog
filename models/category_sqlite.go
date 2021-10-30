@@ -173,14 +173,8 @@ func (rdb SQLiteCategoryDatasource) GetBySlug(slug string, fc FilterCriteria) (*
 }
 
 func (rdb SQLiteCategoryDatasource) Update(c *Category) error {
-	_, err := rdb.SQLConn.Exec("UPDATE category SET name=?, slug=?, last_modified=?, user_id=? WHERE id=?",
-		c.Name,
-		c.Slug,
-		time.Now(),
-		c.Author.ID,
-		c.ID)
-
-	if err != nil {
+	if _, err := rdb.SQLConn.Exec("UPDATE category SET name=?, slug=?, last_modified=?, user_id=? WHERE id=?",
+		c.Name, c.Slug, time.Now(), c.Author.ID, c.ID); err != nil {
 		return err
 	}
 
@@ -191,5 +185,6 @@ func (rdb SQLiteCategoryDatasource) Delete(categoryID int) error {
 	if _, err := rdb.SQLConn.Exec("DELETE FROM category WHERE id=?", categoryID); err != nil {
 		return err
 	}
+
 	return nil
 }

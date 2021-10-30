@@ -130,12 +130,11 @@ func main() {
 		MaxHeaderBytes: 1 << 20,
 	}
 
-	logger.Log.Infof("server will start at %s on port %d", config.Server.Address, config.Server.Port)
-
 	if config.Server.UseTLS {
+		logger.Log.Infof("server will start at https://%s:%d", config.Server.Address, config.Server.Port)
 		err = s.ListenAndServeTLS(config.Server.Cert, config.Server.Key)
-
 	} else {
+		logger.Log.Infof("server will start at http://%s:%d", config.Server.Address, config.Server.Port)
 		err = s.ListenAndServe()
 	}
 

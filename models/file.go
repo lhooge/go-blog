@@ -67,12 +67,16 @@ func (f *File) validate() error {
 
 func (f File) randomFilename() string {
 	var buf bytes.Buffer
+
 	sanFilename := sanitizeFilename(f.FileInfo.Name)
+
 	if len(sanFilename) == 0 {
 		sanFilename = "unnamed"
 	}
+
 	buf.WriteString(sanFilename)
 	buf.WriteString(f.FileInfo.Extension)
+
 	return buf.String()
 }
 
@@ -124,8 +128,8 @@ func (fs FileService) List(u *User, p *Pagination) ([]File, error) {
 	return fs.Datasource.List(u, p)
 }
 
-//Count returns a number of files based on the filename; it the user is given and it is a non admin
-//only files specific to this user are counted
+// Count returns a number of files based on the filename; it the user is given and it is a non admin
+// only files specific to this user are counted
 func (fs FileService) Count(u *User) (int, error) {
 	return fs.Datasource.Count(u)
 }
@@ -218,9 +222,7 @@ func (fs FileService) Upload(f *File) (int, error) {
 
 	fi := filepath.Join(fs.Config.Location, f.UniqueName)
 
-	err = ioutil.WriteFile(fi, f.Data, 0640)
-
-	if err != nil {
+	if err = ioutil.WriteFile(fi, f.Data, 0640); err != nil {
 		return -1, err
 	}
 

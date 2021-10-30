@@ -73,8 +73,8 @@ func (rdb SQLiteArticleDatasource) List(u *User, c *Category, p *Pagination, pc 
 	if err := rows.Err(); err != nil {
 		return nil, err
 	}
-	return articles, nil
 
+	return articles, nil
 }
 
 // Count returns the number of article found; if the user is not nil the number of articles for this explcit user is returned

@@ -145,9 +145,8 @@ func (as ArticleService) Update(a *Article, u *User, updateSlug bool) error {
 		a.Slug = oldArt.Slug
 	} else {
 		now := time.Now()
-		err := a.slug(as, now)
 
-		if err != nil {
+		if err := a.slug(as, now); err != nil {
 			return err
 		}
 	}

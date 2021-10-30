@@ -101,7 +101,8 @@ func (rdb SQLiteFileDatasource) Create(f *File) (int, error) {
 }
 
 func (rdb SQLiteFileDatasource) Update(f *File) error {
-	if _, err := rdb.SQLConn.Exec("UPDATE file SET filename=?, unique_name=?, content_type=?, inline=?, size=?, last_modified=?, user_id=? WHERE id=?", f.FullFilename, f.UniqueName, f.ContentType, f.Inline, f.Size, time.Now(), f.Author.ID, f.ID); err != nil {
+	if _, err := rdb.SQLConn.Exec("UPDATE file SET filename=?, unique_name=?, content_type=?, inline=?, size=?, last_modified=?, user_id=? WHERE id=?",
+		f.FullFilename, f.UniqueName, f.ContentType, f.Inline, f.Size, time.Now(), f.Author.ID, f.ID); err != nil {
 		return err
 	}
 
@@ -142,9 +143,7 @@ func (rdb SQLiteFileDatasource) List(u *User, p *Pagination) ([]File, error) {
 	}
 
 	defer func() {
-		err := rows.Close()
-
-		if err != nil {
+		if err := rows.Close(); err != nil {
 			logger.Log.Error(err)
 		}
 	}()

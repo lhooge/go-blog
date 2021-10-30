@@ -109,17 +109,13 @@ func (u *User) validate(us UserService, minPasswordLength int, v Validations) er
 	}
 
 	if (v & VDupEmail) != 0 {
-		err := us.duplicateMail(u.Email)
-
-		if err != nil {
+		if err := us.duplicateMail(u.Email); err != nil {
 			return err
 		}
 	}
 
 	if (v & VDupUsername) != 0 {
-		err := us.duplicateUsername(u.Username)
-
-		if err != nil {
+		if err := us.duplicateUsername(u.Username); err != nil {
 			return err
 		}
 	}
@@ -145,11 +141,13 @@ func (us UserService) duplicateMail(mail string) error {
 
 func (us UserService) duplicateUsername(username string) error {
 	user, err := us.Datasource.GetByUsername(username)
+
 	if err != nil {
 		if !errors.Is(err, sql.ErrNoRows) {
 			return err
 		}
 	}
+
 	if user != nil {
 		return httperror.New(http.StatusUnprocessableEntity,
 			fmt.Sprintf("The username %s already exists.", username),
@@ -186,6 +184,7 @@ func (us UserService) GetByID(userID int) (*User, error) {
 // GetByUsername gets the user based on the given username; will contain the user password
 func (us UserService) GetByUsername(username string) (*User, error) {
 	u, err := us.Datasource.GetByUsername(username)
+
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, httperror.NotFound("user", err)
@@ -353,9 +352,9 @@ func (us UserService) Authenticate(u *User, loginMethod settings.LoginMethod) (*
 	}
 
 	if err != nil {
+		//Do some extra work
+		bcrypt.CompareHashAndPassword([]byte("$2a$12$bQlRnXTNZMp6kCyoAlnf3uZW5vtmSj9CHP7pYplRUVK2n0C5xBHBa"), password)
 		if errors.Is(err, sql.ErrNoRows) {
-			//Do some extra work
-			bcrypt.CompareHashAndPassword([]byte("$2a$12$bQlRnXTNZMp6kCyoAlnf3uZW5vtmSj9CHP7pYplRUVK2n0C5xBHBa"), password)
 			return nil, httperror.New(http.StatusUnauthorized, "Your username or password is invalid.", err)
 		}
 		return nil, err
