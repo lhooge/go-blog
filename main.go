@@ -148,49 +148,49 @@ func main() {
 func context(db *sql.DB, cfg *settings.Settings) (*m.AppContext, error) {
 	ic := loadUserInterceptor(cfg.User.InterceptorPlugin)
 
-	userService := models.UserService{
-		Datasource: models.SQLiteUserDatasource{
+	userService := &models.UserService{
+		Datasource: &models.SQLiteUserDatasource{
 			SQLConn: db,
 		},
 		Config:          cfg.User,
 		UserInterceptor: ic,
 	}
 
-	userInviteService := models.UserInviteService{
-		Datasource: models.SQLiteUserInviteDatasource{
+	userInviteService := &models.UserInviteService{
+		Datasource: &models.SQLiteUserInviteDatasource{
 			SQLConn: db,
 		},
 		UserService: userService,
 	}
 
-	articleService := models.ArticleService{
+	articleService := &models.ArticleService{
 		AppConfig: cfg.Application,
-		Datasource: models.SQLiteArticleDatasource{
+		Datasource: &models.SQLiteArticleDatasource{
 			SQLConn: db,
 		},
 	}
 
-	siteService := models.SiteService{
-		Datasource: models.SQLiteSiteDatasource{
+	siteService := &models.SiteService{
+		Datasource: &models.SQLiteSiteDatasource{
 			SQLConn: db,
 		},
 	}
 
-	fileService := models.FileService{
+	fileService := &models.FileService{
 		Config: cfg.File,
-		Datasource: models.SQLiteFileDatasource{
+		Datasource: &models.SQLiteFileDatasource{
 			SQLConn: db,
 		},
 	}
 
-	categoryService := models.CategoryService{
-		Datasource: models.SQLiteCategoryDatasource{
+	categoryService := &models.CategoryService{
+		Datasource: &models.SQLiteCategoryDatasource{
 			SQLConn: db,
 		},
 	}
 
-	tokenService := models.TokenService{
-		Datasource: models.SQLiteTokenDatasource{
+	tokenService := &models.TokenService{
+		Datasource: &models.SQLiteTokenDatasource{
 			SQLConn: db,
 		},
 	}
@@ -204,8 +204,8 @@ func context(db *sql.DB, cfg *settings.Settings) (*m.AppContext, error) {
 
 	sender := mail.NewMailService(cfg.Mail.SubjectPrefix, cfg.Mail.SenderAddress, smtpConfig)
 
-	mailer := models.Mailer{
-		Sender:    &sender,
+	mailer := &models.Mailer{
+		Sender:    sender,
 		AppConfig: &cfg.Application,
 	}
 

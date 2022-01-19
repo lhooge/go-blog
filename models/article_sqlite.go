@@ -13,7 +13,7 @@ type SQLiteArticleDatasource struct {
 }
 
 // Create creates an article
-func (rdb SQLiteArticleDatasource) Create(a *Article) (int, error) {
+func (rdb *SQLiteArticleDatasource) Create(a *Article) (int, error) {
 	res, err := rdb.SQLConn.Exec("INSERT INTO article (headline, teaser, content, slug, published_on, published, last_modified, category_id, user_id) "+
 		"VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
 		a.Headline,
@@ -41,7 +41,7 @@ func (rdb SQLiteArticleDatasource) Create(a *Article) (int, error) {
 
 // List returns a slice of articles; if the user is not nil the number of articles for this explcit user is returned
 // the PublishedCritera specifies which articles should be considered
-func (rdb SQLiteArticleDatasource) List(u *User, c *Category, p *Pagination, pc PublishedCriteria) ([]Article, error) {
+func (rdb *SQLiteArticleDatasource) List(u *User, c *Category, p *Pagination, pc PublishedCriteria) ([]Article, error) {
 	rows, err := selectArticlesStmt(rdb.SQLConn, u, c, p, pc)
 
 	if err != nil {
@@ -79,7 +79,7 @@ func (rdb SQLiteArticleDatasource) List(u *User, c *Category, p *Pagination, pc 
 
 // Count returns the number of article found; if the user is not nil the number of articles for this explcit user is returned
 // the PublishedCritera specifies which articles should be considered
-func (rdb SQLiteArticleDatasource) Count(u *User, c *Category, pc PublishedCriteria) (int, error) {
+func (rdb *SQLiteArticleDatasource) Count(u *User, c *Category, pc PublishedCriteria) (int, error) {
 	var total int
 	var stmt strings.Builder
 	var args []interface{}
@@ -123,7 +123,7 @@ func (rdb SQLiteArticleDatasource) Count(u *User, c *Category, pc PublishedCrite
 
 // Get returns a article by its id; if the user is not nil the article for this explcit user is returned
 // the PublishedCritera specifies which articles should be considered
-func (rdb SQLiteArticleDatasource) Get(articleID int, u *User, pc PublishedCriteria) (*Article, error) {
+func (rdb *SQLiteArticleDatasource) Get(articleID int, u *User, pc PublishedCriteria) (*Article, error) {
 	var a Article
 	var ru User
 
@@ -139,7 +139,7 @@ func (rdb SQLiteArticleDatasource) Get(articleID int, u *User, pc PublishedCrite
 
 // GetBySlug returns a article by its slug; if the user is not nil the article for this explcit user is returned
 // the PublishedCritera specifies which articles should be considered
-func (rdb SQLiteArticleDatasource) GetBySlug(slug string, u *User, pc PublishedCriteria) (*Article, error) {
+func (rdb *SQLiteArticleDatasource) GetBySlug(slug string, u *User, pc PublishedCriteria) (*Article, error) {
 	var a Article
 	var ru User
 
@@ -154,7 +154,7 @@ func (rdb SQLiteArticleDatasource) GetBySlug(slug string, u *User, pc PublishedC
 }
 
 // Update updates an aricle
-func (rdb SQLiteArticleDatasource) Update(a *Article) error {
+func (rdb *SQLiteArticleDatasource) Update(a *Article) error {
 	if _, err := rdb.SQLConn.Exec("UPDATE article SET headline=?, teaser=?, slug=?, content=?, last_modified=?, category_id=? WHERE id=? ", a.Headline, &a.Teaser, a.Slug,
 		a.Content, time.Now(), a.CID, a.ID); err != nil {
 		return err
@@ -164,7 +164,7 @@ func (rdb SQLiteArticleDatasource) Update(a *Article) error {
 }
 
 // Publish checks if the article is published or not - switches the appropriate status
-func (rdb SQLiteArticleDatasource) Publish(a *Article) error {
+func (rdb *SQLiteArticleDatasource) Publish(a *Article) error {
 	publishOn := NullTime{Valid: false}
 
 	if !a.Published {
@@ -180,7 +180,7 @@ func (rdb SQLiteArticleDatasource) Publish(a *Article) error {
 }
 
 // Delete deletes the article specified by the articleID
-func (rdb SQLiteArticleDatasource) Delete(articleID int) error {
+func (rdb *SQLiteArticleDatasource) Delete(articleID int) error {
 	if _, err := rdb.SQLConn.Exec("DELETE FROM article WHERE id=?  ", articleID); err != nil {
 		return err
 	}

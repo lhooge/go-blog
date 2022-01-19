@@ -13,7 +13,7 @@ type SQLiteCategoryDatasource struct {
 	SQLConn *sql.DB
 }
 
-func (rdb SQLiteCategoryDatasource) Create(c *Category) (int, error) {
+func (rdb *SQLiteCategoryDatasource) Create(c *Category) (int, error) {
 	res, err := rdb.SQLConn.Exec("INSERT INTO category (name, slug, last_modified, user_id) "+
 		"VALUES (?, ?, ?, ?)",
 		c.Name,
@@ -34,7 +34,7 @@ func (rdb SQLiteCategoryDatasource) Create(c *Category) (int, error) {
 	return int(id), nil
 }
 
-func (rdb SQLiteCategoryDatasource) List(fc FilterCriteria) ([]Category, error) {
+func (rdb *SQLiteCategoryDatasource) List(fc FilterCriteria) ([]Category, error) {
 	var args []interface{}
 	var stmt strings.Builder
 
@@ -90,7 +90,7 @@ func (rdb SQLiteCategoryDatasource) List(fc FilterCriteria) ([]Category, error) 
 	return cs, nil
 }
 
-func (rdb SQLiteCategoryDatasource) Count(fc FilterCriteria) (int, error) {
+func (rdb *SQLiteCategoryDatasource) Count(fc FilterCriteria) (int, error) {
 	var total int
 
 	if err := rdb.SQLConn.QueryRow("SELECT count(id) FROM category ").Scan(&total); err != nil {
@@ -100,7 +100,7 @@ func (rdb SQLiteCategoryDatasource) Count(fc FilterCriteria) (int, error) {
 	return total, nil
 }
 
-func (rdb SQLiteCategoryDatasource) Get(categoryID int, fc FilterCriteria) (*Category, error) {
+func (rdb *SQLiteCategoryDatasource) Get(categoryID int, fc FilterCriteria) (*Category, error) {
 	var stmt bytes.Buffer
 
 	stmt.WriteString("SELECT c.id, c.name, c.slug, c.last_modified, ")
@@ -136,7 +136,7 @@ func (rdb SQLiteCategoryDatasource) Get(categoryID int, fc FilterCriteria) (*Cat
 	return &c, nil
 }
 
-func (rdb SQLiteCategoryDatasource) GetBySlug(slug string, fc FilterCriteria) (*Category, error) {
+func (rdb *SQLiteCategoryDatasource) GetBySlug(slug string, fc FilterCriteria) (*Category, error) {
 	var stmt strings.Builder
 
 	stmt.WriteString("SELECT c.id, c.name, c.slug, c.last_modified, ")
@@ -172,7 +172,7 @@ func (rdb SQLiteCategoryDatasource) GetBySlug(slug string, fc FilterCriteria) (*
 	return &c, nil
 }
 
-func (rdb SQLiteCategoryDatasource) Update(c *Category) error {
+func (rdb *SQLiteCategoryDatasource) Update(c *Category) error {
 	if _, err := rdb.SQLConn.Exec("UPDATE category SET name=?, slug=?, last_modified=?, user_id=? WHERE id=?",
 		c.Name, c.Slug, time.Now(), c.Author.ID, c.ID); err != nil {
 		return err
@@ -181,7 +181,7 @@ func (rdb SQLiteCategoryDatasource) Update(c *Category) error {
 	return nil
 }
 
-func (rdb SQLiteCategoryDatasource) Delete(categoryID int) error {
+func (rdb *SQLiteCategoryDatasource) Delete(categoryID int) error {
 	if _, err := rdb.SQLConn.Exec("DELETE FROM category WHERE id=?", categoryID); err != nil {
 		return err
 	}

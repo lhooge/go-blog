@@ -69,7 +69,7 @@ func NotFound(ctx *AppContext, rw http.ResponseWriter, r *http.Request) *Templat
 }
 
 // FuncMap some function that can be used in templates
-func FuncMap(ss models.SiteService, settings *settings.Settings) template.FuncMap {
+func FuncMap(ss *models.SiteService, settings *settings.Settings) template.FuncMap {
 	return template.FuncMap{
 		"GetMetadata": func(data map[string]interface{}) template.HTML {
 			var meta, desc string

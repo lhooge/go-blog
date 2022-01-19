@@ -50,21 +50,21 @@ type Site struct {
 }
 
 // LinkEscape escapes a link for safe use in URLs
-func (s Site) LinkEscape() string {
+func (s *Site) LinkEscape() string {
 	if s.isExternal() {
 		return s.Link
 	}
 	return "/site/" + url.PathEscape(s.Link)
 }
 
-func (s Site) safeLink() string {
+func (s *Site) safeLink() string {
 	if s.isExternal() {
 		return s.Link
 	}
 	return slug.CreateURLSafeSlug(s.Link, -1)
 }
 
-func (s Site) isExternal() bool {
+func (s *Site) isExternal() bool {
 	if len(s.Link) > 6 {
 		if s.Link[:7] == "http://" {
 			return true
@@ -120,12 +120,12 @@ type SiteService struct {
 }
 
 // List returns all sites
-func (ss SiteService) List(pc PublishedCriteria, p *Pagination) ([]Site, error) {
+func (ss *SiteService) List(pc PublishedCriteria, p *Pagination) ([]Site, error) {
 	return ss.Datasource.List(pc, p)
 }
 
 // Publish switches the publish state of the site
-func (ss SiteService) Publish(siteID int) error {
+func (ss *SiteService) Publish(siteID int) error {
 	s, err := ss.Datasource.Get(siteID, All)
 
 	if err != nil {
@@ -136,7 +136,7 @@ func (ss SiteService) Publish(siteID int) error {
 }
 
 // Create creates a site
-func (ss SiteService) Create(s *Site) (int, error) {
+func (ss *SiteService) Create(s *Site) (int, error) {
 	if err := s.validate(ss.Datasource, true); err != nil {
 		return -1, err
 	}
@@ -155,12 +155,12 @@ func (ss SiteService) Create(s *Site) (int, error) {
 }
 
 // Order reorder the site
-func (ss SiteService) Order(siteID int, dir Direction) error {
+func (ss *SiteService) Order(siteID int, dir Direction) error {
 	return ss.Datasource.Order(siteID, dir)
 }
 
 // Update updates a site
-func (ss SiteService) Update(s *Site) error {
+func (ss *SiteService) Update(s *Site) error {
 	oldSite, err := ss.GetByID(s.ID, All)
 
 	if err != nil {
@@ -182,7 +182,7 @@ func (ss SiteService) Update(s *Site) error {
 }
 
 // Delete deletes a site
-func (ss SiteService) Delete(siteID int) error {
+func (ss *SiteService) Delete(siteID int) error {
 	s, err := ss.GetByID(siteID, All)
 
 	if err != nil {
@@ -193,18 +193,18 @@ func (ss SiteService) Delete(siteID int) error {
 }
 
 // GetByLink Get a site by the link.
-func (ss SiteService) GetByLink(link string, pc PublishedCriteria) (*Site, error) {
+func (ss *SiteService) GetByLink(link string, pc PublishedCriteria) (*Site, error) {
 	return ss.Datasource.GetByLink(link, pc)
 
 }
 
 // GetByID Get a site by the id.
-func (ss SiteService) GetByID(siteID int, pc PublishedCriteria) (*Site, error) {
+func (ss *SiteService) GetByID(siteID int, pc PublishedCriteria) (*Site, error) {
 	return ss.Datasource.Get(siteID, pc)
 
 }
 
 // Count returns the number of sites
-func (ss SiteService) Count(pc PublishedCriteria) (int, error) {
+func (ss *SiteService) Count(pc PublishedCriteria) (int, error) {
 	return ss.Datasource.Count(pc)
 }

@@ -20,12 +20,12 @@ type Pagination struct {
 }
 
 // Offset returns the offset where to start
-func (p Pagination) Offset() int {
+func (p *Pagination) Offset() int {
 	return (p.CurrentPage - 1) * p.Limit
 }
 
 // url returns the absolute url
-func (p Pagination) url() string {
+func (p *Pagination) url() string {
 	if p.RelURL[0] == '/' {
 		return p.RelURL
 	}
@@ -33,12 +33,12 @@ func (p Pagination) url() string {
 }
 
 // pages returns the amount of pages
-func (p Pagination) pages() int {
+func (p *Pagination) pages() int {
 	return int(math.Ceil(float64(p.Total) / float64(p.Limit)))
 }
 
 // hasNext returns true if a next page is available
-func (p Pagination) hasNext() bool {
+func (p *Pagination) hasNext() bool {
 	if p.CurrentPage*p.Limit >= p.Total {
 		return false
 	}
@@ -46,17 +46,17 @@ func (p Pagination) hasNext() bool {
 }
 
 // hasMoreThanOnePage returns true if the bar has more than one page
-func (p Pagination) hasMoreThanOnePage() bool {
+func (p *Pagination) hasMoreThanOnePage() bool {
 	return p.Limit < p.Total
 }
 
 // hasPrevious returns true if a previous page is available
-func (p Pagination) hasPrevious() bool {
+func (p *Pagination) hasPrevious() bool {
 	return !(p.CurrentPage == 1)
 }
 
 // nextPage returns the next page
-func (p Pagination) nextPage() int {
+func (p *Pagination) nextPage() int {
 	if !p.hasNext() {
 		return p.CurrentPage
 	}
@@ -64,7 +64,7 @@ func (p Pagination) nextPage() int {
 }
 
 // previousPage returns the previous page
-func (p Pagination) previousPage() int {
+func (p *Pagination) previousPage() int {
 	if !p.hasPrevious() {
 		return p.CurrentPage
 	}
@@ -72,7 +72,7 @@ func (p Pagination) previousPage() int {
 }
 
 // PaginationBar returns the HTML for the pagination bar which can be embedded
-func (p Pagination) PaginationBar() template.HTML {
+func (p *Pagination) PaginationBar() template.HTML {
 	var sb strings.Builder
 
 	if p.pages() > 1 {
@@ -86,9 +86,9 @@ func (p Pagination) PaginationBar() template.HTML {
 
 		for i := 1; i <= p.pages(); i++ {
 			if p.CurrentPage == i {
-				sb.WriteString(fmt.Sprintf(`<a class="button button-inactive" href="#">%d</a></li>`, i))
+				sb.WriteString(fmt.Sprintf(`<a class="button button-inactive" href="#">%d</a>`, i))
 			} else {
-				sb.WriteString(fmt.Sprintf(`<a class="button button-active" href="%s/%d">%d</a></li>`, p.url(), i, i))
+				sb.WriteString(fmt.Sprintf(`<a class="button button-active" href="%s/%d">%d</a>`, p.url(), i, i))
 			}
 		}
 

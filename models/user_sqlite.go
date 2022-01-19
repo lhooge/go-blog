@@ -13,7 +13,7 @@ type SQLiteUserDatasource struct {
 }
 
 // List returns a list of users
-func (rdb SQLiteUserDatasource) List(p *Pagination) ([]User, error) {
+func (rdb *SQLiteUserDatasource) List(p *Pagination) ([]User, error) {
 	var stmt strings.Builder
 	var args []interface{}
 	var users []User
@@ -54,7 +54,7 @@ func (rdb SQLiteUserDatasource) List(p *Pagination) ([]User, error) {
 }
 
 // Get gets a user by his userID
-func (rdb SQLiteUserDatasource) Get(userID int) (*User, error) {
+func (rdb *SQLiteUserDatasource) Get(userID int) (*User, error) {
 	var u User
 
 	if err := rdb.SQLConn.QueryRow("SELECT u.id, u.username, u.email, u.display_name, u.last_modified, u.active, u.is_admin,  u.salt "+
@@ -68,7 +68,7 @@ func (rdb SQLiteUserDatasource) Get(userID int) (*User, error) {
 }
 
 // GetByMail gets a user by his mail, includes the password and salt
-func (rdb SQLiteUserDatasource) GetByMail(mail string) (*User, error) {
+func (rdb *SQLiteUserDatasource) GetByMail(mail string) (*User, error) {
 	var u User
 
 	if err := rdb.SQLConn.QueryRow("SELECT id, is_admin, active, display_name, username, email, salt, password FROM user WHERE email=? ", mail).
@@ -79,7 +79,7 @@ func (rdb SQLiteUserDatasource) GetByMail(mail string) (*User, error) {
 }
 
 // GetByUsername gets a user by his username, includes the password and salt
-func (rdb SQLiteUserDatasource) GetByUsername(username string) (*User, error) {
+func (rdb *SQLiteUserDatasource) GetByUsername(username string) (*User, error) {
 	var u User
 
 	if err := rdb.SQLConn.QueryRow("SELECT id, is_admin, active, display_name, username, email, salt, password FROM user WHERE username=? ", username).
@@ -90,7 +90,7 @@ func (rdb SQLiteUserDatasource) GetByUsername(username string) (*User, error) {
 }
 
 // Create creates a new user
-func (rdb SQLiteUserDatasource) Create(u *User) (int, error) {
+func (rdb *SQLiteUserDatasource) Create(u *User) (int, error) {
 	res, err := rdb.SQLConn.Exec("INSERT INTO user (salt, password, username, email, display_name, last_modified, active, is_admin) VALUES(?, ?, ?, ?, ?, ?, ?, ?);",
 		u.Salt, u.Password, u.Username, u.Email, u.DisplayName, time.Now(), u.Active, u.IsAdmin)
 
@@ -108,7 +108,7 @@ func (rdb SQLiteUserDatasource) Create(u *User) (int, error) {
 }
 
 // Update updates an user
-func (rdb SQLiteUserDatasource) Update(u *User, changePassword bool) error {
+func (rdb *SQLiteUserDatasource) Update(u *User, changePassword bool) error {
 	var stmt strings.Builder
 	var args []interface{}
 
@@ -132,7 +132,7 @@ func (rdb SQLiteUserDatasource) Update(u *User, changePassword bool) error {
 }
 
 // Count returns the amount of users matches the AdminCriteria
-func (rdb SQLiteUserDatasource) Count(ac AdminCriteria) (int, error) {
+func (rdb *SQLiteUserDatasource) Count(ac AdminCriteria) (int, error) {
 	var stmt strings.Builder
 	stmt.WriteString("SELECT count(id) FROM user ")
 
@@ -152,7 +152,7 @@ func (rdb SQLiteUserDatasource) Count(ac AdminCriteria) (int, error) {
 }
 
 // Remove removes an user
-func (rdb SQLiteUserDatasource) Remove(userID int) error {
+func (rdb *SQLiteUserDatasource) Remove(userID int) error {
 	if _, err := rdb.SQLConn.Exec("DELETE FROM user WHERE id=?", userID); err != nil {
 		return err
 	}

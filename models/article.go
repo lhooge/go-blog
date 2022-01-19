@@ -69,7 +69,7 @@ func (a *Article) buildSlug(now time.Time, suffix int) string {
 	return sb.String()
 }
 
-func (a *Article) slug(as ArticleService, now time.Time) error {
+func (a *Article) slug(as *ArticleService, now time.Time) error {
 	for i := 0; i < 10; i++ {
 		a.Slug = a.buildSlug(now, i)
 
@@ -113,7 +113,7 @@ type ArticleService struct {
 }
 
 // Create creates an article
-func (as ArticleService) Create(a *Article) (int, error) {
+func (as *ArticleService) Create(a *Article) (int, error) {
 	now := time.Now()
 
 	a.PublishedOn = NullTime{Time: now, Valid: true}
@@ -130,7 +130,7 @@ func (as ArticleService) Create(a *Article) (int, error) {
 }
 
 // Update updates an article
-func (as ArticleService) Update(a *Article, u *User, updateSlug bool) error {
+func (as *ArticleService) Update(a *Article, u *User, updateSlug bool) error {
 	if err := a.validate(); err != nil {
 		return err
 	}
@@ -161,7 +161,7 @@ func (as ArticleService) Update(a *Article, u *User, updateSlug bool) error {
 }
 
 // Publish publishes or 'unpublishes' an article
-func (as ArticleService) Publish(id int, u *User) error {
+func (as *ArticleService) Publish(id int, u *User) error {
 	a, err := as.Datasource.Get(id, nil, All)
 
 	if err != nil {
@@ -178,7 +178,7 @@ func (as ArticleService) Publish(id int, u *User) error {
 }
 
 // Delete deletes an article
-func (as ArticleService) Delete(id int, u *User) error {
+func (as *ArticleService) Delete(id int, u *User) error {
 	a, err := as.Datasource.Get(id, nil, All)
 
 	if err != nil {
@@ -194,9 +194,9 @@ func (as ArticleService) Delete(id int, u *User) error {
 	return as.Datasource.Delete(a.ID)
 }
 
-// GetBySlug gets a article by the slug.
+// GetBySlug gets an article by the slug.
 // The publishedCriteria defines whether the published and/or unpublished articles should be considered
-func (as ArticleService) GetBySlug(s string, u *User, pc PublishedCriteria) (*Article, error) {
+func (as *ArticleService) GetBySlug(s string, u *User, pc PublishedCriteria) (*Article, error) {
 	a, err := as.Datasource.GetBySlug(s, u, pc)
 
 	if err != nil {
@@ -219,7 +219,7 @@ func (as ArticleService) GetBySlug(s string, u *User, pc PublishedCriteria) (*Ar
 
 // GetByID get a article by the id.
 // The publishedCriteria defines whether the published and/or unpublished articles should be considered
-func (as ArticleService) GetByID(id int, u *User, pc PublishedCriteria) (*Article, error) {
+func (as *ArticleService) GetByID(id int, u *User, pc PublishedCriteria) (*Article, error) {
 	a, err := as.Datasource.Get(id, u, pc)
 
 	if err != nil {
@@ -242,18 +242,18 @@ func (as ArticleService) GetByID(id int, u *User, pc PublishedCriteria) (*Articl
 
 // Count returns the number of articles.
 // The publishedCriteria defines whether the published and/or unpublished articles should be considered
-func (as ArticleService) Count(u *User, c *Category, pc PublishedCriteria) (int, error) {
+func (as *ArticleService) Count(u *User, c *Category, pc PublishedCriteria) (int, error) {
 	return as.Datasource.Count(u, c, pc)
 }
 
 // List returns all article by the slug.
 // The publishedCriteria defines whether the published and/or unpublished articles should be considered
-func (as ArticleService) List(u *User, c *Category, p *Pagination, pc PublishedCriteria) ([]Article, error) {
+func (as *ArticleService) List(u *User, c *Category, p *Pagination, pc PublishedCriteria) ([]Article, error) {
 	return as.Datasource.List(u, c, p, pc)
 }
 
 // RSSFeed receives a specified number of articles in RSS
-func (as ArticleService) RSSFeed(p *Pagination, pc PublishedCriteria) (RSS, error) {
+func (as *ArticleService) RSSFeed(p *Pagination, pc PublishedCriteria) (RSS, error) {
 	c := RSSChannel{
 		Title:       as.AppConfig.Title,
 		Link:        as.AppConfig.Domain,
@@ -297,7 +297,7 @@ type IndexArticle struct {
 	Articles []Article
 }
 
-func (as ArticleService) Index(u *User, c *Category, p *Pagination, pc PublishedCriteria) ([]IndexArticle, error) {
+func (as *ArticleService) Index(u *User, c *Category, p *Pagination, pc PublishedCriteria) ([]IndexArticle, error) {
 	articles, err := as.Datasource.List(u, c, p, pc)
 
 	if err != nil {

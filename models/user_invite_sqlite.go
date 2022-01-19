@@ -11,7 +11,7 @@ type SQLiteUserInviteDatasource struct {
 	SQLConn *sql.DB
 }
 
-func (rdb SQLiteUserInviteDatasource) List() ([]UserInvite, error) {
+func (rdb *SQLiteUserInviteDatasource) List() ([]UserInvite, error) {
 	var invites []UserInvite
 	var ui UserInvite
 	var u User
@@ -44,7 +44,7 @@ func (rdb SQLiteUserInviteDatasource) List() ([]UserInvite, error) {
 	return invites, nil
 }
 
-func (rdb SQLiteUserInviteDatasource) Get(inviteID int) (*UserInvite, error) {
+func (rdb *SQLiteUserInviteDatasource) Get(inviteID int) (*UserInvite, error) {
 	var u User
 	var ui UserInvite
 
@@ -63,7 +63,7 @@ func (rdb SQLiteUserInviteDatasource) Get(inviteID int) (*UserInvite, error) {
 	return &ui, nil
 }
 
-func (rdb SQLiteUserInviteDatasource) GetByHash(hash string) (*UserInvite, error) {
+func (rdb *SQLiteUserInviteDatasource) GetByHash(hash string) (*UserInvite, error) {
 	var ui UserInvite
 	var u User
 
@@ -82,7 +82,7 @@ func (rdb SQLiteUserInviteDatasource) GetByHash(hash string) (*UserInvite, error
 	return &ui, nil
 }
 
-func (rdb SQLiteUserInviteDatasource) Update(ui *UserInvite) error {
+func (rdb *SQLiteUserInviteDatasource) Update(ui *UserInvite) error {
 	if _, err := rdb.SQLConn.Exec("UPDATE user_invite SET hash=?, username=?, email=?, display_name=?, is_admin=?, created_at=?, created_by=? "+
 		"WHERE id=? ", ui.Hash, ui.Username, ui.Email, ui.DisplayName, ui.IsAdmin, ui.CreatedBy.ID, ui.ID); err != nil {
 		return err
@@ -92,7 +92,7 @@ func (rdb SQLiteUserInviteDatasource) Update(ui *UserInvite) error {
 }
 
 // Create creates an new user invitation
-func (rdb SQLiteUserInviteDatasource) Create(ui *UserInvite) (int, error) {
+func (rdb *SQLiteUserInviteDatasource) Create(ui *UserInvite) (int, error) {
 	res, err := rdb.SQLConn.Exec("INSERT INTO user_invite (hash, username, email, display_name, is_admin, created_at, created_by) VALUES(?, ?, ?, ?, ?, ?, ?);",
 		ui.Hash, ui.Username, ui.Email, ui.DisplayName, ui.IsAdmin, time.Now(), ui.CreatedBy.ID)
 
@@ -110,7 +110,7 @@ func (rdb SQLiteUserInviteDatasource) Create(ui *UserInvite) (int, error) {
 }
 
 // Count retuns the amount of users invitations
-func (rdb SQLiteUserInviteDatasource) Count() (int, error) {
+func (rdb *SQLiteUserInviteDatasource) Count() (int, error) {
 	var total int
 
 	if err := rdb.SQLConn.QueryRow("SELECT count(id) FROM user_invite").Scan(&total); err != nil {
@@ -121,7 +121,7 @@ func (rdb SQLiteUserInviteDatasource) Count() (int, error) {
 }
 
 // Remove removes an user invitation
-func (rdb SQLiteUserInviteDatasource) Remove(inviteID int) error {
+func (rdb *SQLiteUserInviteDatasource) Remove(inviteID int) error {
 	if _, err := rdb.SQLConn.Exec("DELETE FROM user_invite WHERE id=?", inviteID); err != nil {
 		return err
 	}

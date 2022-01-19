@@ -15,14 +15,14 @@ import (
 // AppContext contains the services, session store, templates, ...
 type AppContext struct {
 	SessionService    *session.Service
-	ArticleService    models.ArticleService
-	CategoryService   models.CategoryService
-	UserService       models.UserService
-	UserInviteService models.UserInviteService
-	SiteService       models.SiteService
-	FileService       models.FileService
-	TokenService      models.TokenService
-	Mailer            models.Mailer
+	ArticleService    *models.ArticleService
+	CategoryService   *models.CategoryService
+	UserService       *models.UserService
+	UserInviteService *models.UserInviteService
+	SiteService       *models.SiteService
+	FileService       *models.FileService
+	TokenService      *models.TokenService
+	Mailer            *models.Mailer
 	ConfigService     *settings.Settings
 	Templates         *template.Template
 }

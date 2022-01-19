@@ -14,7 +14,7 @@ type SQLiteSiteDatasource struct {
 }
 
 // List returns a array of sites
-func (rdb SQLiteSiteDatasource) List(pc PublishedCriteria, p *Pagination) ([]Site, error) {
+func (rdb *SQLiteSiteDatasource) List(pc PublishedCriteria, p *Pagination) ([]Site, error) {
 	var stmt strings.Builder
 	var args []interface{}
 
@@ -72,7 +72,7 @@ func (rdb SQLiteSiteDatasource) List(pc PublishedCriteria, p *Pagination) ([]Sit
 }
 
 // Get returns a site based on the site id
-func (rdb SQLiteSiteDatasource) Get(siteID int, pc PublishedCriteria) (*Site, error) {
+func (rdb *SQLiteSiteDatasource) Get(siteID int, pc PublishedCriteria) (*Site, error) {
 	var stmt strings.Builder
 	var args []interface{}
 
@@ -101,7 +101,7 @@ func (rdb SQLiteSiteDatasource) Get(siteID int, pc PublishedCriteria) (*Site, er
 }
 
 // GetByLink returns a site based on the provided link
-func (rdb SQLiteSiteDatasource) GetByLink(link string, pc PublishedCriteria) (*Site, error) {
+func (rdb *SQLiteSiteDatasource) GetByLink(link string, pc PublishedCriteria) (*Site, error) {
 	var stmt strings.Builder
 	var args []interface{}
 
@@ -131,7 +131,7 @@ func (rdb SQLiteSiteDatasource) GetByLink(link string, pc PublishedCriteria) (*S
 }
 
 // Publish publishes or unpublishes a site
-func (rdb SQLiteSiteDatasource) Publish(s *Site) error {
+func (rdb *SQLiteSiteDatasource) Publish(s *Site) error {
 	publishOn := NullTime{Valid: false}
 
 	if !s.Published {
@@ -145,7 +145,7 @@ func (rdb SQLiteSiteDatasource) Publish(s *Site) error {
 }
 
 // Create creates a site
-func (rdb SQLiteSiteDatasource) Create(s *Site) (int, error) {
+func (rdb *SQLiteSiteDatasource) Create(s *Site) (int, error) {
 	res, err := rdb.SQLConn.Exec("INSERT INTO site (title, link, section, content, published, published_on, last_modified, order_no, user_id) "+
 		"VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)",
 		s.Title, s.Link, s.Section, s.Content, s.Published, s.PublishedOn, time.Now(), s.OrderNo, s.Author.ID)
@@ -164,7 +164,7 @@ func (rdb SQLiteSiteDatasource) Create(s *Site) (int, error) {
 }
 
 // Order moves a site up or down
-func (rdb SQLiteSiteDatasource) Order(id int, d Direction) error {
+func (rdb *SQLiteSiteDatasource) Order(id int, d Direction) error {
 	tx, err := rdb.SQLConn.Begin()
 
 	if err != nil {
@@ -218,7 +218,7 @@ func (rdb SQLiteSiteDatasource) Order(id int, d Direction) error {
 }
 
 // Update updates a site
-func (rdb SQLiteSiteDatasource) Update(s *Site) error {
+func (rdb *SQLiteSiteDatasource) Update(s *Site) error {
 	if _, err := rdb.SQLConn.Exec("UPDATE site SET title=?, link=?, section=?, content=?, last_modified=? WHERE id=?",
 		s.Title, s.Link, s.Section, s.Content, time.Now(), s.ID); err != nil {
 		return err
@@ -228,7 +228,7 @@ func (rdb SQLiteSiteDatasource) Update(s *Site) error {
 }
 
 // Count returns the amount of sites
-func (rdb SQLiteSiteDatasource) Count(pc PublishedCriteria) (int, error) {
+func (rdb *SQLiteSiteDatasource) Count(pc PublishedCriteria) (int, error) {
 	var stmt strings.Builder
 
 	stmt.WriteString("SELECT count(id) FROM site ")
@@ -249,7 +249,7 @@ func (rdb SQLiteSiteDatasource) Count(pc PublishedCriteria) (int, error) {
 }
 
 // Max returns the maximum order number
-func (rdb SQLiteSiteDatasource) Max() (int, error) {
+func (rdb *SQLiteSiteDatasource) Max() (int, error) {
 	var max sql.NullInt64
 
 	if err := rdb.SQLConn.QueryRow("SELECT MAX(order_no) FROM site").Scan(&max); err != nil {
@@ -264,7 +264,7 @@ func (rdb SQLiteSiteDatasource) Max() (int, error) {
 }
 
 // Delete deletes a site and updates the order numbers
-func (rdb SQLiteSiteDatasource) Delete(s *Site) error {
+func (rdb *SQLiteSiteDatasource) Delete(s *Site) error {
 	tx, err := rdb.SQLConn.Begin()
 
 	if err != nil {
