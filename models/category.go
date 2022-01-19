@@ -63,7 +63,7 @@ func (c Category) SlugEscape() string {
 	return url.PathEscape(c.Slug)
 }
 
-func (cs CategoryService) GetBySlug(s string, fc FilterCriteria) (*Category, error) {
+func (cs *CategoryService) GetBySlug(s string, fc FilterCriteria) (*Category, error) {
 	c, err := cs.Datasource.GetBySlug(s, fc)
 
 	if err != nil {
@@ -76,7 +76,7 @@ func (cs CategoryService) GetBySlug(s string, fc FilterCriteria) (*Category, err
 	return c, nil
 }
 
-func (cs CategoryService) GetByID(id int, fc FilterCriteria) (*Category, error) {
+func (cs *CategoryService) GetByID(id int, fc FilterCriteria) (*Category, error) {
 	c, err := cs.Datasource.Get(id, fc)
 
 	if err != nil {
@@ -90,16 +90,16 @@ func (cs CategoryService) GetByID(id int, fc FilterCriteria) (*Category, error) 
 	return c, nil
 }
 
-func (cs CategoryService) Count(fc FilterCriteria) (int, error) {
+func (cs *CategoryService) Count(fc FilterCriteria) (int, error) {
 	return cs.Datasource.Count(fc)
 }
 
-func (cs CategoryService) List(fc FilterCriteria) ([]Category, error) {
+func (cs *CategoryService) List(fc FilterCriteria) ([]Category, error) {
 	return cs.Datasource.List(fc)
 }
 
 // Create creates a category
-func (cs CategoryService) Create(c *Category) (int, error) {
+func (cs *CategoryService) Create(c *Category) (int, error) {
 	for i := 0; i < 10; i++ {
 		c.Slug = slug.CreateURLSafeSlug(c.Name, i)
 		if _, err := cs.Datasource.GetBySlug(c.Slug, AllCategories); err != nil {
@@ -118,7 +118,7 @@ func (cs CategoryService) Create(c *Category) (int, error) {
 }
 
 // Update updates a category
-func (cs CategoryService) Update(c *Category) error {
+func (cs *CategoryService) Update(c *Category) error {
 	if err := c.validate(); err != nil {
 		return err
 	}
@@ -127,7 +127,7 @@ func (cs CategoryService) Update(c *Category) error {
 }
 
 // Delete removes a category
-func (cs CategoryService) Delete(id int) error {
+func (cs *CategoryService) Delete(id int) error {
 	c, err := cs.Datasource.Get(id, AllCategories)
 
 	if err != nil {

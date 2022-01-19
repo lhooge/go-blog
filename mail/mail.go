@@ -26,7 +26,7 @@ func (m Mail) validate() error {
 }
 
 // NewMailService returns a new Service with specified config
-func NewMailService(subjectPrefix, from string, smtpConfig SMTPConfig) Service {
+func NewMailService(subjectPrefix, from string, smtpConfig SMTPConfig) *Service {
 	s := Service{
 		SubjectPrefix: subjectPrefix,
 		From:          from,
@@ -35,8 +35,7 @@ func NewMailService(subjectPrefix, from string, smtpConfig SMTPConfig) Service {
 
 	go s.readBuffer()
 
-	return s
-
+	return &s
 }
 
 type Sender interface {

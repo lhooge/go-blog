@@ -67,7 +67,7 @@ type TokenService struct {
 }
 
 // Create creates a new token
-func (ts TokenService) Create(t *Token) error {
+func (ts *TokenService) Create(t *Token) error {
 	t.Hash = crypt.RandomHash(32)
 
 	if _, err := ts.Datasource.Create(t); err != nil {
@@ -79,7 +79,7 @@ func (ts TokenService) Create(t *Token) error {
 
 // Get token for a defined token type expires after a defined time
 // Expired token will be removed
-func (ts TokenService) Get(hash string, tt TokenType, expireAfter time.Duration) (*Token, error) {
+func (ts *TokenService) Get(hash string, tt TokenType, expireAfter time.Duration) (*Token, error) {
 	token, err := ts.Datasource.Get(hash, tt)
 
 	if err != nil {
@@ -99,7 +99,7 @@ func (ts TokenService) Get(hash string, tt TokenType, expireAfter time.Duration)
 }
 
 // RateLimit returns an error if a token is requested greater three times in a time span of 15 minutes
-func (ts TokenService) RateLimit(userID int, tt TokenType) error {
+func (ts *TokenService) RateLimit(userID int, tt TokenType) error {
 	tokens, err := ts.Datasource.ListByUser(userID, tt)
 
 	if err != nil {
@@ -123,6 +123,6 @@ func (ts TokenService) RateLimit(userID int, tt TokenType) error {
 }
 
 // Remove removes a token
-func (ts TokenService) Remove(hash string, tt TokenType) error {
+func (ts *TokenService) Remove(hash string, tt TokenType) error {
 	return ts.Datasource.Remove(hash, tt)
 }

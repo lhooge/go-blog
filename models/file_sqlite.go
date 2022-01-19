@@ -14,7 +14,7 @@ type SQLiteFileDatasource struct {
 
 // GetByUniqueName returns the file based on the unique filename; it the user is given and it is a non admin
 // only file specific to this user is returned
-func (rdb SQLiteFileDatasource) GetByUniqueName(uniqueName string, u *User) (*File, error) {
+func (rdb *SQLiteFileDatasource) GetByUniqueName(uniqueName string, u *User) (*File, error) {
 	var stmt strings.Builder
 	var args []interface{}
 
@@ -49,7 +49,7 @@ func (rdb SQLiteFileDatasource) GetByUniqueName(uniqueName string, u *User) (*Fi
 
 // Get returns the file based on the filename; it the user is given and it is a non admin
 // only file specific to this user is returned
-func (rdb SQLiteFileDatasource) Get(fileID int, u *User) (*File, error) {
+func (rdb *SQLiteFileDatasource) Get(fileID int, u *User) (*File, error) {
 	var stmt strings.Builder
 	var args []interface{}
 
@@ -83,7 +83,7 @@ func (rdb SQLiteFileDatasource) Get(fileID int, u *User) (*File, error) {
 }
 
 // Create inserts some file meta information into the database
-func (rdb SQLiteFileDatasource) Create(f *File) (int, error) {
+func (rdb *SQLiteFileDatasource) Create(f *File) (int, error) {
 	res, err := rdb.SQLConn.Exec("INSERT INTO file (filename, unique_name, content_type, inline, size, last_modified, user_id) VALUES(?, ?, ?, ?, ?, ?, ?)",
 		f.FullFilename, f.UniqueName, f.ContentType, f.Inline, f.Size, time.Now(), f.Author.ID)
 
@@ -100,7 +100,7 @@ func (rdb SQLiteFileDatasource) Create(f *File) (int, error) {
 	return int(i), nil
 }
 
-func (rdb SQLiteFileDatasource) Update(f *File) error {
+func (rdb *SQLiteFileDatasource) Update(f *File) error {
 	if _, err := rdb.SQLConn.Exec("UPDATE file SET filename=?, unique_name=?, content_type=?, inline=?, size=?, last_modified=?, user_id=? WHERE id=?",
 		f.FullFilename, f.UniqueName, f.ContentType, f.Inline, f.Size, time.Now(), f.Author.ID, f.ID); err != nil {
 		return err
@@ -111,7 +111,7 @@ func (rdb SQLiteFileDatasource) Update(f *File) error {
 
 // List returns a list of files based on the filename; it the user is given and it is a non admin
 // only files specific to this user are returned
-func (rdb SQLiteFileDatasource) List(u *User, p *Pagination) ([]File, error) {
+func (rdb *SQLiteFileDatasource) List(u *User, p *Pagination) ([]File, error) {
 	var stmt strings.Builder
 
 	var args []interface{}
@@ -173,7 +173,7 @@ func (rdb SQLiteFileDatasource) List(u *User, p *Pagination) ([]File, error) {
 
 // Count returns a number of files based on the filename; it the user is given and it is a non admin
 // only files specific to this user are counted
-func (rdb SQLiteFileDatasource) Count(u *User) (int, error) {
+func (rdb *SQLiteFileDatasource) Count(u *User) (int, error) {
 	var stmt strings.Builder
 
 	var args []interface{}
@@ -198,7 +198,7 @@ func (rdb SQLiteFileDatasource) Count(u *User) (int, error) {
 
 // Delete deletes a file based on fileID; users which are not the owner are not allowed to remove files;
 // except admins
-func (rdb SQLiteFileDatasource) Delete(fileID int) error {
+func (rdb *SQLiteFileDatasource) Delete(fileID int) error {
 	if _, err := rdb.SQLConn.Exec("DELETE FROM file WHERE id=?", fileID); err != nil {
 		return err
 	}

@@ -43,22 +43,22 @@ type UserInviteDatasourceService interface {
 // UserInviteService
 type UserInviteService struct {
 	Datasource  UserInviteDatasourceService
-	UserService UserService
-	MailService mail.Service
+	UserService *UserService
+	MailService *mail.Service
 }
 
 // validate A user invitation must conform the user validations except the password checks
-func (ui UserInvite) validate(uis UserInviteService) error {
+func (ui UserInvite) validate(uis *UserInviteService) error {
 	user := ui.Copy()
 
 	return user.validate(uis.UserService, -1, VDupEmail|VDupUsername)
 }
 
-func (uis UserInviteService) List() ([]UserInvite, error) {
+func (uis *UserInviteService) List() ([]UserInvite, error) {
 	return uis.Datasource.List()
 }
 
-func (uis UserInviteService) Update(ui *UserInvite) error {
+func (uis *UserInviteService) Update(ui *UserInvite) error {
 	ui.Hash = crypt.RandomHash(32)
 
 	if err := ui.validate(uis); err != nil {
@@ -68,7 +68,7 @@ func (uis UserInviteService) Update(ui *UserInvite) error {
 	return uis.Datasource.Update(ui)
 }
 
-func (uis UserInviteService) Create(ui *UserInvite) (int, error) {
+func (uis *UserInviteService) Create(ui *UserInvite) (int, error) {
 	ui.Hash = crypt.RandomHash(32)
 
 	if err := ui.validate(uis); err != nil {
@@ -78,14 +78,14 @@ func (uis UserInviteService) Create(ui *UserInvite) (int, error) {
 	return uis.Datasource.Create(ui)
 }
 
-func (uis UserInviteService) Get(inviteID int) (*UserInvite, error) {
+func (uis *UserInviteService) Get(inviteID int) (*UserInvite, error) {
 	return uis.Datasource.Get(inviteID)
 }
 
-func (uis UserInviteService) GetByHash(hash string) (*UserInvite, error) {
+func (uis *UserInviteService) GetByHash(hash string) (*UserInvite, error) {
 	return uis.Datasource.GetByHash(hash)
 }
 
-func (uis UserInviteService) Remove(inviteID int) error {
+func (uis *UserInviteService) Remove(inviteID int) error {
 	return uis.Datasource.Remove(inviteID)
 }

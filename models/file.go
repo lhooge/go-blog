@@ -112,29 +112,29 @@ type FileService struct {
 
 // GetByID returns the file based on the fileID; it the user is given and it is a non admin
 // only file specific to this user is returned
-func (fs FileService) GetByID(fileID int, u *User) (*File, error) {
+func (fs *FileService) GetByID(fileID int, u *User) (*File, error) {
 	return fs.Datasource.Get(fileID, u)
 }
 
 // GetByUniqueName returns the file based on the unique name; it the user is given and it is a non admin
 // only file specific to this user is returned
-func (fs FileService) GetByUniqueName(uniqueName string, u *User) (*File, error) {
+func (fs *FileService) GetByUniqueName(uniqueName string, u *User) (*File, error) {
 	return fs.Datasource.GetByUniqueName(uniqueName, u)
 }
 
 // List returns a list of files based on the filename; it the user is given and it is a non admin
 // only files specific to this user are returned
-func (fs FileService) List(u *User, p *Pagination) ([]File, error) {
+func (fs *FileService) List(u *User, p *Pagination) ([]File, error) {
 	return fs.Datasource.List(u, p)
 }
 
 // Count returns a number of files based on the filename; it the user is given and it is a non admin
 // only files specific to this user are counted
-func (fs FileService) Count(u *User) (int, error) {
+func (fs *FileService) Count(u *User) (int, error) {
 	return fs.Datasource.Count(u)
 }
 
-func (fs FileService) ToggleInline(fileID int, u *User) error {
+func (fs *FileService) ToggleInline(fileID int, u *User) error {
 	f, err := fs.Datasource.Get(fileID, u)
 
 	if err != nil {
@@ -157,7 +157,7 @@ func (fs FileService) ToggleInline(fileID int, u *User) error {
 }
 
 // Delete deletes a file based on fileID; users which are not the owner are not allowed to remove files; except admins
-func (fs FileService) Delete(fileID int, u *User) error {
+func (fs *FileService) Delete(fileID int, u *User) error {
 	file, err := fs.Datasource.Get(fileID, u)
 
 	if err != nil {
@@ -180,7 +180,7 @@ func (fs FileService) Delete(fileID int, u *User) error {
 }
 
 // Upload uploaded files will be saved at the configured file location, filename is saved in the database
-func (fs FileService) Upload(f *File) (int, error) {
+func (fs *FileService) Upload(f *File) (int, error) {
 	if err := f.validate(); err != nil {
 		return -1, err
 	}
