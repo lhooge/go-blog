@@ -64,53 +64,53 @@ func setup(t *testing.T) {
 
 	cfg.File.Location = os.TempDir()
 
-	userService := models.UserService{
-		Datasource: models.SQLiteUserDatasource{
+	userService := &models.UserService{
+		Datasource: &models.SQLiteUserDatasource{
 			SQLConn: db,
 		},
 		Config: cfg.User,
 	}
 
-	userInviteService := models.UserInviteService{
-		Datasource: models.SQLiteUserInviteDatasource{
+	userInviteService := &models.UserInviteService{
+		Datasource: &models.SQLiteUserInviteDatasource{
 			SQLConn: db,
 		},
 		UserService: userService,
 	}
 
-	articleService := models.ArticleService{
+	articleService := &models.ArticleService{
 		AppConfig: cfg.Application,
-		Datasource: models.SQLiteArticleDatasource{
+		Datasource: &models.SQLiteArticleDatasource{
 			SQLConn: db,
 		},
 	}
 
-	siteService := models.SiteService{
-		Datasource: models.SQLiteSiteDatasource{
+	siteService := &models.SiteService{
+		Datasource: &models.SQLiteSiteDatasource{
 			SQLConn: db,
 		},
 	}
 
-	fileService := models.FileService{
+	fileService := &models.FileService{
 		Config: cfg.File,
-		Datasource: models.SQLiteFileDatasource{
+		Datasource: &models.SQLiteFileDatasource{
 			SQLConn: db,
 		},
 	}
 
-	categoryService := models.CategoryService{
-		Datasource: models.SQLiteCategoryDatasource{
+	categoryService := &models.CategoryService{
+		Datasource: &models.SQLiteCategoryDatasource{
 			SQLConn: db,
 		},
 	}
 
-	tokenService := models.TokenService{
-		Datasource: models.SQLiteTokenDatasource{
+	tokenService := &models.TokenService{
+		Datasource: &models.SQLiteTokenDatasource{
 			SQLConn: db,
 		},
 	}
 
-	mailer := models.Mailer{
+	mailer := &models.Mailer{
 		Sender:    MockSMTP{},
 		AppConfig: &cfg.Application,
 	}
